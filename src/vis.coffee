@@ -4,6 +4,7 @@ class N3Vis
     consts = {}     # lookup table          constId -> constVal
     
     constructor: (@visId) ->
+        return this
         
     stage: (sel, w, h) ->
         if arguments?
@@ -61,4 +62,4 @@ class N3Vis
         return this
         
 n3.vis = (visId) ->
-    N3Vis.lookup[visId] or= new NsVis(visId)
+    N3Vis.lookup[visId] or= new N3Vis(visId)

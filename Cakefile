@@ -3,7 +3,10 @@ fs            = require 'fs'
 {spawn, exec} = require 'child_process'
 
 task 'build', 'compile coffee files and concatenate', ->
-    args = ['--compile', '--join', 'n3.js', 'src/']
+    files = ['version', 'state', 'vis']
+    args = ['--compile', '--join', 'n3.js']
+    args.push "src/#{file}.coffee" for file in files
+        
     coffee = spawn 'coffee', args
     coffee.stdout.on 'data', (data) -> print data.toString()
     coffee.stderr.on 'data', (data) -> print data.toString()    

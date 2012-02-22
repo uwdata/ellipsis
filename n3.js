@@ -1,5 +1,9 @@
 (function() {
-  var N3State, N3Vis;
+  var N3State, N3Vis, n3;
+
+  n3 = {
+    version: '0.9.0'
+  };
 
   N3State = (function() {
 
@@ -109,7 +113,7 @@
 
   n3.vis = function(visId) {
     var _base;
-    return (_base = N3Vis.lookup)[visId] || (_base[visId] = new NsVis(visId));
+    return (_base = N3Vis.lookup)[visId] || (_base[visId] = new N3Vis(visId));
   };
 
 }).call(this);

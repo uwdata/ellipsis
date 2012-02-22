@@ -13,6 +13,10 @@
         "type": "git",
         "url": "http://github.com/StanfordHCI/s3.git"
     },
+    "main": "n3.js",
+    "dependencies": {
+        "d3": "2.7.x"
+    },
     "devDependencies": {
         "uglify-js": "1.2.3",
         "coffee-script": "1.2.x",
