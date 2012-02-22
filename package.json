@@ -1,0 +1,24 @@
+{
+  "name": "n3",
+  "version": "0.9.0",
+  "description": "A small, free JavaScript library for telling stories through visualizations.",
+  "keywords": [
+    "visualization",
+    "story",
+    "storytelling",
+    "narrative"
+  ],
+  "author": "Arvind Satyanarayan <arvindsatya@cs.stanford.edu> (http://arvindsatya.com/)",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/StanfordHCI/s3.git"
+  },
+  "devDependencies": {
+    "uglify-js": "1.2.3",
+    "coffee-script": "1.2.x",
+    "jasmine-node": "1.0.x"
+  },
+  "scripts": {
+    "test": "cake test"
+  }
+}
