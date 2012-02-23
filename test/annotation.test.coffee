@@ -27,8 +27,10 @@ describe 'annotation', ->
             console.log('Arg1: ' + arg1 + ' Arg2: ' + arg2)
             
         a = n3.annotation('custom')
-                .template(f)
-                .args('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
+        expect(a.templateFn).toBeUndefined
+        
+        a.template(f)
+            .args('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
                 
         expect(a.templateFn).toBe f
         
