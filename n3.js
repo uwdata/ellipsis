@@ -55,7 +55,7 @@
     };
 
     N3Vis.prototype.width = function(width) {
-      if (arguments != null) {
+      if (arguments.length === 1) {
         this.stageWidth = width;
         return this;
       } else {
@@ -64,7 +64,7 @@
     };
 
     N3Vis.prototype.height = function(height) {
-      if (arguments != null) {
+      if (arguments.length === 1) {
         this.stageHeight = height;
         return this;
       } else {
@@ -73,7 +73,7 @@
     };
 
     N3Vis.prototype.data = function(data) {
-      if (arguments != null) {
+      if (arguments.length === 1) {
         this.data = data;
         return this;
       } else {

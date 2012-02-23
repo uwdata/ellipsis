@@ -2,8 +2,8 @@ class N3Vis
     @lookup = {}    # static lookup table   visId   -> N3Vis
     
     constructor: (@visId) ->
-        @states = {}     # lookup table          stateId -> N3State
-        @consts = {}     # lookup table          constId -> constVal
+        @states = {}     # lookup table     stateId -> N3State
+        @consts = {}     # lookup table     constId -> constVal
         
         return this
         
@@ -18,7 +18,7 @@ class N3Vis
             d3.select(@stageSelector)            
             
     width: (width) -> 
-        if arguments?
+        if arguments.length == 1
             @stageWidth = width
             
             return this
@@ -26,7 +26,7 @@ class N3Vis
             @stageWidth
     
     height: (height) -> 
-        if arguments?
+        if arguments.length == 1
             @stageHeight = height
 
             return this
@@ -34,7 +34,7 @@ class N3Vis
             @stageHeight
     
     data: (data) ->
-        if arguments?
+        if arguments.length == 1
             @data = data
                         
             return this
