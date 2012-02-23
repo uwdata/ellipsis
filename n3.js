@@ -153,7 +153,7 @@
 
     N3Annotation.prototype.template = function(templateFn) {
       this.templateFn = templateFn;
-      N3Annotation.types[type] = this.templateFn;
+      N3Annotation.types[this.type] = this.templateFn;
       return this;
     };
 
@@ -187,16 +187,10 @@
     };
 
     N3Annotation.prototype.radius = function(r) {
-      if (this.type !== 'circle') throw 'not a circle';
+      if (!(this.type === 'circle' || this.type === 'ellipse')) {
+        throw 'not an ellipse/circle';
+      }
       this.arguments[0] = r;
-      return this;
-    };
-
-    N3Annotation.prototype.radius = function(_arg) {
-      var r1, r2;
-      r1 = _arg[0], r2 = _arg[1];
-      if (this.type !== 'ellipse') throw 'not an ellipse';
-      this.arguments[0] = [r1, r2];
       return this;
     };
 
@@ -237,11 +231,11 @@
     };
 
     N3Annotation.prototype.pos = function(arg1, arg2) {
-      if (!(this.type === 'rectangle' || this.type === 'line')) {
-        throw 'not a line/rectangle';
+      if (!(this.type === 'rectangle' || this.type === 'label')) {
+        throw 'not a label/rectangle';
       }
       if (arguments.length === 1) {
-        this.arguments[0] = arg1;
+        this.arguments[2] = arg1;
       } else {
 
       }

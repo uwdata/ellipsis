@@ -19,7 +19,7 @@ class N3Annotation
         return this
         
     template: (@templateFn) ->
-        N3Annotation.types[type] = @templateFn
+        N3Annotation.types[@type] = @templateFn
         
         return this
         
@@ -47,16 +47,10 @@ class N3Annotation
             
     # For built in types, expose arguments as methods. These are only setters.
     radius: (r) ->
-        throw 'not a circle' unless @type == 'circle'
+        throw 'not an ellipse/circle' unless \
+                                        @type == 'circle' or @type == 'ellipse'
 
         @arguments[0] = r
-
-        return this
-
-    radius: ([r1, r2]) ->
-        throw 'not an ellipse' unless @type == 'ellipse'
-
-        @arguments[0] = [r1, r2]
 
         return this
 
@@ -92,11 +86,11 @@ class N3Annotation
         return this
 
     pos: (arg1, arg2) ->
-        throw 'not a line/rectangle' unless \
-                                        @type == 'rectangle' or @type == 'line'
+        throw 'not a label/rectangle' unless \
+                                        @type == 'rectangle' or @type == 'label'
 
         if arguments.length == 1    # line
-            @arguments[0] = arg1    # arg1 = [x, y]
+            @arguments[2] = arg1    # arg1 = [x, y]
         else 
         if arguments.length == 2    # rectangle
             @arguments[1] = arg1    # arg1 = corner
