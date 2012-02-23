@@ -186,6 +186,16 @@
       return this;
     };
 
+    N3Annotation.prototype.attr = function(key, value) {
+      this.attrs[key] = value;
+      return this;
+    };
+
+    N3Annotation.prototype.style = function(key, value) {
+      this.styles[key] = value;
+      return this;
+    };
+
     N3Annotation.prototype.radius = function(r) {
       if (!(this.type === 'circle' || this.type === 'ellipse')) {
         throw 'not an ellipse/circle';

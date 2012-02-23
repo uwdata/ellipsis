@@ -44,6 +44,16 @@ class N3Annotation
     
     args: (@arguments...) ->
         return this
+        
+    attr: (key, value) ->
+        @attrs[key] = value
+        
+        return this
+    
+    style: (key, value) ->
+        @styles[key] = value
+        
+        return this
             
     # For built in types, expose arguments as methods. These are only setters.
     radius: (r) ->
