@@ -7,9 +7,14 @@ describe "vis", ->
         vis2 = n3.vis('visTest2')
         
     it "sets/gets the stage", ->
+        stage = d3.select('body')
+                    .append('div')
+                        .attr('id', 'stage')
+        
         # Testing if .stage() sets all properties and is chainable
         expect(vis.stage('#stage', 100, 200).width()).toBe 100
         expect(vis.height()).toBe 200
+        expect(vis.stage()).toEqual d3.select('#stage')
         
         # Tests .width() setter/getter/chaining
         expect(vis.width(150).height()).toBe 200

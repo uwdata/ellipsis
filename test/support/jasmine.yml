@@ -37,6 +37,7 @@ stylesheets:
 #   - helpers/**/*.js
 #
 helpers:
+    - ../node_modules/d3/d3.js
 
 # spec_files
 #
