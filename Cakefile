@@ -13,7 +13,7 @@ task 'build', 'compile coffee files and concatenate', ->
     
 
 task 'test', 'test against the specs', ->
-    args = ['--color', '--coffee', '--verbose', 'spec/']
-    jasmine = spawn 'jasmine-node', args
+    args = ['-c', '-j', 'test/support/jasmine.yml']
+    jasmine = spawn 'jasmine-headless-webkit', args
     jasmine.stdout.on 'data', (data) -> print data.toString()
     jasmine.stderr.on 'data', (data) -> print data.toString()

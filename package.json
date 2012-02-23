@@ -23,6 +23,7 @@
         "jasmine-node": "1.0.x"
     },
     "scripts": {
+        "build": "cake build",
         "test": "cake test"
     }
 }

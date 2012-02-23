@@ -74,10 +74,10 @@
 
     N3Vis.prototype.data = function(data) {
       if (arguments.length === 1) {
-        this.data = data;
+        this.dataObj = data;
         return this;
       } else {
-        return this.data;
+        return this.dataObj;
       }
     };
 

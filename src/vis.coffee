@@ -35,11 +35,11 @@ class N3Vis
     
     data: (data) ->
         if arguments.length == 1
-            @data = data
+            @dataObj = data
                         
             return this
         else
-            @data
+            @dataObj
     
     state: (stateId, validValues) ->
         if arguments.length == 2
