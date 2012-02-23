@@ -74,14 +74,14 @@ describe 'annotation', ->
         
     it 'is a rectangle', ->
         a = n3.annotation('rectangle')
-                .pos('bottom', [17, 14])
+                .pos([17, 14])
                 .size([42, 91])
                 .data([4])  # to test chaining
 
         spyOn(a, 'templateFn')
         a.draw()
 
-        expect(a.templateFn).toHaveBeenCalledWith([42, 91], 'bottom', [17, 14]) 
+        expect(a.templateFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
         
     it 'is a label', ->
         a = n3.annotation('label')

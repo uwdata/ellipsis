@@ -4,13 +4,118 @@ class N3Annotation
             # A circle is just a special type of ellipse
             N3Annotation.types.ellipse([r, r], [cx, cy])
             
-        ellipse: ([r1, r2], [cx, cy]) ->
+        ellipse: ([rx, ry], [cx, cy]) ->
+            selector = n3.util.getSelector('ellipse', @attrs)   
+            stage = if @visObj? then @visObj.stage() else d3
+
+            e = stage.selectAll(selector)
+                    .data(if @dataObj? then @dataObj else [0])
+                    
+            ea = e.enter()
+                    .append('svg:ellipse')
+                        .attr('rx', rx)
+                        .attr('ry', ry)
+                        .attr('cx', cx)
+                        .attr('cy', cy)
+                        
+            @applyAttrs ea
+            @applyStyles ea
+                
+            et = e.transition()
+                    .attr('rx', rx)
+                    .attr('ry', ry)
+                    .attr('cx', cx)
+                    .attr('cy', cy)            
             
-        line: ([sx, sy], sArrow, [ex, ey], eArrow) ->
+            @applyAttrs et
+            @applyStyles et
+                
+            e.exit().remove()
+
+        line: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            selector = n3.util.getSelector('line', @attrs)   
+            stage = if @visObj? then @visObj.stage() else d3            
             
-        rectangle: ([w, y], corner, [x, y]) ->
+            l = stage.selectAll(selector)
+                    .data(if @dataObj? then @dataObj else [0])
+            
+            la = l.enter()
+                    .append('svg:line')
+                        .attr('x1', x1)
+                        .attr('y1', y1)
+                        .attr('x2', x2)
+                        .attr('y2', y2)
+                    
+            @applyAttrs la
+            @applyStyles la
+                
+            lt = l.transition()
+                    .attr('x1', x1)
+                    .attr('y1', y1)
+                    .attr('x2', x2)
+                    .attr('y2', y2)    
+                       
+            @applyAttrs lt
+            @applyStyles lt            
+                
+            l.exit().remove()            
+            
+        rectangle: ([w, h], [x, y]) ->
+            selector = n3.util.getSelector('rect', @attrs)   
+            stage = if @visObj? then @visObj.stage() else d3            
+            
+            r = stage.selectAll(selector)
+                    .data(if @dataObj? then @dataObj else [0])
+            
+            ra = r.enter()
+                    .append('svg:rect')
+                        .attr('x', x)
+                        .attr('y', y)
+                        .attr('width', w)
+                        .attr('height', h)
+                    
+            @applyAttrs ra
+            @applyStyles ra
+                
+            rt = r.transition()
+                    .attr('x', x)
+                    .attr('y', y)
+                    .attr('width', w)
+                    .attr('height', h)  
+                       
+            @applyAttrs rt
+            @applyStyles rt            
+                
+            r.exit().remove()
             
         label: (text, html, [x, y]) ->
+            selector = n3.util.getSelector('div', @attrs)   
+            stage = if @visObj? then @visObj.stage() else d3            
+
+            # position the div absolutely
+            @styles['position'] = 'absolute'
+            @styles['x'] = x
+            @styles['top'] = y
+            
+            d = stage.selectAll(selector)
+                    .data(if @dataObj? then @dataObj else [0])
+            
+            da = r.enter()
+                    .append('div')
+                        .text(text)
+                        .html(html)
+                    
+            @applyAttrs da
+            @applyStyles da
+                
+            dt = d.transition()
+                    .text(text)
+                    .html(html) 
+                       
+            @applyAttrs dt
+            @applyStyles dt            
+                
+            d.exit().remove()            
             
     constructor: (@type) ->
         @templateFn = N3Annotation.types[@type]
@@ -46,14 +151,28 @@ class N3Annotation
         return this
         
     attr: (key, value) ->
-        @attrs[key] = value
+        if arguments.length == 2
+            @attrs[key] = value
         
-        return this
+            return this
+        else
+            @attrs[key]
+            
+    applyAttrs: (obj) ->
+        obj.attr(key, value) for key, value of @attrs
+        true
     
     style: (key, value) ->
-        @styles[key] = value
-        
-        return this
+        if arguments.length == 2
+            @styles[key] = value
+
+            return this
+        else
+            @styles[key]
+            
+    applyStyles: (obj) ->
+        obj.style(key, value) for key, value of @styles
+        true
             
     # For built in types, expose arguments as methods. These are only setters.
     radius: (r) ->
@@ -95,16 +214,11 @@ class N3Annotation
 
         return this
 
-    pos: (arg1, arg2) ->
+    pos: ([x, y]) ->
         throw 'not a label/rectangle' unless \
                                         @type == 'rectangle' or @type == 'label'
 
-        if arguments.length == 1    # line
-            @arguments[2] = arg1    # arg1 = [x, y]
-        else 
-        if arguments.length == 2    # rectangle
-            @arguments[1] = arg1    # arg1 = corner
-            @arguments[2] = arg2    # arg2 = [x, y]
+        @arguments[if @type == 'rectangle' then 1 else 2] = [x, y]
 
         return this
 

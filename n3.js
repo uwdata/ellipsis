@@ -6,6 +6,18 @@
     version: '0.9.0'
   };
 
+  n3.util = {};
+
+  n3.util.getSelector = function(selector, attrs) {
+    if (attrs['id'] != null) {
+      return selector + '#' + this.attrs['id'];
+    } else if (attrs['class'] != null) {
+      return selector + '.' + this.attrs['class'].split(' ').join('.');
+    } else {
+      return selector;
+    }
+  };
+
   N3State = (function() {
 
     function N3State(stateId, validValues, visId) {
@@ -124,23 +136,66 @@
         return N3Annotation.types.ellipse([r, r], [cx, cy]);
       },
       ellipse: function(_arg, _arg2) {
-        var cx, cy, r1, r2;
-        r1 = _arg[0], r2 = _arg[1];
+        var cx, cy, e, ea, et, rx, ry, selector, stage;
+        rx = _arg[0], ry = _arg[1];
         cx = _arg2[0], cy = _arg2[1];
+        selector = n3.util.getSelector('ellipse', this.attrs);
+        stage = this.visObj != null ? this.visObj.stage() : d3;
+        e = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        ea = e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+        this.applyAttrs(ea);
+        this.applyStyles(ea);
+        et = e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+        this.applyAttrs(et);
+        this.applyStyles(et);
+        return e.exit().remove();
       },
-      line: function(_arg, sArrow, _arg2, eArrow) {
-        var ex, ey, sx, sy;
-        sx = _arg[0], sy = _arg[1];
-        ex = _arg2[0], ey = _arg2[1];
+      line: function(_arg, arrow1, _arg2, arrow2) {
+        var l, la, lt, selector, stage, x1, x2, y1, y2;
+        x1 = _arg[0], y1 = _arg[1];
+        x2 = _arg2[0], y2 = _arg2[1];
+        selector = n3.util.getSelector('line', this.attrs);
+        stage = this.visObj != null ? this.visObj.stage() : d3;
+        l = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        la = l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+        this.applyAttrs(la);
+        this.applyStyles(la);
+        lt = l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+        this.applyAttrs(lt);
+        this.applyStyles(lt);
+        return l.exit().remove();
       },
-      rectangle: function(_arg, corner, _arg2) {
-        var w, x, y;
-        w = _arg[0], y = _arg[1];
+      rectangle: function(_arg, _arg2) {
+        var h, r, ra, rt, selector, stage, w, x, y;
+        w = _arg[0], h = _arg[1];
         x = _arg2[0], y = _arg2[1];
+        selector = n3.util.getSelector('rect', this.attrs);
+        stage = this.visObj != null ? this.visObj.stage() : d3;
+        r = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        ra = r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+        this.applyAttrs(ra);
+        this.applyStyles(ra);
+        rt = r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+        this.applyAttrs(rt);
+        this.applyStyles(rt);
+        return r.exit().remove();
       },
       label: function(text, html, _arg) {
-        var x, y;
+        var d, da, dt, selector, stage, x, y;
         x = _arg[0], y = _arg[1];
+        selector = n3.util.getSelector('div', this.attrs);
+        stage = this.visObj != null ? this.visObj.stage() : d3;
+        this.styles['position'] = 'absolute';
+        this.styles['x'] = x;
+        this.styles['top'] = y;
+        d = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        da = r.enter().append('div').text(text).html(html);
+        this.applyAttrs(da);
+        this.applyStyles(da);
+        dt = d.transition().text(text).html(html);
+        this.applyAttrs(dt);
+        this.applyStyles(dt);
+        return d.exit().remove();
       }
     };
 
@@ -187,13 +242,41 @@
     };
 
     N3Annotation.prototype.attr = function(key, value) {
-      this.attrs[key] = value;
-      return this;
+      if (arguments.length === 2) {
+        this.attrs[key] = value;
+        return this;
+      } else {
+        return this.attrs[key];
+      }
+    };
+
+    N3Annotation.prototype.applyAttrs = function(obj) {
+      var key, value, _ref;
+      _ref = this.attrs;
+      for (key in _ref) {
+        value = _ref[key];
+        obj.attr(key, value);
+      }
+      return true;
     };
 
     N3Annotation.prototype.style = function(key, value) {
-      this.styles[key] = value;
-      return this;
+      if (arguments.length === 2) {
+        this.styles[key] = value;
+        return this;
+      } else {
+        return this.styles[key];
+      }
+    };
+
+    N3Annotation.prototype.applyStyles = function(obj) {
+      var key, value, _ref;
+      _ref = this.styles;
+      for (key in _ref) {
+        value = _ref[key];
+        obj.style(key, value);
+      }
+      return true;
     };
 
     N3Annotation.prototype.radius = function(r) {
@@ -240,19 +323,13 @@
       return this;
     };
 
-    N3Annotation.prototype.pos = function(arg1, arg2) {
+    N3Annotation.prototype.pos = function(_arg) {
+      var x, y;
+      x = _arg[0], y = _arg[1];
       if (!(this.type === 'rectangle' || this.type === 'label')) {
         throw 'not a label/rectangle';
       }
-      if (arguments.length === 1) {
-        this.arguments[2] = arg1;
-      } else {
-
-      }
-      if (arguments.length === 2) {
-        this.arguments[1] = arg1;
-        this.arguments[2] = arg2;
-      }
+      this.arguments[this.type === 'rectangle' ? 1 : 2] = [x, y];
       return this;
     };
 
