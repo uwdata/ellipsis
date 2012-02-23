@@ -1,7 +1,7 @@
 (function() {
-  var N3State, N3Vis, n3;
+  var N3State, N3Vis;
 
-  n3 = {
+  window.n3 = {
     version: '0.9.0'
   };
 
@@ -33,16 +33,13 @@
   })();
 
   N3Vis = (function() {
-    var consts, states;
 
     N3Vis.lookup = {};
 
-    states = {};
-
-    consts = {};
-
     function N3Vis(visId) {
       this.visId = visId;
+      this.states = {};
+      this.consts = {};
       return this;
     }
 
@@ -87,19 +84,19 @@
     N3Vis.prototype.state = function(stateId, validValues) {
       var _ref;
       if (arguments.length === 2) {
-        states.stateId = new N3State(stateId, validValues, this.visId);
+        this.states[stateId] = new N3State(stateId, validValues, this.visId);
         return this;
       } else {
-        return (_ref = states.stateId) != null ? _ref.get() : void 0;
+        return (_ref = this.states[stateId]) != null ? _ref.get() : void 0;
       }
     };
 
     N3Vis.prototype["const"] = function(constId, value) {
       if (arguments.length === 2) {
-        if (!(constId in consts)) consts.constId = value;
+        if (!(constId in this.consts)) this.consts[constId] = value;
         return this;
       } else {
-        return consts.constId;
+        return this.consts[constId];
       }
     };
 

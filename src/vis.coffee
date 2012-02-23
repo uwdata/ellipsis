@@ -1,9 +1,10 @@
 class N3Vis
     @lookup = {}    # static lookup table   visId   -> N3Vis
-    states = {}     # lookup table          stateId -> N3State
-    consts = {}     # lookup table          constId -> constVal
     
     constructor: (@visId) ->
+        @states = {}     # lookup table          stateId -> N3State
+        @consts = {}     # lookup table          constId -> constVal
+        
         return this
         
     stage: (sel, w, h) ->
@@ -42,21 +43,21 @@ class N3Vis
     
     state: (stateId, validValues) ->
         if arguments.length == 2
-            states.stateId = new N3State(stateId, validValues, @visId)
+            @states[stateId] = new N3State(stateId, validValues, @visId)
             
             return this
         else
-            states.stateId?.get()            
+            @states[stateId]?.get()            
 
     const: (constId, value) ->
         if arguments.length == 2
             # consts are read only, so only add them if they haven't already
             # been defined
-            consts.constId = value unless constId of consts
+            @consts[constId] = value unless constId of @consts
             
             return this
         else
-            consts.constId        
+            @consts[constId]        
             
     render: (@renderFn) ->
         return this
