@@ -268,4 +268,8 @@
 
   })();
 
+  n3.annotation = function(typeId) {
+    return new N3Annotation(typeId);
+  };
+
 }).call(this);

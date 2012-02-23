@@ -117,3 +117,6 @@ class N3Annotation
         @arguments[1] = html
 
         return this
+        
+n3.annotation = (typeId) ->
+    new N3Annotation(typeId)
