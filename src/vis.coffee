@@ -7,7 +7,7 @@ class N3Vis
         return this
         
     stage: (sel, w, h) ->
-        if arguments?
+        if arguments.length == 3
             @stageSelector  = sel
             @stageWidth     = w
             @stageHeight    = h
@@ -41,7 +41,7 @@ class N3Vis
             @data
     
     state: (stateId, validValues) ->
-        if arguments?
+        if arguments.length == 2
             states.stateId = new N3State(stateId, validValues, @visId)
             
             return this
@@ -49,7 +49,7 @@ class N3Vis
             states.stateId?.get()            
 
     const: (constId, value) ->
-        if arguments?
+        if arguments.length == 2
             # consts are read only, so only add them if they haven't already
             # been defined
             consts.constId = value unless constId of consts

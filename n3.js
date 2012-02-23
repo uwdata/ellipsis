@@ -43,10 +43,11 @@
 
     function N3Vis(visId) {
       this.visId = visId;
+      return this;
     }
 
     N3Vis.prototype.stage = function(sel, w, h) {
-      if (arguments != null) {
+      if (arguments.length === 3) {
         this.stageSelector = sel;
         this.stageWidth = w;
         this.stageHeight = h;
@@ -85,7 +86,7 @@
 
     N3Vis.prototype.state = function(stateId, validValues) {
       var _ref;
-      if (arguments != null) {
+      if (arguments.length === 2) {
         states.stateId = new N3State(stateId, validValues, this.visId);
         return this;
       } else {
@@ -94,7 +95,7 @@
     };
 
     N3Vis.prototype["const"] = function(constId, value) {
-      if (arguments != null) {
+      if (arguments.length === 2) {
         if (!(constId in consts)) consts.constId = value;
         return this;
       } else {
