@@ -430,4 +430,9 @@
 
   })();
 
+  n3.scene = function(sceneId) {
+    var _base;
+    return (_base = N3Scene.scenes)[sceneId] || (_base[sceneId] = new N3Scene(sceneId));
+  };
+
 }).call(this);

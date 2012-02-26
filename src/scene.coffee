@@ -52,3 +52,6 @@ class N3Scene
         # newScene.subScenes = n3.util.clone @subScenes
         
         return newScene
+        
+n3.scene = (sceneId) ->
+    N3Scene.scenes[sceneId] or= new N3Scene(sceneId)
