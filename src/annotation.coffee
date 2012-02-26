@@ -1,145 +1,191 @@
 class N3Annotation
     @types = 
-        circle: (r, [cx, cy]) ->
-            selector = n3.util.getSelector('circle', @attrs)   
-            stage = if @visObj? then @visObj.stage() else d3
+        circle: 
+            onSceneFn: (r, [cx, cy]) ->
+                selector = n3.util.getSelector('circle', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
 
-            c = stage.selectAll(selector)
-                    .data(if @dataObj? then @dataObj else [0])
+                c = stage.selectAll(selector)
+                        .data(if @dataObj? then @dataObj else [0])
       
-            c.enter()
-                .append('svg:circle')
+                c.enter()
+                    .append('svg:circle')
+                        .attr('r', r)
+                        .attr('cx', cx)
+                        .attr('cy', cy)
+                
+                c.transition()
                     .attr('r', r)
                     .attr('cx', cx)
-                    .attr('cy', cy)
+                    .attr('cy', cy)            
+            
+                @applyAttrs c
+                @applyStyles c
                 
-            c.transition()
-                .attr('r', r)
-                .attr('cx', cx)
-                .attr('cy', cy)            
-            
-            @applyAttrs c
-            @applyStyles c
+                true
                 
-            c.exit().remove()
+            offSceneFn: (r, [cx, cy]) ->
+                selector = n3.util.getSelector('circle', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
+                
+                stage.selectAll(selector).remove()
             
-            true
+                true    
             
-        ellipse: ([rx, ry], [cx, cy]) ->
-            selector = n3.util.getSelector('ellipse', @attrs)   
-            stage = if @visObj? then @visObj.stage() else d3
+        ellipse: 
+            onSceneFn: ([rx, ry], [cx, cy]) ->
+                selector = n3.util.getSelector('ellipse', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
 
-            e = stage.selectAll(selector)
-                    .data(if @dataObj? then @dataObj else [0])
+                e = stage.selectAll(selector)
+                        .data(if @dataObj? then @dataObj else [0])
       
-            e.enter()
-                .append('svg:ellipse')
+                e.enter()
+                    .append('svg:ellipse')
+                        .attr('rx', rx)
+                        .attr('ry', ry)
+                        .attr('cx', cx)
+                        .attr('cy', cy)
+                
+                e.transition()
                     .attr('rx', rx)
                     .attr('ry', ry)
                     .attr('cx', cx)
-                    .attr('cy', cy)
-                
-            e.transition()
-                .attr('rx', rx)
-                .attr('ry', ry)
-                .attr('cx', cx)
-                .attr('cy', cy)            
+                    .attr('cy', cy)            
             
-            @applyAttrs e
-            @applyStyles e
+                @applyAttrs e
+                @applyStyles e
                 
-            e.exit().remove()
-            
-            true
+                true
+                
+            offSceneFn: ([rx, ry], [cx, cy]) ->
+                selector = n3.util.getSelector('ellipse', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
+                
+                stage.selectAll(selector).remove()
+                
+                true
 
-        line: ([x1, y1], arrow1, [x2, y2], arrow2) ->
-            # TODO: add arrowheads
-            selector = n3.util.getSelector('line', @attrs)   
-            stage = if @visObj? then @visObj.stage() else d3            
+        line: 
+            onSceneFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+                # TODO: add arrowheads
+                selector = n3.util.getSelector('line', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3            
             
-            l = stage.selectAll(selector)
-                    .data(if @dataObj? then @dataObj else [0])
+                l = stage.selectAll(selector)
+                        .data(if @dataObj? then @dataObj else [0])
             
-            l.enter()
-                .append('svg:line')
+                l.enter()
+                    .append('svg:line')
+                        .attr('x1', x1)
+                        .attr('y1', y1)
+                        .attr('x2', x2)
+                        .attr('y2', y2)
+                
+                l.transition()
                     .attr('x1', x1)
                     .attr('y1', y1)
                     .attr('x2', x2)
-                    .attr('y2', y2)
-                
-            l.transition()
-                .attr('x1', x1)
-                .attr('y1', y1)
-                .attr('x2', x2)
-                .attr('y2', y2)    
+                    .attr('y2', y2)    
                        
-            @applyAttrs l
-            @applyStyles l         
+                @applyAttrs l
+                @applyStyles l         
+            
+                true
+            
+            offSceneFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+                selector = n3.util.getSelector('line', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
                 
-            l.exit().remove()            
+                stage.selectAll(selector).remove()
+                
+                true
             
-            true
+        rectangle: 
+            onSceneFn: ([w, h], [x, y]) ->
+                selector = n3.util.getSelector('rect', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3            
             
-        rectangle: ([w, h], [x, y]) ->
-            selector = n3.util.getSelector('rect', @attrs)   
-            stage = if @visObj? then @visObj.stage() else d3            
+                r = stage.selectAll(selector)
+                        .data(if @dataObj? then @dataObj else [0])
             
-            r = stage.selectAll(selector)
-                    .data(if @dataObj? then @dataObj else [0])
-            
-            r.enter()
-                .append('svg:rect')
+                r.enter()
+                    .append('svg:rect')
+                        .attr('x', x)
+                        .attr('y', y)
+                        .attr('width', w)
+                        .attr('height', h)
+                
+                r.transition()
                     .attr('x', x)
                     .attr('y', y)
                     .attr('width', w)
-                    .attr('height', h)
-                
-            r.transition()
-                .attr('x', x)
-                .attr('y', y)
-                .attr('width', w)
-                .attr('height', h)  
+                    .attr('height', h)  
                        
-            @applyAttrs r
-            @applyStyles r            
-                
-            r.exit().remove()
-            
-            true
-            
-        label: (text, html, [x, y]) ->
-            selector = n3.util.getSelector('div', @attrs)   
-            stage = if @visObj? then @visObj.stage() else d3            
+                @applyAttrs r
+                @applyStyles r            
 
-            # position the div absolutely
-            @styles['position'] = 'absolute'
-            @styles['left'] = x + 'px'
-            @styles['top'] = y + 'px'
+                true
+                
+            offSceneFn: ([w, h], [x, y]) ->
+                selector = n3.util.getSelector('rect', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
+                
+                stage.selectAll(selector).remove()
+                
+                true
             
-            d = d3.select('body').selectAll(selector)
-                    .data(if @dataObj? then @dataObj else [0])
+        label: 
+            onSceneFn: (text, html, [x, y]) ->
+                selector = n3.util.getSelector('div', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3            
+
+                # position the div absolutely
+                @styles['position'] = 'absolute'
+                @styles['left'] = x + 'px'
+                @styles['top'] = y + 'px'
             
-            d.enter()
-                .append('div')
-                    .text(text)
-                    .html(html)
+                d = d3.select('body').selectAll(selector)
+                        .data(if @dataObj? then @dataObj else [0])
+            
+                d.enter()
+                    .append('div')
+                        .text(text)
+                        .html(html)
                        
-            @applyAttrs d
-            @applyStyles d
+                @applyAttrs d
+                @applyStyles d
             
-            true        
+                true       
+                
+            offSceneFn: (text, html, [x, y]) ->
+                selector = n3.util.getSelector('div', @attrs)   
+                stage = if @visObj? then @visObj.stage() else d3
+                
+                d3.selectAll(selector).remove()
+                
+                true
             
     constructor: (@type) ->
-        @templateFn = N3Annotation.types[@type]
+        @onSceneFn = N3Annotation.types[@type]?.onSceneFn
+        @offSceneFn = N3Annotation.types[@type]?.offSceneFn
+        
         @arguments = []
         @attrs = {}
         @styles = {}
         
         return this
         
-    template: (@templateFn) ->
-        N3Annotation.types[@type] = @templateFn
+    adder: (@onSceneFn) ->
+        N3Annotation.types[@type] or= {}
+        N3Annotation.types[@type].onSceneFn = onSceneFn
         
+        return this
+        
+    remover: (@offSceneFn) ->
+        N3Annotation.types[@type] or= {}
+        N3Annotation.types[@type].offSceneFn = offSceneFn
+
         return this
         
     data: (data) ->
@@ -159,7 +205,7 @@ class N3Annotation
             @visObj
             
     draw: ->
-        @templateFn @arguments...
+        @onSceneFn @arguments...
     
     args: (@arguments...) ->
         return this

@@ -153,89 +153,150 @@
   N3Annotation = (function() {
 
     N3Annotation.types = {
-      circle: function(r, _arg) {
-        var c, cx, cy, selector, stage;
-        cx = _arg[0], cy = _arg[1];
-        selector = n3.util.getSelector('circle', this.attrs);
-        stage = this.visObj != null ? this.visObj.stage() : d3;
-        c = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        c.enter().append('svg:circle').attr('r', r).attr('cx', cx).attr('cy', cy);
-        c.transition().attr('r', r).attr('cx', cx).attr('cy', cy);
-        this.applyAttrs(c);
-        this.applyStyles(c);
-        c.exit().remove();
-        return true;
+      circle: {
+        onSceneFn: function(r, _arg) {
+          var c, cx, cy, selector, stage;
+          cx = _arg[0], cy = _arg[1];
+          selector = n3.util.getSelector('circle', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          c = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+          c.enter().append('svg:circle').attr('r', r).attr('cx', cx).attr('cy', cy);
+          c.transition().attr('r', r).attr('cx', cx).attr('cy', cy);
+          this.applyAttrs(c);
+          this.applyStyles(c);
+          return true;
+        },
+        offSceneFn: function(r, _arg) {
+          var cx, cy, selector, stage;
+          cx = _arg[0], cy = _arg[1];
+          selector = n3.util.getSelector('circle', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage.selectAll(selector).remove();
+          return true;
+        }
       },
-      ellipse: function(_arg, _arg2) {
-        var cx, cy, e, rx, ry, selector, stage;
-        rx = _arg[0], ry = _arg[1];
-        cx = _arg2[0], cy = _arg2[1];
-        selector = n3.util.getSelector('ellipse', this.attrs);
-        stage = this.visObj != null ? this.visObj.stage() : d3;
-        e = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
-        e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
-        this.applyAttrs(e);
-        this.applyStyles(e);
-        e.exit().remove();
-        return true;
+      ellipse: {
+        onSceneFn: function(_arg, _arg2) {
+          var cx, cy, e, rx, ry, selector, stage;
+          rx = _arg[0], ry = _arg[1];
+          cx = _arg2[0], cy = _arg2[1];
+          selector = n3.util.getSelector('ellipse', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          e = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+          e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+          e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+          this.applyAttrs(e);
+          this.applyStyles(e);
+          return true;
+        },
+        offSceneFn: function(_arg, _arg2) {
+          var cx, cy, rx, ry, selector, stage;
+          rx = _arg[0], ry = _arg[1];
+          cx = _arg2[0], cy = _arg2[1];
+          selector = n3.util.getSelector('ellipse', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage.selectAll(selector).remove();
+          return true;
+        }
       },
-      line: function(_arg, arrow1, _arg2, arrow2) {
-        var l, selector, stage, x1, x2, y1, y2;
-        x1 = _arg[0], y1 = _arg[1];
-        x2 = _arg2[0], y2 = _arg2[1];
-        selector = n3.util.getSelector('line', this.attrs);
-        stage = this.visObj != null ? this.visObj.stage() : d3;
-        l = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
-        l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
-        this.applyAttrs(l);
-        this.applyStyles(l);
-        l.exit().remove();
-        return true;
+      line: {
+        onSceneFn: function(_arg, arrow1, _arg2, arrow2) {
+          var l, selector, stage, x1, x2, y1, y2;
+          x1 = _arg[0], y1 = _arg[1];
+          x2 = _arg2[0], y2 = _arg2[1];
+          selector = n3.util.getSelector('line', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          l = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+          l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+          l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+          this.applyAttrs(l);
+          this.applyStyles(l);
+          return true;
+        },
+        offSceneFn: function(_arg, arrow1, _arg2, arrow2) {
+          var selector, stage, x1, x2, y1, y2;
+          x1 = _arg[0], y1 = _arg[1];
+          x2 = _arg2[0], y2 = _arg2[1];
+          selector = n3.util.getSelector('line', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage.selectAll(selector).remove();
+          return true;
+        }
       },
-      rectangle: function(_arg, _arg2) {
-        var h, r, selector, stage, w, x, y;
-        w = _arg[0], h = _arg[1];
-        x = _arg2[0], y = _arg2[1];
-        selector = n3.util.getSelector('rect', this.attrs);
-        stage = this.visObj != null ? this.visObj.stage() : d3;
-        r = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
-        r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
-        this.applyAttrs(r);
-        this.applyStyles(r);
-        r.exit().remove();
-        return true;
+      rectangle: {
+        onSceneFn: function(_arg, _arg2) {
+          var h, r, selector, stage, w, x, y;
+          w = _arg[0], h = _arg[1];
+          x = _arg2[0], y = _arg2[1];
+          selector = n3.util.getSelector('rect', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          r = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+          r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+          r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+          this.applyAttrs(r);
+          this.applyStyles(r);
+          return true;
+        },
+        offSceneFn: function(_arg, _arg2) {
+          var h, selector, stage, w, x, y;
+          w = _arg[0], h = _arg[1];
+          x = _arg2[0], y = _arg2[1];
+          selector = n3.util.getSelector('rect', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage.selectAll(selector).remove();
+          return true;
+        }
       },
-      label: function(text, html, _arg) {
-        var d, selector, stage, x, y;
-        x = _arg[0], y = _arg[1];
-        selector = n3.util.getSelector('div', this.attrs);
-        stage = this.visObj != null ? this.visObj.stage() : d3;
-        this.styles['position'] = 'absolute';
-        this.styles['left'] = x + 'px';
-        this.styles['top'] = y + 'px';
-        d = d3.select('body').selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        d.enter().append('div').text(text).html(html);
-        this.applyAttrs(d);
-        this.applyStyles(d);
-        return true;
+      label: {
+        onSceneFn: function(text, html, _arg) {
+          var d, selector, stage, x, y;
+          x = _arg[0], y = _arg[1];
+          selector = n3.util.getSelector('div', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          this.styles['position'] = 'absolute';
+          this.styles['left'] = x + 'px';
+          this.styles['top'] = y + 'px';
+          d = d3.select('body').selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+          d.enter().append('div').text(text).html(html);
+          this.applyAttrs(d);
+          this.applyStyles(d);
+          return true;
+        },
+        offSceneFn: function(text, html, _arg) {
+          var selector, stage, x, y;
+          x = _arg[0], y = _arg[1];
+          selector = n3.util.getSelector('div', this.attrs);
+          stage = this.visObj != null ? this.visObj.stage() : d3;
+          d3.selectAll(selector).remove();
+          return true;
+        }
       }
     };
 
     function N3Annotation(type) {
+      var _ref, _ref2;
       this.type = type;
-      this.templateFn = N3Annotation.types[this.type];
+      this.onSceneFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.onSceneFn : void 0;
+      this.offSceneFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.offSceneFn : void 0;
       this.arguments = [];
       this.attrs = {};
       this.styles = {};
       return this;
     }
 
-    N3Annotation.prototype.template = function(templateFn) {
-      this.templateFn = templateFn;
-      N3Annotation.types[this.type] = this.templateFn;
+    N3Annotation.prototype.adder = function(onSceneFn) {
+      var _base, _name;
+      this.onSceneFn = onSceneFn;
+      (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
+      N3Annotation.types[this.type].onSceneFn = onSceneFn;
+      return this;
+    };
+
+    N3Annotation.prototype.remover = function(offSceneFn) {
+      var _base, _name;
+      this.offSceneFn = offSceneFn;
+      (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
+      N3Annotation.types[this.type].offSceneFn = offSceneFn;
       return this;
     };
 
@@ -258,7 +319,7 @@
     };
 
     N3Annotation.prototype.draw = function() {
-      return this.templateFn.apply(this, this.arguments);
+      return this.onSceneFn.apply(this, this.arguments);
     };
 
     N3Annotation.prototype.args = function() {

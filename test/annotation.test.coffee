@@ -46,17 +46,17 @@ describe 'annotation', ->
             console.log('Arg1: ' + arg1 + ' Arg2: ' + arg2)
             
         a = n3.annotation('custom')
-        expect(a.templateFn).toBeUndefined
+        expect(a.onSceneFn).toBeUndefined
         
-        a.template(f)
+        a.adder(f)
             .args('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
                 
-        expect(a.templateFn).toBe f
+        expect(a.onSceneFn).toBe f
         
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
         
-        expect(a.templateFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
+        expect(a.onSceneFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
         
     it 'is a circle', ->
         a = n3.annotation('circle')
@@ -64,10 +64,10 @@ describe 'annotation', ->
                 .radius(5)
                 .data([1])  # to test chaining
                 
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
         
-        expect(a.templateFn).toHaveBeenCalledWith(5, [15, 45])
+        expect(a.onSceneFn).toHaveBeenCalledWith(5, [15, 45])
         
     it 'draws a circle', ->
         a = n3.annotation('circle')
@@ -88,10 +88,10 @@ describe 'annotation', ->
                 .center([11, 21])
                 .data([2])  # to test chaining
                 
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
 
-        expect(a.templateFn).toHaveBeenCalledWith([3, 7], [11, 21])   
+        expect(a.onSceneFn).toHaveBeenCalledWith([3, 7], [11, 21])   
         
     it 'draws an ellipse', ->
         a = n3.annotation('ellipse')
@@ -113,10 +113,10 @@ describe 'annotation', ->
                 .end([32, 12], false)
                 .data([3])  # to test chaining
                 
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
         
-        expect(a.templateFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
+        expect(a.onSceneFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
         
     it 'draws a line', ->
         a = n3.annotation('line')
@@ -138,10 +138,10 @@ describe 'annotation', ->
                 .size([42, 91])
                 .data([4])  # to test chaining
 
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
 
-        expect(a.templateFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
+        expect(a.onSceneFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
         
     it 'draws a rectangle', ->
         a = n3.annotation('rectangle')
@@ -164,10 +164,10 @@ describe 'annotation', ->
                 .pos([3, 7])
                 .data([4])  # to test chaining
 
-        spyOn(a, 'templateFn')
+        spyOn(a, 'onSceneFn')
         a.draw()
 
-        expect(a.templateFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])               
+        expect(a.onSceneFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])               
 
     it 'draws a label', ->
         a = n3.annotation('label')
