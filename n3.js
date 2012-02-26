@@ -1,5 +1,5 @@
 (function() {
-  var N3Annotation, N3State, N3Vis,
+  var N3Annotation, N3Scene, N3State, N3Vis,
     __slice = Array.prototype.slice;
 
   window.n3 = {
@@ -15,6 +15,29 @@
       return selector + '.' + attrs['class'].split(' ').join('.');
     } else {
       return selector;
+    }
+  };
+
+  n3.util.clone = function(obj) {
+    var copy, elem, key, val;
+    if (!((obj != null) && typeof obj === 'object')) return obj;
+    if (obj instanceof Array) {
+      return copy = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = obj.length; _i < _len; _i++) {
+          elem = obj[_i];
+          _results.push(clone(elem));
+        }
+        return _results;
+      })();
+    } else if (obj instanceof Object) {
+      copy = {};
+      for (key in obj) {
+        val = obj[key];
+        copy[key] = clone(val);
+      }
+      return copy;
     }
   };
 
@@ -358,5 +381,53 @@
   n3.annotation = function(typeId) {
     return new N3Annotation(typeId);
   };
+
+  N3Scene = (function() {
+
+    N3Scene.scenes = {};
+
+    function N3Scene(sceneId) {
+      this.sceneId = sceneId;
+      this.members = [];
+      return this;
+    }
+
+    N3Scene.prototype.set = function(visObj, stateId, val, triggerObj) {
+      var member;
+      if (typeof vis !== 'object') visObj = N3Vis.lookup[visObj];
+      member = {
+        vis: visObj,
+        state: {
+          id: stateId,
+          value: val
+        },
+        trigger: triggerObj
+      };
+      this.members.push(member);
+      return this;
+    };
+
+    N3Scene.prototype.add = function(visObj, memberObj, triggerObj) {
+      var member;
+      if (typeof vis !== 'object') visObj = N3Vis.lookup[visObj];
+      member = {
+        vis: visObj,
+        member: memberObj,
+        trigger: triggerObj
+      };
+      this.members.push(member);
+      return this;
+    };
+
+    N3Scene.prototype.clone = function(sceneID) {
+      var newScene;
+      newScene = n3.scene(sceneID);
+      newScene.members = n3.util.clone(this.members);
+      return newScene;
+    };
+
+    return N3Scene;
+
+  })();
 
 }).call(this);
