@@ -1,8 +1,30 @@
 class N3Annotation
     @types = 
         circle: (r, [cx, cy]) ->
-            # A circle is just a special type of ellipse
-            N3Annotation.types.ellipse([r, r], [cx, cy])
+            selector = n3.util.getSelector('circle', @attrs)   
+            stage = if @visObj? then @visObj.stage() else d3
+
+            c = stage.selectAll(selector)
+                    .data(if @dataObj? then @dataObj else [0])
+      
+            ca = c.enter()
+                    .append('svg:circle')
+                        .attr('r', r)
+                        .attr('cx', cx)
+                        .attr('cy', cy)
+                        
+            @applyAttrs ca
+            @applyStyles ca
+                
+            ct = c.transition()
+                    .attr('r', r)
+                    .attr('cx', cx)
+                    .attr('cy', cy)            
+            
+            @applyAttrs ct
+            @applyStyles ct
+                
+            c.exit().remove()
             
         ellipse: ([rx, ry], [cx, cy]) ->
             selector = n3.util.getSelector('ellipse', @attrs)   
@@ -10,7 +32,7 @@ class N3Annotation
 
             e = stage.selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
-                    
+      
             ea = e.enter()
                     .append('svg:ellipse')
                         .attr('rx', rx)
@@ -33,6 +55,7 @@ class N3Annotation
             e.exit().remove()
 
         line: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            # TODO: add arrowheads
             selector = n3.util.getSelector('line', @attrs)   
             stage = if @visObj? then @visObj.stage() else d3            
             
