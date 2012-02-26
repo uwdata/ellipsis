@@ -1,7 +1,7 @@
 class N3Annotation
     @types = 
         circle: 
-            onSceneFn: (r, [cx, cy]) ->
+            adderFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
 
@@ -24,7 +24,7 @@ class N3Annotation
                 
                 true
                 
-            offSceneFn: (r, [cx, cy]) ->
+            removerFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
                 
@@ -33,7 +33,7 @@ class N3Annotation
                 true    
             
         ellipse: 
-            onSceneFn: ([rx, ry], [cx, cy]) ->
+            adderFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
 
@@ -58,7 +58,7 @@ class N3Annotation
                 
                 true
                 
-            offSceneFn: ([rx, ry], [cx, cy]) ->
+            removerFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
                 
@@ -67,7 +67,7 @@ class N3Annotation
                 true
 
         line: 
-            onSceneFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            adderFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 # TODO: add arrowheads
                 selector = n3.util.getSelector('line', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3            
@@ -93,7 +93,7 @@ class N3Annotation
             
                 true
             
-            offSceneFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            removerFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 selector = n3.util.getSelector('line', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
                 
@@ -102,7 +102,7 @@ class N3Annotation
                 true
             
         rectangle: 
-            onSceneFn: ([w, h], [x, y]) ->
+            adderFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3            
             
@@ -127,7 +127,7 @@ class N3Annotation
 
                 true
                 
-            offSceneFn: ([w, h], [x, y]) ->
+            removerFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
                 
@@ -136,7 +136,7 @@ class N3Annotation
                 true
             
         label: 
-            onSceneFn: (text, html, [x, y]) ->
+            adderFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3            
 
@@ -158,7 +158,7 @@ class N3Annotation
             
                 true       
                 
-            offSceneFn: (text, html, [x, y]) ->
+            removerFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
                 stage = if @visObj? then @visObj.stage() else d3
                 
@@ -167,8 +167,8 @@ class N3Annotation
                 true
             
     constructor: (@type) ->
-        @onSceneFn = N3Annotation.types[@type]?.onSceneFn
-        @offSceneFn = N3Annotation.types[@type]?.offSceneFn
+        @adderFn = N3Annotation.types[@type]?.adderFn
+        @removerFn = N3Annotation.types[@type]?.removerFn
         
         @arguments = []
         @attrs = {}
@@ -176,15 +176,15 @@ class N3Annotation
         
         return this
         
-    onScene: (@onSceneFn) ->
+    adder: (@adderFn) ->
         N3Annotation.types[@type] or= {}
-        N3Annotation.types[@type].onSceneFn = onSceneFn
+        N3Annotation.types[@type].adderFn = adderFn
         
         return this
         
-    offScene: (@offSceneFn) ->
+    remover: (@removerFn) ->
         N3Annotation.types[@type] or= {}
-        N3Annotation.types[@type].offSceneFn = offSceneFn
+        N3Annotation.types[@type].removerFn = removerFn
 
         return this
         
@@ -205,10 +205,10 @@ class N3Annotation
             @visObj
             
     draw: ->
-        @onSceneFn @arguments...
+        @adderFn @arguments...
         
     remove: ->
-        @offSceneFn @arguments...
+        @removerFn @arguments...
     
     args: (@arguments...) ->
         return this
