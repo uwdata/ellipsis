@@ -176,13 +176,13 @@ class N3Annotation
         
         return this
         
-    adder: (@onSceneFn) ->
+    onScene: (@onSceneFn) ->
         N3Annotation.types[@type] or= {}
         N3Annotation.types[@type].onSceneFn = onSceneFn
         
         return this
         
-    remover: (@offSceneFn) ->
+    offScene: (@offSceneFn) ->
         N3Annotation.types[@type] or= {}
         N3Annotation.types[@type].offSceneFn = offSceneFn
 

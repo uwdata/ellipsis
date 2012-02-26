@@ -284,7 +284,7 @@
       return this;
     }
 
-    N3Annotation.prototype.adder = function(onSceneFn) {
+    N3Annotation.prototype.onScene = function(onSceneFn) {
       var _base, _name;
       this.onSceneFn = onSceneFn;
       (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
@@ -292,7 +292,7 @@
       return this;
     };
 
-    N3Annotation.prototype.remover = function(offSceneFn) {
+    N3Annotation.prototype.offScene = function(offSceneFn) {
       var _base, _name;
       this.offSceneFn = offSceneFn;
       (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
