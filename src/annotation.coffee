@@ -206,6 +206,9 @@ class N3Annotation
             
     draw: ->
         @onSceneFn @arguments...
+        
+    remove: ->
+        @offSceneFn @arguments...
     
     args: (@arguments...) ->
         return this

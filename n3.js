@@ -322,6 +322,10 @@
       return this.onSceneFn.apply(this, this.arguments);
     };
 
+    N3Annotation.prototype.remove = function() {
+      return this.offSceneFn.apply(this, this.arguments);
+    };
+
     N3Annotation.prototype.args = function() {
       var _arguments;
       _arguments = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
