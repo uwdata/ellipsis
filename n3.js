@@ -278,6 +278,7 @@
       this.type = type;
       this.adderFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.adderFn : void 0;
       this.removerFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.removerFn : void 0;
+      this.autoRemoveFlag = true;
       this.arguments = [];
       this.attrs = {};
       this.styles = {};
@@ -297,6 +298,11 @@
       this.removerFn = removerFn;
       (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
       N3Annotation.types[this.type].removerFn = removerFn;
+      return this;
+    };
+
+    N3Annotation.prototype.autoRemove = function(autoRemoveFlag) {
+      this.autoRemoveFlag = autoRemoveFlag;
       return this;
     };
 

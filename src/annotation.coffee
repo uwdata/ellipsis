@@ -170,6 +170,7 @@ class N3Annotation
         @adderFn = N3Annotation.types[@type]?.adderFn
         @removerFn = N3Annotation.types[@type]?.removerFn
         
+        @autoRemoveFlag = true
         @arguments = []
         @attrs = {}
         @styles = {}
@@ -186,6 +187,9 @@ class N3Annotation
         N3Annotation.types[@type] or= {}
         N3Annotation.types[@type].removerFn = removerFn
 
+        return this
+        
+    autoRemove: (@autoRemoveFlag) ->
         return this
         
     data: (data) ->
