@@ -66,3 +66,23 @@ describe "vis", ->
         
         # Tests that .data is not set for another vis
         expect(vis2.data()).toBeUndefined
+
+    it "sets/gets the state", ->
+        vis.state('state1', ['va1', 'va2'])
+            .state('state2', ['foo', 'bar', 'hello', 'world'])
+            .render(->
+                console.log('hello');
+            )
+         
+        expect(vis.states['state1'].visId).toBe 'visTest'  
+        expect(vis.states['state1'].validValues).toEqual ['va1', 'va2']
+        expect(vis.states['state2'].validValues).toEqual ['foo', 'bar', 'hello', 'world']
+        
+        spyOn(vis, 'renderFn')
+        
+        vis.states['state1'].set('va1')
+        expect(vis.renderFn).toHaveBeenCalled
+        
+        vis.states['state2'].set('foo')
+        expect(vis.renderFn).toHaveBeenCalled
+        
