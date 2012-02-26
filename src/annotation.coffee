@@ -7,24 +7,23 @@ class N3Annotation
             c = stage.selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
       
-            ca = c.enter()
-                    .append('svg:circle')
-                        .attr('r', r)
-                        .attr('cx', cx)
-                        .attr('cy', cy)
-                        
-            @applyAttrs ca
-            @applyStyles ca
-                
-            ct = c.transition()
+            c.enter()
+                .append('svg:circle')
                     .attr('r', r)
                     .attr('cx', cx)
-                    .attr('cy', cy)            
+                    .attr('cy', cy)
+                
+            c.transition()
+                .attr('r', r)
+                .attr('cx', cx)
+                .attr('cy', cy)            
             
-            @applyAttrs ct
-            @applyStyles ct
+            @applyAttrs c
+            @applyStyles c
                 
             c.exit().remove()
+            
+            true
             
         ellipse: ([rx, ry], [cx, cy]) ->
             selector = n3.util.getSelector('ellipse', @attrs)   
@@ -33,26 +32,25 @@ class N3Annotation
             e = stage.selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
       
-            ea = e.enter()
-                    .append('svg:ellipse')
-                        .attr('rx', rx)
-                        .attr('ry', ry)
-                        .attr('cx', cx)
-                        .attr('cy', cy)
-                        
-            @applyAttrs ea
-            @applyStyles ea
-                
-            et = e.transition()
+            e.enter()
+                .append('svg:ellipse')
                     .attr('rx', rx)
                     .attr('ry', ry)
                     .attr('cx', cx)
-                    .attr('cy', cy)            
+                    .attr('cy', cy)
+                
+            e.transition()
+                .attr('rx', rx)
+                .attr('ry', ry)
+                .attr('cx', cx)
+                .attr('cy', cy)            
             
-            @applyAttrs et
-            @applyStyles et
+            @applyAttrs e
+            @applyStyles e
                 
             e.exit().remove()
+            
+            true
 
         line: ([x1, y1], arrow1, [x2, y2], arrow2) ->
             # TODO: add arrowheads
@@ -62,26 +60,25 @@ class N3Annotation
             l = stage.selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
             
-            la = l.enter()
-                    .append('svg:line')
-                        .attr('x1', x1)
-                        .attr('y1', y1)
-                        .attr('x2', x2)
-                        .attr('y2', y2)
-                    
-            @applyAttrs la
-            @applyStyles la
-                
-            lt = l.transition()
+            l.enter()
+                .append('svg:line')
                     .attr('x1', x1)
                     .attr('y1', y1)
                     .attr('x2', x2)
-                    .attr('y2', y2)    
+                    .attr('y2', y2)
+                
+            l.transition()
+                .attr('x1', x1)
+                .attr('y1', y1)
+                .attr('x2', x2)
+                .attr('y2', y2)    
                        
-            @applyAttrs lt
-            @applyStyles lt            
+            @applyAttrs l
+            @applyStyles l         
                 
             l.exit().remove()            
+            
+            true
             
         rectangle: ([w, h], [x, y]) ->
             selector = n3.util.getSelector('rect', @attrs)   
@@ -90,26 +87,25 @@ class N3Annotation
             r = stage.selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
             
-            ra = r.enter()
-                    .append('svg:rect')
-                        .attr('x', x)
-                        .attr('y', y)
-                        .attr('width', w)
-                        .attr('height', h)
-                    
-            @applyAttrs ra
-            @applyStyles ra
-                
-            rt = r.transition()
+            r.enter()
+                .append('svg:rect')
                     .attr('x', x)
                     .attr('y', y)
                     .attr('width', w)
-                    .attr('height', h)  
+                    .attr('height', h)
+                
+            r.transition()
+                .attr('x', x)
+                .attr('y', y)
+                .attr('width', w)
+                .attr('height', h)  
                        
-            @applyAttrs rt
-            @applyStyles rt            
+            @applyAttrs r
+            @applyStyles r            
                 
             r.exit().remove()
+            
+            true
             
         label: (text, html, [x, y]) ->
             selector = n3.util.getSelector('div', @attrs)   
@@ -117,32 +113,27 @@ class N3Annotation
 
             # position the div absolutely
             @styles['position'] = 'absolute'
-            @styles['x'] = x
-            @styles['top'] = y
+            @styles['left'] = x + 'px'
+            @styles['top'] = y + 'px'
             
-            d = stage.selectAll(selector)
+            d = d3.select('body').selectAll(selector)
                     .data(if @dataObj? then @dataObj else [0])
             
-            da = r.enter()
-                    .append('div')
-                        .text(text)
-                        .html(html)
-                    
-            @applyAttrs da
-            @applyStyles da
-                
-            dt = d.transition()
+            d.enter()
+                .append('div')
                     .text(text)
-                    .html(html) 
+                    .html(html)
                        
-            @applyAttrs dt
-            @applyStyles dt            
-                
-            d.exit().remove()            
+            @applyAttrs d
+            @applyStyles d
+            
+            true        
             
     constructor: (@type) ->
         @templateFn = N3Annotation.types[@type]
         @arguments = []
+        @attrs = {}
+        @styles = {}
         
         return this
         
@@ -181,8 +172,9 @@ class N3Annotation
         else
             @attrs[key]
             
-    applyAttrs: (obj) ->
-        obj.attr(key, value) for key, value of @attrs
+    applyAttrs: (selection) ->
+        true unless selection?
+        selection.attr(key, value) for key, value of @attrs
         true
     
     style: (key, value) ->
@@ -193,8 +185,9 @@ class N3Annotation
         else
             @styles[key]
             
-    applyStyles: (obj) ->
-        obj.style(key, value) for key, value of @styles
+    applyStyles: (selection) ->
+        true unless selection?
+        selection.style(key, value) for key, value of @styles
         true
             
     # For built in types, expose arguments as methods. These are only setters.

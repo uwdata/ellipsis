@@ -9,10 +9,10 @@
   n3.util = {};
 
   n3.util.getSelector = function(selector, attrs) {
-    if (attrs['id'] != null) {
-      return selector + '#' + this.attrs['id'];
-    } else if (attrs['class'] != null) {
-      return selector + '.' + this.attrs['class'].split(' ').join('.');
+    if ((attrs != null ? attrs.id : void 0) != null) {
+      return selector + '#' + attrs['id'];
+    } else if ((attrs != null ? attrs["class"] : void 0) != null) {
+      return selector + '.' + attrs['class'].split(' ').join('.');
     } else {
       return selector;
     }
@@ -131,71 +131,73 @@
 
     N3Annotation.types = {
       circle: function(r, _arg) {
-        var cx, cy;
+        var c, cx, cy, selector, stage;
         cx = _arg[0], cy = _arg[1];
-        return N3Annotation.types.ellipse([r, r], [cx, cy]);
+        selector = n3.util.getSelector('circle', this.attrs);
+        stage = this.visObj != null ? this.visObj.stage() : d3;
+        c = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        c.enter().append('svg:circle').attr('r', r).attr('cx', cx).attr('cy', cy);
+        c.transition().attr('r', r).attr('cx', cx).attr('cy', cy);
+        this.applyAttrs(c);
+        this.applyStyles(c);
+        c.exit().remove();
+        return true;
       },
       ellipse: function(_arg, _arg2) {
-        var cx, cy, e, ea, et, rx, ry, selector, stage;
+        var cx, cy, e, rx, ry, selector, stage;
         rx = _arg[0], ry = _arg[1];
         cx = _arg2[0], cy = _arg2[1];
         selector = n3.util.getSelector('ellipse', this.attrs);
         stage = this.visObj != null ? this.visObj.stage() : d3;
         e = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        ea = e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
-        this.applyAttrs(ea);
-        this.applyStyles(ea);
-        et = e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
-        this.applyAttrs(et);
-        this.applyStyles(et);
-        return e.exit().remove();
+        e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+        e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
+        this.applyAttrs(e);
+        this.applyStyles(e);
+        e.exit().remove();
+        return true;
       },
       line: function(_arg, arrow1, _arg2, arrow2) {
-        var l, la, lt, selector, stage, x1, x2, y1, y2;
+        var l, selector, stage, x1, x2, y1, y2;
         x1 = _arg[0], y1 = _arg[1];
         x2 = _arg2[0], y2 = _arg2[1];
         selector = n3.util.getSelector('line', this.attrs);
         stage = this.visObj != null ? this.visObj.stage() : d3;
         l = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        la = l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
-        this.applyAttrs(la);
-        this.applyStyles(la);
-        lt = l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
-        this.applyAttrs(lt);
-        this.applyStyles(lt);
-        return l.exit().remove();
+        l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+        l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
+        this.applyAttrs(l);
+        this.applyStyles(l);
+        l.exit().remove();
+        return true;
       },
       rectangle: function(_arg, _arg2) {
-        var h, r, ra, rt, selector, stage, w, x, y;
+        var h, r, selector, stage, w, x, y;
         w = _arg[0], h = _arg[1];
         x = _arg2[0], y = _arg2[1];
         selector = n3.util.getSelector('rect', this.attrs);
         stage = this.visObj != null ? this.visObj.stage() : d3;
         r = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        ra = r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
-        this.applyAttrs(ra);
-        this.applyStyles(ra);
-        rt = r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
-        this.applyAttrs(rt);
-        this.applyStyles(rt);
-        return r.exit().remove();
+        r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+        r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
+        this.applyAttrs(r);
+        this.applyStyles(r);
+        r.exit().remove();
+        return true;
       },
       label: function(text, html, _arg) {
-        var d, da, dt, selector, stage, x, y;
+        var d, selector, stage, x, y;
         x = _arg[0], y = _arg[1];
         selector = n3.util.getSelector('div', this.attrs);
         stage = this.visObj != null ? this.visObj.stage() : d3;
         this.styles['position'] = 'absolute';
-        this.styles['x'] = x;
-        this.styles['top'] = y;
-        d = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
-        da = r.enter().append('div').text(text).html(html);
-        this.applyAttrs(da);
-        this.applyStyles(da);
-        dt = d.transition().text(text).html(html);
-        this.applyAttrs(dt);
-        this.applyStyles(dt);
-        return d.exit().remove();
+        this.styles['left'] = x + 'px';
+        this.styles['top'] = y + 'px';
+        d = d3.select('body').selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
+        d.enter().append('div').text(text).html(html);
+        this.applyAttrs(d);
+        this.applyStyles(d);
+        return true;
       }
     };
 
@@ -203,6 +205,8 @@
       this.type = type;
       this.templateFn = N3Annotation.types[this.type];
       this.arguments = [];
+      this.attrs = {};
+      this.styles = {};
       return this;
     }
 
@@ -250,12 +254,13 @@
       }
     };
 
-    N3Annotation.prototype.applyAttrs = function(obj) {
+    N3Annotation.prototype.applyAttrs = function(selection) {
       var key, value, _ref;
+      if (selection == null) true;
       _ref = this.attrs;
       for (key in _ref) {
         value = _ref[key];
-        obj.attr(key, value);
+        selection.attr(key, value);
       }
       return true;
     };
@@ -269,12 +274,13 @@
       }
     };
 
-    N3Annotation.prototype.applyStyles = function(obj) {
+    N3Annotation.prototype.applyStyles = function(selection) {
       var key, value, _ref;
+      if (selection == null) true;
       _ref = this.styles;
       for (key in _ref) {
         value = _ref[key];
-        obj.style(key, value);
+        selection.style(key, value);
       }
       return true;
     };

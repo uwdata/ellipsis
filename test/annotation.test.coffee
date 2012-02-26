@@ -1,4 +1,23 @@
-describe 'annotation', ->
+describe 'annotation', ->        
+    vis = null
+    
+    beforeEach ->         
+        d3.select('body')
+            .append('svg:svg')
+                .attr('id', 'stage')
+                .attr('width', 500)
+                .attr('height', 600)
+                
+        vis = n3.vis('annotation_test')
+                    .stage('#stage', 500, 600)
+                    
+    it 'sets/gets the vis', ->
+        a = n3.annotation('custom').vis(vis)
+        
+        expect(a.vis().stage()).toEqual d3.select('#stage')
+        expect(a.vis().width()).toBe 500
+        expect(a.vis().height()).toBe 600
+        
     it 'sets/gets data', ->  
         d = ['do', 're', 'mi', 'fa', 'so']
         
@@ -50,6 +69,19 @@ describe 'annotation', ->
         
         expect(a.templateFn).toHaveBeenCalledWith(5, [15, 45])
         
+    it 'draws a circle', ->
+        a = n3.annotation('circle')
+                .center([15, 45])
+                .radius(5)
+                .vis(vis)
+                
+        a.draw()
+        
+        c = vis.stage().selectAll('circle')
+        expect(c.attr('r')).toBe '5'
+        expect(c.attr('cx')).toBe '15'
+        expect(c.attr('cy')).toBe '45'
+        
     it 'is an ellipse', ->
         a = n3.annotation('ellipse')
                 .radius([3, 7])
@@ -59,7 +91,21 @@ describe 'annotation', ->
         spyOn(a, 'templateFn')
         a.draw()
 
-        expect(a.templateFn).toHaveBeenCalledWith([3, 7], [11, 21])        
+        expect(a.templateFn).toHaveBeenCalledWith([3, 7], [11, 21])   
+        
+    it 'draws an ellipse', ->
+        a = n3.annotation('ellipse')
+                .radius([3, 7])
+                .center([11, 21])
+                .vis(vis)
+
+        a.draw()
+
+        e = vis.stage().selectAll('ellipse')
+        expect(e.attr('rx')).toBe '3'
+        expect(e.attr('ry')).toBe '7'
+        expect(e.attr('cx')).toBe '11'
+        expect(e.attr('cy')).toBe '21'     
         
     it 'is a line', ->
         a = n3.annotation('line')
@@ -72,6 +118,20 @@ describe 'annotation', ->
         
         expect(a.templateFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
         
+    it 'draws a line', ->
+        a = n3.annotation('line')
+                .start([6, 8], true)
+                .end([32, 12], false)
+                .vis(vis)
+
+        a.draw()
+
+        l = vis.stage().selectAll('line')
+        expect(l.attr('x1')).toBe '6'
+        expect(l.attr('y1')).toBe '8'
+        expect(l.attr('x2')).toBe '32'
+        expect(l.attr('y2')).toBe '12'
+        
     it 'is a rectangle', ->
         a = n3.annotation('rectangle')
                 .pos([17, 14])
@@ -82,6 +142,20 @@ describe 'annotation', ->
         a.draw()
 
         expect(a.templateFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
+        
+    it 'draws a rectangle', ->
+        a = n3.annotation('rectangle')
+                .pos([17, 14])
+                .size([42, 91])
+                .vis(vis)
+
+        a.draw()
+
+        r = vis.stage().selectAll('rect')
+        expect(r.attr('width')).toBe '42'
+        expect(r.attr('height')).toBe '91'
+        expect(r.attr('x')).toBe '17'
+        expect(r.attr('y')).toBe '14'
         
     it 'is a label', ->
         a = n3.annotation('label')
@@ -94,4 +168,50 @@ describe 'annotation', ->
         a.draw()
 
         expect(a.templateFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])               
+
+    it 'draws a label', ->
+        a = n3.annotation('label')
+                .html('<p>Hello</p>')
+                .text('world')
+                .pos([3, 7])
+                .attr('id', 'label')
+                .vis(vis)
+    
+        a.draw()    
+        
+        d = d3.selectAll('div#label')
+        
+        expect(d.style('position')).toBe 'absolute' 
+        expect(d.style('left')).toBe '3px'
+        expect(d.style('top')).toBe '7px'
+        expect(d.html()).toBe '<p>Hello</p>'
+        
+    it 'sets/gets attrs', ->
+        a = n3.annotation('circle')
+                .center([15, 45])
+                .radius(5)
+                .attr('foo', 'baz')
+                .attr('r', '15')
+                .style('position', 'absolute')
+                .vis(vis)
+                
+        a.draw()
+        
+        c = vis.stage().selectAll('circle')
+        expect(c.attr('foo')).toBe 'baz'
+        expect(c.attr('r')).toBe '15'
+        
+    it 'sets/gets styles', ->
+        a = n3.annotation('circle')
+                .center([15, 45])
+                .radius(5)
+                .style('display', 'none')
+                .style('fill', '#ffffff')
+                .vis(vis)
+                
+        a.draw()
+        
+        c = vis.stage().selectAll('circle')
+        expect(c.style('display')).toBe 'none'
+        expect(c.style('fill')).toBe '#FFFFFF'        
         
