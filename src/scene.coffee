@@ -15,8 +15,8 @@ class N3Scene
         #   }
         # ]
         @members = []
-        # @subScenes = 
-        #     order: ''
+        @subScenes = 
+            order: ''
         
         return this
         
@@ -49,9 +49,12 @@ class N3Scene
     clone: (sceneID) ->
         newScene = n3.scene(sceneID)
         newScene.members = n3.util.clone @members
-        # newScene.subScenes = n3.util.clone @subScenes
+        newScene.subScenes = n3.util.clone @subScenes
         
         return newScene
+        
+    subScene: (subSceneId) ->
+        @subScenes[subSceneId] or= new N3Scene(subSceneId)
         
 n3.scene = (sceneId) ->
     N3Scene.scenes[sceneId] or= new N3Scene(sceneId)
