@@ -460,12 +460,15 @@
     function N3Scene(sceneId) {
       this.sceneId = sceneId;
       this.members = [];
+      this.subScenes = {
+        order: ''
+      };
       return this;
     }
 
     N3Scene.prototype.set = function(visObj, stateId, val, triggerObj) {
       var member;
-      if (typeof vis !== 'object') visObj = N3Vis.lookup[visObj];
+      if (typeof visObj !== 'object') visObj = N3Vis.lookup[visObj];
       member = {
         vis: visObj,
         state: {
@@ -480,7 +483,7 @@
 
     N3Scene.prototype.add = function(visObj, memberObj, triggerObj) {
       var member;
-      if (typeof vis !== 'object') visObj = N3Vis.lookup[visObj];
+      if (typeof visObj !== 'object') visObj = N3Vis.lookup[visObj];
       member = {
         vis: visObj,
         member: memberObj,
@@ -494,7 +497,13 @@
       var newScene;
       newScene = n3.scene(sceneID);
       newScene.members = n3.util.clone(this.members);
+      newScene.subScenes = n3.util.clone(this.subScenes);
       return newScene;
+    };
+
+    N3Scene.prototype.subScene = function(subSceneId) {
+      var _base;
+      return (_base = this.subScenes)[subSceneId] || (_base[subSceneId] = new N3Scene(subSceneId));
     };
 
     return N3Scene;

@@ -21,12 +21,12 @@ class N3Scene
         return this
         
     set: (visObj, stateId, val, triggerObj) ->
-        visObj = N3Vis.lookup[visObj] unless typeof vis == 'object'
+        visObj = N3Vis.lookup[visObj] unless typeof visObj == 'object'
         
         member =
-            vis: visObj,
+            vis: visObj
             state:
-                id: stateId,
+                id: stateId
                 value: val
             trigger: triggerObj
         
@@ -35,10 +35,10 @@ class N3Scene
         return this
         
     add: (visObj, memberObj, triggerObj) ->
-        visObj = N3Vis.lookup[visObj] unless typeof vis == 'object'
+        visObj = N3Vis.lookup[visObj] unless typeof visObj == 'object'
         
         member =
-            vis: visObj,
+            vis: visObj
             member: memberObj
             trigger: triggerObj
         
