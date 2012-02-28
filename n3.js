@@ -466,11 +466,11 @@
       return this;
     }
 
-    N3Scene.prototype.set = function(visObj, stateId, val, triggerObj) {
+    N3Scene.prototype.set = function(vis, stateId, val, triggerObj) {
       var member;
-      if (typeof visObj !== 'object') visObj = N3Vis.lookup[visObj];
+      if (typeof vis === 'object') vis = vis.visId;
       member = {
-        vis: visObj,
+        vis: vis,
         state: {
           id: stateId,
           value: val
@@ -481,11 +481,11 @@
       return this;
     };
 
-    N3Scene.prototype.add = function(visObj, memberObj, triggerObj) {
+    N3Scene.prototype.add = function(vis, memberObj, triggerObj) {
       var member;
-      if (typeof visObj !== 'object') visObj = N3Vis.lookup[visObj];
+      if (typeof vis === 'object') vis = vis.visId;
       member = {
-        vis: visObj,
+        vis: vis,
         member: memberObj,
         trigger: triggerObj
       };

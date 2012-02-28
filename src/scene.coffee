@@ -4,7 +4,7 @@ class N3Scene
     constructor: (@sceneId) ->
         # members = [
         #   {
-        #        vis: visObj,
+        #        vis: visId,
         #        state: {
         #            id: stateId
         #            value: value
@@ -20,11 +20,11 @@ class N3Scene
         
         return this
         
-    set: (visObj, stateId, val, triggerObj) ->
-        visObj = N3Vis.lookup[visObj] unless typeof visObj == 'object'
+    set: (vis, stateId, val, triggerObj) ->
+        vis = vis.visId if typeof vis == 'object'
         
         member =
-            vis: visObj
+            vis: vis
             state:
                 id: stateId
                 value: val
@@ -34,11 +34,11 @@ class N3Scene
         
         return this
         
-    add: (visObj, memberObj, triggerObj) ->
-        visObj = N3Vis.lookup[visObj] unless typeof visObj == 'object'
+    add: (vis, memberObj, triggerObj) ->
+        vis = vis.visId if typeof vis == 'object'
         
         member =
-            vis: visObj
+            vis: vis
             member: memberObj
             trigger: triggerObj
         

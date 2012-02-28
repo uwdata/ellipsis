@@ -20,11 +20,11 @@ describe "scene", ->
                     .set(vis, 'state_1', 'valid')
                     .set('sceneTest', 'state_2', false)
                     
-        expect(scene.members[0].vis).toBe vis
+        expect(scene.members[0].vis).toBe vis.visId
         expect(scene.members[0].state.id).toBe 'state_1'
         expect(scene.members[0].state.value).toBe 'valid'
         
-        expect(scene.members[1].vis).toBe vis
+        expect(scene.members[1].vis).toBe vis.visId
         expect(scene.members[1].state.id).toBe 'state_2'
         expect(scene.members[1].state.value).toBe false
         
@@ -33,10 +33,10 @@ describe "scene", ->
                     .add(vis, f)
                     .add(vis, a)
                         
-        expect(scene.members[0].vis).toBe vis
+        expect(scene.members[0].vis).toBe vis.visId
         expect(scene.members[0].member).toBe f
 
-        expect(scene.members[1].vis).toBe vis
+        expect(scene.members[1].vis).toBe vis.visId
         expect(scene.members[1].member).toBe a
         
     it "clones a scene", ->
@@ -48,18 +48,18 @@ describe "scene", ->
         scene2 = scene.clone('scene_4')
                         .add('sceneTest', a)
                         
-        expect(scene2.members[0].vis).toEqual vis
+        expect(scene2.members[0].vis).toBe vis.visId
         expect(scene2.members[0].state.id).toBe 'state_1'
         expect(scene2.members[0].state.value).toBe 'value'
         
-        expect(scene2.members[1].vis).toEqual vis
+        expect(scene2.members[1].vis).toBe vis.visId
         expect(scene2.members[1].member).toBe f
         
-        expect(scene2.members[2].vis).toEqual vis
+        expect(scene2.members[2].vis).toBe vis.visId
         expect(scene2.members[2].state.id).toBe 'state_2'
         expect(scene2.members[2].state.value).toBe true
         
-        expect(scene2.members[3].vis).toEqual vis
+        expect(scene2.members[3].vis).toBe vis.visId
         expect(scene2.members[3].member).toBe a
         
     it "is a subscene", ->
@@ -73,10 +73,10 @@ describe "scene", ->
                             
         expect(subScene.parent).toBe scene
         
-        expect(subScene.members[0].vis).toBe vis
+        expect(subScene.members[0].vis).toBe vis.visId
         expect(subScene.members[0].state.id).toBe 'state_2'
         expect(subScene.members[0].state.value).toBe true
         
-        expect(subScene.members[1].vis).toBe vis
+        expect(subScene.members[1].vis).toBe vis.visId
         expect(subScene.members[1].member).toBe a
         
