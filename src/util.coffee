@@ -12,10 +12,10 @@ n3.util.clone = (obj) ->
     return obj unless obj? and typeof obj == 'object'
     
     if obj instanceof Array
-        copy = (clone elem for elem in obj)
+        copy = (n3.util.clone elem for elem in obj)
     
     else if obj instanceof Object
         copy = {}
-        copy[key] = clone val for key, val of obj
+        copy[key] = n3.util.clone val for key, val of obj
         
         return copy

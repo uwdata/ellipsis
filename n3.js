@@ -27,7 +27,7 @@
         _results = [];
         for (_i = 0, _len = obj.length; _i < _len; _i++) {
           elem = obj[_i];
-          _results.push(clone(elem));
+          _results.push(n3.util.clone(elem));
         }
         return _results;
       })();
@@ -35,7 +35,7 @@
       copy = {};
       for (key in obj) {
         val = obj[key];
-        copy[key] = clone(val);
+        copy[key] = n3.util.clone(val);
       }
       return copy;
     }

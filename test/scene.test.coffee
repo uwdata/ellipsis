@@ -1,11 +1,19 @@
 describe "scene", ->
     vis = null
     scene = null
+    f = null
+    a = null
     
     beforeEach ->
         vis = n3.vis('sceneTest')
                     .state('state_1', ['valid', 'values'])
                     .state('state_2', [true, false])
+                    
+        f = ->
+            console.log('hello')
+
+        a = n3.annotation('f')
+                .adder(f)
                     
     it "sets the state", ->
         scene = n3.scene('scene_1')
@@ -20,13 +28,7 @@ describe "scene", ->
         expect(scene.members[1].state.id).toBe 'state_2'
         expect(scene.members[1].state.value).toBe false
         
-    it "adds members", ->
-        f = ->
-            console.log('hello')
-            
-        a = n3.annotation('f')
-                .adder(f)
-            
+    it "adds members", ->            
         scene = n3.scene('scene_2')
                     .add(vis, f)
                     .add(vis, a)
@@ -36,3 +38,27 @@ describe "scene", ->
 
         expect(scene.members[1].vis).toBe vis
         expect(scene.members[1].member).toBe a
+        
+    it "clones a scene", ->
+        scene = n3.scene('scene_3')
+                    .set(vis, 'state_1', 'value')
+                    .add(vis, f)
+                    .set(vis, 'state_2', true)
+                    
+        scene2 = scene.clone('scene_4')
+                        .add('sceneTest', a)
+                        
+        expect(scene2.members[0].vis).toEqual vis
+        expect(scene2.members[0].state.id).toBe 'state_1'
+        expect(scene2.members[0].state.value).toBe 'value'
+        
+        expect(scene2.members[1].vis).toEqual vis
+        expect(scene2.members[1].member).toBe f
+        
+        expect(scene2.members[2].vis).toEqual vis
+        expect(scene2.members[2].state.id).toBe 'state_2'
+        expect(scene2.members[2].state.value).toBe true
+        
+        expect(scene2.members[3].vis).toEqual vis
+        expect(scene2.members[3].member).toBe a
+        

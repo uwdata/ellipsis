@@ -3,7 +3,9 @@ fs            = require 'fs'
 {spawn, exec} = require 'child_process'
 
 task 'build', 'compile coffee files and concatenate', ->
-    files = ['version', 'util', 'state', 'vis', 'annotation', 'scene']
+    files = ['version', 'util', 'state', 'vis', 'annotation',
+             'scene']
+                
     args = ['--compile', '--join', 'n3.js']
     args.push "src/#{file}.coffee" for file in files
         
