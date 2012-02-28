@@ -532,7 +532,7 @@
     function N3Timeline() {}
 
     N3Timeline.prototype.switchScene = function(sceneId) {
-      var currentScene, m, prevScene, vis, _i, _j, _len, _len2, _ref, _ref2, _results;
+      var currentScene, m, prevScene, val, vis, _i, _j, _len, _len2, _ref, _ref2, _results;
       this.prevSceneId = this.currSceneId;
       this.currSceneId = sceneId;
       prevScene = N3Scene.scenes[this.prevSceneId];
@@ -558,7 +558,9 @@
           _results.push(console.log('TODO: Triggers!'));
         } else {
           if (m.state != null) {
-            _results.push(vis.set(m.state.id, m.state.value));
+            val = m.state.value;
+            if (typeof val === 'function') val = val(vis);
+            _results.push(vis.set(m.state.id, val));
           } else {
             if (typeof m.member === 'function') {
               _results.push(m.member(vis));
