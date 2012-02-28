@@ -41,9 +41,12 @@ class N3Vis
         else
             @dataObj
     
-    state: (stateId, validValues) ->
-        if arguments.length == 2
-            @states[stateId] = new N3State(stateId, validValues, @visId)
+    state: (stateId, arg2) ->
+        if arguments.length == 2        # state can be a setter
+            if arg2 instanceof Array   # or a definition of a new state
+                @states[stateId] = new N3State(stateId, arg2, @visId)
+            else
+                @states[stateId]?.set(arg2)
             
             return this
         else

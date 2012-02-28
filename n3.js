@@ -117,13 +117,17 @@
       }
     };
 
-    N3Vis.prototype.state = function(stateId, validValues) {
-      var _ref;
+    N3Vis.prototype.state = function(stateId, arg2) {
+      var _ref, _ref2;
       if (arguments.length === 2) {
-        this.states[stateId] = new N3State(stateId, validValues, this.visId);
+        if (arg2 instanceof Array) {
+          this.states[stateId] = new N3State(stateId, arg2, this.visId);
+        } else {
+          if ((_ref = this.states[stateId]) != null) _ref.set(arg2);
+        }
         return this;
       } else {
-        return (_ref = this.states[stateId]) != null ? _ref.get() : void 0;
+        return (_ref2 = this.states[stateId]) != null ? _ref2.get() : void 0;
       }
     };
 
