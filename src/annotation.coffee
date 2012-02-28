@@ -3,7 +3,7 @@ class N3Annotation
         circle: 
             adderFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
 
                 c = stage.selectAll(selector)
                         .data(if @dataObj? then @dataObj else [0])
@@ -26,7 +26,7 @@ class N3Annotation
                 
             removerFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
                 
                 stage.selectAll(selector).remove()
             
@@ -35,7 +35,7 @@ class N3Annotation
         ellipse: 
             adderFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
 
                 e = stage.selectAll(selector)
                         .data(if @dataObj? then @dataObj else [0])
@@ -60,7 +60,7 @@ class N3Annotation
                 
             removerFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
                 
                 stage.selectAll(selector).remove()
                 
@@ -70,7 +70,7 @@ class N3Annotation
             adderFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 # TODO: add arrowheads
                 selector = n3.util.getSelector('line', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3            
+                stage = if @vis()? then @vis().stage() else d3            
             
                 l = stage.selectAll(selector)
                         .data(if @dataObj? then @dataObj else [0])
@@ -95,7 +95,7 @@ class N3Annotation
             
             removerFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 selector = n3.util.getSelector('line', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
                 
                 stage.selectAll(selector).remove()
                 
@@ -104,7 +104,7 @@ class N3Annotation
         rectangle: 
             adderFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3            
+                stage = if @vis()? then @vis().stage() else d3            
             
                 r = stage.selectAll(selector)
                         .data(if @dataObj? then @dataObj else [0])
@@ -129,7 +129,7 @@ class N3Annotation
                 
             removerFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
                 
                 stage.selectAll(selector).remove()
                 
@@ -138,7 +138,7 @@ class N3Annotation
         label: 
             adderFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3            
+                stage = if @vis()? then @vis().stage() else d3            
 
                 # position the div absolutely
                 @styles['position'] = 'absolute'
@@ -160,7 +160,7 @@ class N3Annotation
                 
             removerFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
-                stage = if @visObj? then @visObj.stage() else d3
+                stage = if @vis()? then @vis().stage() else d3
                 
                 d3.selectAll(selector).remove()
                 
@@ -202,11 +202,12 @@ class N3Annotation
             
     vis: (vis) ->
         if arguments.length == 1
-            @visObj = vis
+            vis = vis.visId if typeof vis == 'object'
+            @visId = vis
             
             return this
         else
-            @visObj
+            N3Vis.lookup[@visId]
             
     draw: ->
         @adderFn @arguments...

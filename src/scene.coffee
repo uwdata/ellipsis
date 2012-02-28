@@ -4,7 +4,7 @@ class N3Scene
     constructor: (@sceneId) ->
         # members = [
         #   {
-        #        vis: visId,
+        #        visId: visId,
         #        state: {
         #            id: stateId
         #            value: value
@@ -24,7 +24,7 @@ class N3Scene
         vis = vis.visId if typeof vis == 'object'
         
         member =
-            vis: vis
+            visId: vis
             state:
                 id: stateId
                 value: val
@@ -38,7 +38,7 @@ class N3Scene
         vis = vis.visId if typeof vis == 'object'
         
         member =
-            vis: vis
+            visId: vis
             member: memberObj
             trigger: triggerObj
         

@@ -158,7 +158,7 @@
           var c, cx, cy, selector, stage;
           cx = _arg[0], cy = _arg[1];
           selector = n3.util.getSelector('circle', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           c = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
           c.enter().append('svg:circle').attr('r', r).attr('cx', cx).attr('cy', cy);
           c.transition().attr('r', r).attr('cx', cx).attr('cy', cy);
@@ -170,7 +170,7 @@
           var cx, cy, selector, stage;
           cx = _arg[0], cy = _arg[1];
           selector = n3.util.getSelector('circle', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           stage.selectAll(selector).remove();
           return true;
         }
@@ -181,7 +181,7 @@
           rx = _arg[0], ry = _arg[1];
           cx = _arg2[0], cy = _arg2[1];
           selector = n3.util.getSelector('ellipse', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           e = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
           e.enter().append('svg:ellipse').attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
           e.transition().attr('rx', rx).attr('ry', ry).attr('cx', cx).attr('cy', cy);
@@ -194,7 +194,7 @@
           rx = _arg[0], ry = _arg[1];
           cx = _arg2[0], cy = _arg2[1];
           selector = n3.util.getSelector('ellipse', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           stage.selectAll(selector).remove();
           return true;
         }
@@ -205,7 +205,7 @@
           x1 = _arg[0], y1 = _arg[1];
           x2 = _arg2[0], y2 = _arg2[1];
           selector = n3.util.getSelector('line', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           l = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
           l.enter().append('svg:line').attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
           l.transition().attr('x1', x1).attr('y1', y1).attr('x2', x2).attr('y2', y2);
@@ -218,7 +218,7 @@
           x1 = _arg[0], y1 = _arg[1];
           x2 = _arg2[0], y2 = _arg2[1];
           selector = n3.util.getSelector('line', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           stage.selectAll(selector).remove();
           return true;
         }
@@ -229,7 +229,7 @@
           w = _arg[0], h = _arg[1];
           x = _arg2[0], y = _arg2[1];
           selector = n3.util.getSelector('rect', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           r = stage.selectAll(selector).data(this.dataObj != null ? this.dataObj : [0]);
           r.enter().append('svg:rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
           r.transition().attr('x', x).attr('y', y).attr('width', w).attr('height', h);
@@ -242,7 +242,7 @@
           w = _arg[0], h = _arg[1];
           x = _arg2[0], y = _arg2[1];
           selector = n3.util.getSelector('rect', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           stage.selectAll(selector).remove();
           return true;
         }
@@ -252,7 +252,7 @@
           var d, selector, stage, x, y;
           x = _arg[0], y = _arg[1];
           selector = n3.util.getSelector('div', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           this.styles['position'] = 'absolute';
           this.styles['left'] = x + 'px';
           this.styles['top'] = y + 'px';
@@ -266,7 +266,7 @@
           var selector, stage, x, y;
           x = _arg[0], y = _arg[1];
           selector = n3.util.getSelector('div', this.attrs);
-          stage = this.visObj != null ? this.visObj.stage() : d3;
+          stage = this.vis() != null ? this.vis().stage() : d3;
           d3.selectAll(selector).remove();
           return true;
         }
@@ -317,10 +317,11 @@
 
     N3Annotation.prototype.vis = function(vis) {
       if (arguments.length === 1) {
-        this.visObj = vis;
+        if (typeof vis === 'object') vis = vis.visId;
+        this.visId = vis;
         return this;
       } else {
-        return this.visObj;
+        return N3Vis.lookup[this.visId];
       }
     };
 
@@ -470,7 +471,7 @@
       var member;
       if (typeof vis === 'object') vis = vis.visId;
       member = {
-        vis: vis,
+        visId: vis,
         state: {
           id: stateId,
           value: val
@@ -485,7 +486,7 @@
       var member;
       if (typeof vis === 'object') vis = vis.visId;
       member = {
-        vis: vis,
+        visId: vis,
         member: memberObj,
         trigger: triggerObj
       };
