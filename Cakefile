@@ -4,7 +4,7 @@ fs            = require 'fs'
 
 task 'build', 'compile coffee files and concatenate', ->
     files = ['version', 'util', 'state', 'vis', 'annotation',
-             'scene']
+             'scene', 'timeline']
                 
     args = ['--compile', '--join', 'n3.js']
     args.push "src/#{file}.coffee" for file in files

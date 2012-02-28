@@ -1,5 +1,5 @@
 (function() {
-  var N3Annotation, N3Scene, N3State, N3Vis,
+  var N3Annotation, N3Scene, N3State, N3Timeline, N3Vis,
     __slice = Array.prototype.slice;
 
   window.n3 = {
@@ -525,6 +525,61 @@
   n3.scene = function(sceneId) {
     var _base;
     return (_base = N3Scene.scenes)[sceneId] || (_base[sceneId] = new N3Scene(sceneId));
+  };
+
+  N3Timeline = (function() {
+
+    function N3Timeline() {}
+
+    N3Timeline.prototype.switchScene = function(sceneId) {
+      var currentScene, m, prevScene, vis, _i, _j, _len, _len2, _ref, _ref2, _results;
+      this.prevSceneId = this.currSceneId;
+      this.currSceneId = sceneId;
+      prevScene = N3Scene.scenes[this.prevSceneId];
+      currentScene = N3Scene.scenes[this.currSceneId];
+      if (prevScene != null) {
+        if (!((prevScene.parent != null) && (currentScene.parent != null) && prevScene.parent.sceneId === currentScene.parent.sceneId)) {
+          _ref = prevScene.members;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            m = _ref[_i];
+            if (m.state != null) continue;
+            if (m.member.removerFn == null) continue;
+            m.member.vis(m.visId);
+            m.member.remove();
+          }
+        }
+      }
+      _ref2 = currentScene.members;
+      _results = [];
+      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+        m = _ref2[_j];
+        vis = N3Vis.lookup[m.visId];
+        if (m.trigger != null) {
+          _results.push(console.log('TODO: Triggers!'));
+        } else {
+          if (m.state != null) {
+            _results.push(vis.set(m.state.id, m.state.value));
+          } else {
+            if (typeof m.member === 'function') {
+              _results.push(m.member(vis));
+            } else if (m.member.adderFn != null) {
+              m.member.vis(m.visId);
+              _results.push(m.member.add());
+            } else {
+              _results.push(void 0);
+            }
+          }
+        }
+      }
+      return _results;
+    };
+
+    return N3Timeline;
+
+  })();
+
+  n3.timeline = function() {
+    return new N3Timeline;
   };
 
 }).call(this);
