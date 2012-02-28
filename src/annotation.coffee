@@ -6,7 +6,7 @@ class N3Annotation
                 stage = if @vis()? then @vis().stage() else d3
 
                 c = stage.selectAll(selector)
-                        .data(if @dataObj? then @dataObj else [0])
+                        .data(if @data()? then @data() else [0])
       
                 c.enter()
                     .append('svg:circle')
@@ -38,7 +38,7 @@ class N3Annotation
                 stage = if @vis()? then @vis().stage() else d3
 
                 e = stage.selectAll(selector)
-                        .data(if @dataObj? then @dataObj else [0])
+                        .data(if @data()? then @data() else [0])
       
                 e.enter()
                     .append('svg:ellipse')
@@ -73,7 +73,7 @@ class N3Annotation
                 stage = if @vis()? then @vis().stage() else d3            
             
                 l = stage.selectAll(selector)
-                        .data(if @dataObj? then @dataObj else [0])
+                        .data(if @data()? then @data() else [0])
             
                 l.enter()
                     .append('svg:line')
@@ -107,7 +107,7 @@ class N3Annotation
                 stage = if @vis()? then @vis().stage() else d3            
             
                 r = stage.selectAll(selector)
-                        .data(if @dataObj? then @dataObj else [0])
+                        .data(if @data()? then @data() else [0])
             
                 r.enter()
                     .append('svg:rect')
@@ -146,7 +146,7 @@ class N3Annotation
                 @styles['top'] = y + 'px'
             
                 d = d3.select('body').selectAll(selector)
-                        .data(if @dataObj? then @dataObj else [0])
+                        .data(if @data()? then @data() else [0])
             
                 d.enter()
                     .append('div')

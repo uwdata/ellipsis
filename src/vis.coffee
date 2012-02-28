@@ -43,7 +43,7 @@ class N3Vis
     
     state: (stateId, arg2) ->
         if arguments.length == 2        # state can be a setter
-            if arg2 instanceof Array   # or a definition of a new state
+            if arg2 instanceof Array    # or a definition of a new state
                 @states[stateId] = new N3State(stateId, arg2, @visId)
             else
                 @states[stateId]?.set(arg2)
