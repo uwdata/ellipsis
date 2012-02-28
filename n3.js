@@ -502,8 +502,15 @@
     };
 
     N3Scene.prototype.subScene = function(subSceneId) {
-      var _base;
-      return (_base = this.subScenes)[subSceneId] || (_base[subSceneId] = new N3Scene(subSceneId));
+      var subScene;
+      if (this.subScenes[subSceneId] != null) {
+        return this.subScenes;
+      } else {
+        subScene = new N3Scene(subSceneId);
+        subScene.parent = this;
+        this.subScenes[subSceneId] = subScene;
+        return subScene;
+      }
     };
 
     return N3Scene;

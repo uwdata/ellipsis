@@ -54,7 +54,15 @@ class N3Scene
         return newScene
         
     subScene: (subSceneId) ->
-        @subScenes[subSceneId] or= new N3Scene(subSceneId)
+        if @subScenes[subSceneId]?
+            return @subScenes
+        else
+            subScene = new N3Scene(subSceneId)
+            subScene.parent = this
+            
+            @subScenes[subSceneId] = subScene
+            
+            return subScene
         
 n3.scene = (sceneId) ->
     N3Scene.scenes[sceneId] or= new N3Scene(sceneId)

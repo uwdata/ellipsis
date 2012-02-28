@@ -62,3 +62,21 @@ describe "scene", ->
         expect(scene2.members[3].vis).toEqual vis
         expect(scene2.members[3].member).toBe a
         
+    it "is a subscene", ->
+        scene = n3.scene('scene_4')
+                    .set(vis, 'state_1', 'value')
+                    .add(vis, f)
+                    
+        subScene = scene.subScene('scene_4a')
+                            .set(vis, 'state_2', true)
+                            .add(vis, a)
+                            
+        expect(subScene.parent).toBe scene
+        
+        expect(subScene.members[0].vis).toBe vis
+        expect(subScene.members[0].state.id).toBe 'state_2'
+        expect(subScene.members[0].state.value).toBe true
+        
+        expect(subScene.members[1].vis).toBe vis
+        expect(subScene.members[1].member).toBe a
+        
