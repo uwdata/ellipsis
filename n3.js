@@ -329,7 +329,7 @@
       }
     };
 
-    N3Annotation.prototype.draw = function() {
+    N3Annotation.prototype.add = function() {
       return this.adderFn.apply(this, this.arguments);
     };
 

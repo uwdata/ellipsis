@@ -83,6 +83,6 @@ describe "vis", ->
         vis.states['state1'].set('va1')
         expect(vis.renderFn).toHaveBeenCalled
         
-        vis.states['state2'].set('foo')
+        vis.state('state2', 'foo')
         expect(vis.renderFn).toHaveBeenCalled
         

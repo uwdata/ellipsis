@@ -209,7 +209,7 @@ class N3Annotation
         else
             N3Vis.lookup[@visId]
             
-    draw: ->
+    add: ->
         @adderFn @arguments...
         
     remove: ->

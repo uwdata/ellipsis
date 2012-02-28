@@ -59,7 +59,7 @@ describe 'annotation', ->
         expect(a.removerFn).toBe f1
         
         spyOn(a, 'adderFn')
-        a.draw()        
+        a.add()        
         expect(a.adderFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
         
         spyOn(a, 'removerFn')
@@ -73,7 +73,7 @@ describe 'annotation', ->
                 .data([1])  # to test chaining
                 
         spyOn(a, 'adderFn')
-        a.draw()        
+        a.add()        
         expect(a.adderFn).toHaveBeenCalledWith(5, [15, 45])
         
         spyOn(a, 'removerFn')
@@ -86,7 +86,7 @@ describe 'annotation', ->
                 .radius(5)
                 .vis(vis)
                 
-        a.draw()
+        a.add()
         
         c = vis.stage().selectAll('circle')
         expect(c.attr('r')).toBe '5'
@@ -100,7 +100,7 @@ describe 'annotation', ->
                 .data([2])  # to test chaining
                 
         spyOn(a, 'adderFn')
-        a.draw()
+        a.add()
         expect(a.adderFn).toHaveBeenCalledWith([3, 7], [11, 21])
         
         spyOn(a, 'removerFn')
@@ -113,7 +113,7 @@ describe 'annotation', ->
                 .center([11, 21])
                 .vis(vis)
 
-        a.draw()
+        a.add()
 
         e = vis.stage().selectAll('ellipse')
         expect(e.attr('rx')).toBe '3'
@@ -128,7 +128,7 @@ describe 'annotation', ->
                 .data([3])  # to test chaining
                 
         spyOn(a, 'adderFn')
-        a.draw()        
+        a.add()        
         expect(a.adderFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
         
         spyOn(a, 'removerFn')
@@ -141,7 +141,7 @@ describe 'annotation', ->
                 .end([32, 12], false)
                 .vis(vis)
 
-        a.draw()
+        a.add()
 
         l = vis.stage().selectAll('line')
         expect(l.attr('x1')).toBe '6'
@@ -156,7 +156,7 @@ describe 'annotation', ->
                 .data([4])  # to test chaining
 
         spyOn(a, 'adderFn')
-        a.draw()
+        a.add()
         expect(a.adderFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
         
         spyOn(a, 'removerFn')
@@ -169,7 +169,7 @@ describe 'annotation', ->
                 .size([42, 91])
                 .vis(vis)
 
-        a.draw()
+        a.add()
 
         r = vis.stage().selectAll('rect')
         expect(r.attr('width')).toBe '42'
@@ -185,7 +185,7 @@ describe 'annotation', ->
                 .data([4])  # to test chaining
 
         spyOn(a, 'adderFn')
-        a.draw()
+        a.add()
         expect(a.adderFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])
         
         spyOn(a, 'removerFn')
@@ -200,7 +200,7 @@ describe 'annotation', ->
                 .attr('id', 'label')
                 .vis(vis)
     
-        a.draw()    
+        a.add()    
         
         d = d3.selectAll('div#label')
         
@@ -218,7 +218,7 @@ describe 'annotation', ->
                 .style('position', 'absolute')
                 .vis(vis)
                 
-        a.draw()
+        a.add()
         
         c = vis.stage().selectAll('circle')
         expect(c.attr('foo')).toBe 'baz'
@@ -232,7 +232,7 @@ describe 'annotation', ->
                 .style('fill', '#ffffff')
                 .vis(vis)
                 
-        a.draw()
+        a.add()
         
         c = vis.stage().selectAll('circle')
         expect(c.style('display')).toBe 'none'
