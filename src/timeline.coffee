@@ -1,4 +1,7 @@
 class N3Timeline
+    constructor: ->
+        @triggers = {}
+        
     switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
         @currSceneId = sceneId
@@ -7,41 +10,62 @@ class N3Timeline
         
         # We want to remove annotations only if prevScene and currentScene
         # aren't subscenes of the same parent scene
-        if prevScene? and prevScene.members?
+        if prevScene?
             unless prevScene.parent? and currentScene.parent? and \
                         prevScene.parent.sceneId == currentScene.parent.sceneId
                         
               for m in prevScene.members
+                  @deregisterTrigger m.trigger
+                  
                   continue if m.state?                  
                   continue unless m.member?.annotId?  # check for N3Annotation
                   
                   m.member.vis(m.visId) # just in case
                   m.member.remove()
 
-        return true unless currentScene.members?
-        for m in currentScene.members
-            vis = N3Vis.lookup[m.visId]
-            
-            if m.trigger?
-                console.log('TODO: Triggers!')
-            else
-                if m.state?
-                    val = m.state.value
-                    if typeof val == 'function'     # states can be set with a fn
-                        val = val(vis)              # pass it the vis as an arg
+        if currentScene?
+            for m, i in currentScene.members            
+                if m.trigger?
+                    # If we see a trigger, feed it current possible values, to see
+                    # if the trigger conditions have already been met. If it has,
+                    # evaluate the member. If not, register the trigger and skip
+                    # evaluation.
+                    currentValue = null
+                    if m.trigger.type == N3Trigger.TYPES.VIS
+                        visId = m.trigger.test[0]
+                        stateId = m.trigger.test[1]
                     
-                    vis.set(m.state.id, val)        
-                else
-                    if typeof m.member == 'function'
-                        m.member(vis)    # call the function, pass vis as arg
-                    else if m.member?.annotId?   # check for N3Annotation
-                        m.member.vis(m.visId)
-                        m.member.add()
-                        
+                        currentValue = N3Vis.lookup[visId]?.state(stateId)
+                
+                    if m.trigger.evaluate(currentValue) == false or \
+                                        m.trigger.type == N3Trigger.TYPES.DOM
+                        registerTrigger(m.trigger, i)
+                        continue
+                
+                currentScene.evalMember(i)
+                                    
         true
         
-    notify: (triggerId) ->
+    registerTrigger: (trigger, memberIndex) ->
+        return true unless trigger?
         
+        @triggers[trigger.triggerId] = memberIndex
+        N3Trigger.register(trigger)
+        
+        true
+        
+    deregisterTrigger: (trigger) ->
+        return true unless trigger?
+        
+        delete @triggers[trigger.triggerId]
+        N3Trigger.deregister(trigger)
+        
+        true
+        
+    notifyTrigger: (triggerId) ->
+        N3Scene.scenes[@currSceneId]?.evalMember(i)
+        
+        true
     
 n3.timeline = ->
     new N3Timeline()

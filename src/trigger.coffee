@@ -38,14 +38,16 @@ class N3Trigger
                 
         true
         
-    @deregister = (type, test, triggerId) ->
+    @deregister = (trigger) ->
+        [type, test, triggerId] = [trigger.type, trigger.test, trigger.triggerId]
+        
         trigger = @registered[type][test][triggerId]
         
         delete @registered[type][test][triggerId]
         delete @registered[type][test] if d3.keys(@registered[type][test]).length == 0
         
         # If the trigger was a DOM event, use d3 to remove the event listener    
-        if trigger.type == @TYPES.DOM
+        if type == @TYPES.DOM
             d3.select(trigger.test)
                 .on(trigger.value, null)
             
@@ -54,7 +56,8 @@ class N3Trigger
     @notify = (type, test, value) ->
         if @registered[type][test]? and type != @TYPES.DOM
             for trigger in @registered[type][test]
-                n3.timeline().notify(trigger.triggerId) if trigger.evaluate(value)
+                n3.timeline().notifyTrigger(trigger.triggerId) \
+                    if trigger.evaluate(value)
 
     
     constructor: (binding, triggers...) ->      

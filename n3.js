@@ -503,16 +503,15 @@
       return true;
     };
 
-    N3Trigger.deregister = function(type, test, triggerId) {
-      var trigger;
+    N3Trigger.deregister = function(trigger) {
+      var test, triggerId, type, _ref;
+      _ref = [trigger.type, trigger.test, trigger.triggerId], type = _ref[0], test = _ref[1], triggerId = _ref[2];
       trigger = this.registered[type][test][triggerId];
       delete this.registered[type][test][triggerId];
       if (d3.keys(this.registered[type][test]).length === 0) {
         delete this.registered[type][test];
       }
-      if (trigger.type === this.TYPES.DOM) {
-        d3.select(trigger.test).on(trigger.value, null);
-      }
+      if (type === this.TYPES.DOM) d3.select(trigger.test).on(trigger.value, null);
       return true;
     };
 
@@ -524,7 +523,7 @@
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           trigger = _ref[_i];
           if (trigger.evaluate(value)) {
-            _results.push(n3.timeline().notify(trigger.triggerId));
+            _results.push(n3.timeline().notifyTrigger(trigger.triggerId));
           } else {
             _results.push(void 0);
           }
@@ -753,6 +752,26 @@
       }
     };
 
+    N3Scene.prototype.evalMember = function(memberIndex) {
+      var m, val, vis, _ref;
+      m = this.members[memberIndex];
+      if (m == null) return true;
+      vis = N3Vis.lookup[m.visId];
+      if (m.state != null) {
+        val = m.state.value;
+        if (typeof val === 'function') val = val(vis);
+        if (vis != null) vis.set(m.state.id, val);
+      } else {
+        if (typeof m.member === 'function') {
+          m.member(vis);
+        } else if (((_ref = m.member) != null ? _ref.annotId : void 0) != null) {
+          m.member.vis(m.visId);
+          m.member.add();
+        }
+      }
+      return true;
+    };
+
     return N3Scene;
 
   })();
@@ -764,19 +783,22 @@
 
   N3Timeline = (function() {
 
-    function N3Timeline() {}
+    function N3Timeline() {
+      this.triggers = {};
+    }
 
     N3Timeline.prototype.switchScene = function(sceneId) {
-      var currentScene, m, prevScene, val, vis, _i, _j, _len, _len2, _ref, _ref2, _ref3, _ref4;
+      var currentScene, currentValue, i, m, prevScene, stateId, visId, _i, _len, _len2, _ref, _ref2, _ref3, _ref4;
       this.prevSceneId = this.currSceneId;
       this.currSceneId = sceneId;
       prevScene = N3Scene.scenes[this.prevSceneId];
       currentScene = N3Scene.scenes[this.currSceneId];
-      if ((prevScene != null) && (prevScene.members != null)) {
+      if (prevScene != null) {
         if (!((prevScene.parent != null) && (currentScene.parent != null) && prevScene.parent.sceneId === currentScene.parent.sceneId)) {
           _ref = prevScene.members;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             m = _ref[_i];
+            this.deregisterTrigger(m.trigger);
             if (m.state != null) continue;
             if (((_ref2 = m.member) != null ? _ref2.annotId : void 0) == null) {
               continue;
@@ -786,32 +808,47 @@
           }
         }
       }
-      if (currentScene.members == null) return true;
-      _ref3 = currentScene.members;
-      for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
-        m = _ref3[_j];
-        vis = N3Vis.lookup[m.visId];
-        if (m.trigger != null) {
-          console.log('TODO: Triggers!');
-        } else {
-          if (m.state != null) {
-            val = m.state.value;
-            if (typeof val === 'function') val = val(vis);
-            vis.set(m.state.id, val);
-          } else {
-            if (typeof m.member === 'function') {
-              m.member(vis);
-            } else if (((_ref4 = m.member) != null ? _ref4.annotId : void 0) != null) {
-              m.member.vis(m.visId);
-              m.member.add();
+      if (currentScene != null) {
+        _ref3 = currentScene.members;
+        for (i = 0, _len2 = _ref3.length; i < _len2; i++) {
+          m = _ref3[i];
+          if (m.trigger != null) {
+            currentValue = null;
+            if (m.trigger.type === N3Trigger.TYPES.VIS) {
+              visId = m.trigger.test[0];
+              stateId = m.trigger.test[1];
+              currentValue = (_ref4 = N3Vis.lookup[visId]) != null ? _ref4.state(stateId) : void 0;
+            }
+            if (m.trigger.evaluate(currentValue) === false || m.trigger.type === N3Trigger.TYPES.DOM) {
+              registerTrigger(m.trigger, i);
+              continue;
             }
           }
+          currentScene.evalMember(i);
         }
       }
       return true;
     };
 
-    N3Timeline.prototype.notify = function(triggerId) {};
+    N3Timeline.prototype.registerTrigger = function(trigger, memberIndex) {
+      if (trigger == null) return true;
+      this.triggers[trigger.triggerId] = memberIndex;
+      N3Trigger.register(trigger);
+      return true;
+    };
+
+    N3Timeline.prototype.deregisterTrigger = function(trigger) {
+      if (trigger == null) return true;
+      delete this.triggers[trigger.triggerId];
+      N3Trigger.deregister(trigger);
+      return true;
+    };
+
+    N3Timeline.prototype.notifyTrigger = function(triggerId) {
+      var _ref;
+      if ((_ref = N3Scene.scenes[this.currSceneId]) != null) _ref.evalMember(i);
+      return true;
+    };
 
     return N3Timeline;
 
