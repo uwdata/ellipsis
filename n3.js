@@ -1,5 +1,5 @@
 (function() {
-  var N3Annotation, N3Scene, N3State, N3Timeline, N3Vis,
+  var N3Annotation, N3Scene, N3State, N3Timeline, N3Trigger, N3Vis,
     __slice = Array.prototype.slice;
 
   window.n3 = {
@@ -282,6 +282,7 @@
       this.type = type;
       this.adderFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.adderFn : void 0;
       this.removerFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.removerFn : void 0;
+      this.annotId = this.type + "" + new Date().getTime();
       this.autoRemoveFlag = true;
       this.arguments = [];
       this.attrs = {};
@@ -458,6 +459,210 @@
     return new N3Annotation(typeId);
   };
 
+  N3Trigger = (function() {
+
+    N3Trigger.TYPES = {
+      VIS: 'vis',
+      TIMELINE: 'timeline',
+      DOM: 'dom',
+      OR: 'or',
+      AND: 'and'
+    };
+
+    N3Trigger.CONDITIONS = {
+      IS: 'is',
+      NOT: 'not',
+      GT: 'gt',
+      LT: 'lt',
+      GTE: 'gte',
+      LTE: 'lte'
+    };
+
+    N3Trigger.registered = {};
+
+    N3Trigger.register = function(trigger) {
+      var t, _base, _base2, _i, _len, _name, _name2, _ref;
+      (_base = this.registered[trigger.type])[_name = trigger.test] || (_base[_name] = {});
+      this.registered[trigger.type][trigger.test][trigger.triggerId] = trigger;
+      if (trigger.type === this.Types.OR || trigger.type === this.TYPES.AND) {
+        if (trigger.triggers != null) {
+          _ref = trigger.triggers;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            t = _ref[_i];
+            (_base2 = this.registered[t.type])[_name2 = t.test] || (_base2[_name2] = {});
+            this.registered[t.type][t.test][t.triggerId] = trigger;
+          }
+        }
+      }
+      if (trigger.type === this.TYPES.DOM) {
+        return d3.select(trigger.test).on(trigger.value, function() {
+          return n3.trigger.notify(this.TYPES.DOM, trigger.test, trigger.value);
+        });
+      }
+    };
+
+    N3Trigger.deregister = function(type, test, triggerId) {
+      var trigger;
+      trigger = this.registered[type][test][triggerId];
+      delete this.registered[type][test][triggerId];
+      if (d3.keys(this.registered[type][test]).length === 0) {
+        delete this.registered[type][test];
+      }
+      if (trigger.type === this.TYPES.DOM) {
+        d3.select(trigger.test).on(trigger.value, null);
+      }
+      return true;
+    };
+
+    N3Trigger.notify = function(type, test, value) {
+      var evaluatedAs, trigger, _i, _len, _ref, _results;
+      evaluatedAs = false;
+      if ((this.registered[type][test] != null) && type !== this.TYPES.DOM) {
+        _ref = this.registered[type][test];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          trigger = _ref[_i];
+          _results.push(evaluatedAs = trigger.evaluate(value));
+        }
+        return _results;
+      }
+    };
+
+    function N3Trigger() {
+      var binding, t, triggers, _base;
+      binding = arguments[0], triggers = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      for (t in N3Trigger.TYPES) {
+        (_base = N3Trigger.registered)[t] || (_base[t] = {});
+      }
+      if (arguments.length === 1) {
+        if (typeof binding === 'object') {
+          if (binding.visId != null) {
+            this.type = N3Trigger.TYPES.VIS;
+            this.visId = binding.visId;
+          } else {
+            this.type = N3Trigger.TYPES.TIMELINE;
+          }
+        } else if (typeof binding === 'string') {
+          if (N3Vis.lookup[binding] != null) {
+            this.type = N3Trigger.TYPES.VIS;
+            this.visId = binding;
+          } else {
+            this.type = N3Trigger.TYPES.DOM;
+            this.test = binding;
+          }
+        }
+      } else {
+        this.type = binding;
+        this.triggers = triggers;
+      }
+      this.triggerId = this.type + '' + new Date().getTime();
+      return this;
+    }
+
+    N3Trigger.prototype.where = function(test) {
+      this.test = test;
+      return this;
+    };
+
+    N3Trigger.prototype.is = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.IS;
+      return this;
+    };
+
+    N3Trigger.prototype.not = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.NOT;
+      return this;
+    };
+
+    N3Trigger.prototype.gt = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.GT;
+      return this;
+    };
+
+    N3Trigger.prototype.greaterThan = function(value) {
+      this.value = value;
+      return this.gt(this.value);
+    };
+
+    N3Trigger.prototype.lt = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.LT;
+      return this;
+    };
+
+    N3Trigger.prototype.lessThan = function(value) {
+      this.value = value;
+      return this.lt(this.value);
+    };
+
+    N3Trigger.prototype.gte = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.GTE;
+      return this;
+    };
+
+    N3Trigger.prototype.greaterThanOrEqual = function(value) {
+      this.value = value;
+      return this.gte(this.value);
+    };
+
+    N3Trigger.prototype.lte = function(value) {
+      this.value = value;
+      this.condition = N3Trigger.CONDITIONS.LTE;
+      return this;
+    };
+
+    N3Trigger.prototype.lessThanOrEqual = function(value) {
+      this.value = value;
+      return this.lte(this.value);
+    };
+
+    N3Trigger.prototype.on = function(value) {
+      this.value = value;
+      return this;
+    };
+
+    N3Trigger.prototype.evaluate = function(notifiedVal) {
+      if ((type === this.TYPES.DOM) || (trigger.condition === this.CONDITIONS.IS && notifiedVal === trigger.value) || (trigger.condition === this.CONDITIONS.NOT && notifiedVal !== trigger.value) || (trigger.condition === this.CONDITIONS.GT && notifiedVal > trigger.value) || (trigger.condition === this.CONDITIONS.LT && notifiedVal < trigger.value) || (trigger.condition === this.CONDITIONS.GTE && notifiedVal >= trigger.value) || (trigger.condition === this.CONDITIONS.LTE && notifiedVal <= trigger.value)) {
+        return true;
+      }
+    };
+
+    return N3Trigger;
+
+  })();
+
+  n3.trigger = function(binding) {
+    return new N3Trigger(binding);
+  };
+
+  n3.trigger.or = function() {
+    var triggers;
+    triggers = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return (function(func, args, ctor) {
+      ctor.prototype = func.prototype;
+      var child = new ctor, result = func.apply(child, args);
+      return typeof result === "object" ? result : child;
+    })(N3Trigger, [N3Trigger.TYPES.OR].concat(__slice.call(triggers)), function() {});
+  };
+
+  n3.trigger.and = function() {
+    var triggers;
+    triggers = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    return (function(func, args, ctor) {
+      ctor.prototype = func.prototype;
+      var child = new ctor, result = func.apply(child, args);
+      return typeof result === "object" ? result : child;
+    })(N3Trigger, [N3Trigger.TYPES.AND].concat(__slice.call(triggers)), function() {});
+  };
+
+  n3.trigger.notify = function(type, test, value) {
+    return N3Trigger.notify(type, test, value);
+  };
+
   N3Scene = (function() {
 
     N3Scene.scenes = {};
@@ -532,48 +737,48 @@
     function N3Timeline() {}
 
     N3Timeline.prototype.switchScene = function(sceneId) {
-      var currentScene, m, prevScene, val, vis, _i, _j, _len, _len2, _ref, _ref2, _results;
+      var currentScene, m, prevScene, val, vis, _i, _j, _len, _len2, _ref, _ref2, _ref3, _ref4;
       this.prevSceneId = this.currSceneId;
       this.currSceneId = sceneId;
       prevScene = N3Scene.scenes[this.prevSceneId];
       currentScene = N3Scene.scenes[this.currSceneId];
-      if (prevScene != null) {
+      if ((prevScene != null) && (prevScene.members != null)) {
         if (!((prevScene.parent != null) && (currentScene.parent != null) && prevScene.parent.sceneId === currentScene.parent.sceneId)) {
           _ref = prevScene.members;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             m = _ref[_i];
             if (m.state != null) continue;
-            if (m.member.removerFn == null) continue;
+            if (((_ref2 = m.member) != null ? _ref2.annotId : void 0) == null) {
+              continue;
+            }
             m.member.vis(m.visId);
             m.member.remove();
           }
         }
       }
-      _ref2 = currentScene.members;
-      _results = [];
-      for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-        m = _ref2[_j];
+      if (currentScene.members == null) return true;
+      _ref3 = currentScene.members;
+      for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+        m = _ref3[_j];
         vis = N3Vis.lookup[m.visId];
         if (m.trigger != null) {
-          _results.push(console.log('TODO: Triggers!'));
+          console.log('TODO: Triggers!');
         } else {
           if (m.state != null) {
             val = m.state.value;
             if (typeof val === 'function') val = val(vis);
-            _results.push(vis.set(m.state.id, val));
+            vis.set(m.state.id, val);
           } else {
             if (typeof m.member === 'function') {
-              _results.push(m.member(vis));
-            } else if (m.member.adderFn != null) {
+              m.member(vis);
+            } else if (((_ref4 = m.member) != null ? _ref4.annotId : void 0) != null) {
               m.member.vis(m.visId);
-              _results.push(m.member.add());
-            } else {
-              _results.push(void 0);
+              m.member.add();
             }
           }
         }
       }
-      return _results;
+      return true;
     };
 
     return N3Timeline;
@@ -581,7 +786,7 @@
   })();
 
   n3.timeline = function() {
-    return new N3Timeline;
+    return new N3Timeline();
   };
 
 }).call(this);

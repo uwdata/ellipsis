@@ -170,6 +170,7 @@ class N3Annotation
         @adderFn = N3Annotation.types[@type]?.adderFn
         @removerFn = N3Annotation.types[@type]?.removerFn
         
+        @annotId = @type + "" + new Date().getTime()   
         @autoRemoveFlag = true
         @arguments = []
         @attrs = {}

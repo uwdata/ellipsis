@@ -3,7 +3,7 @@ fs            = require 'fs'
 {spawn, exec} = require 'child_process'
 
 task 'build', 'compile coffee files and concatenate', ->
-    files = ['version', 'util', 'state', 'vis', 'annotation',
+    files = ['version', 'util', 'state', 'vis', 'annotation', 'trigger',
              'scene', 'timeline']
                 
     args = ['--compile', '--join', 'n3.js']
