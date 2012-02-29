@@ -516,12 +516,12 @@
     };
 
     N3Trigger.notify = function(type, test, value) {
-      var trigger, _i, _len, _ref, _results;
-      if ((this.registered[type][test] != null) && type !== this.TYPES.DOM) {
-        _ref = this.registered[type][test];
+      var trigger, _i, _len, _ref, _ref2, _results;
+      if ((((_ref = this.registered[type]) != null ? _ref[test] : void 0) != null) && type !== this.TYPES.DOM) {
+        _ref2 = this.registered[type][test];
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          trigger = _ref[_i];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          trigger = _ref2[_i];
           if (trigger.evaluate(value)) {
             _results.push(n3.timeline().notifyTrigger(trigger.triggerId));
           } else {
@@ -760,7 +760,7 @@
       if (m.state != null) {
         val = m.state.value;
         if (typeof val === 'function') val = val(vis);
-        if (vis != null) vis.set(m.state.id, val);
+        if (vis != null) vis.state(m.state.id, val);
       } else {
         if (typeof m.member === 'function') {
           m.member(vis);

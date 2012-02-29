@@ -54,7 +54,7 @@ class N3Trigger
         true
         
     @notify = (type, test, value) ->
-        if @registered[type][test]? and type != @TYPES.DOM
+        if @registered[type]?[test]? and type != @TYPES.DOM
             for trigger in @registered[type][test]
                 n3.timeline().notifyTrigger(trigger.triggerId) \
                     if trigger.evaluate(value)
