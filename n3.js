@@ -61,7 +61,8 @@
 
     N3State.prototype.notify = function() {
       var _ref;
-      return (_ref = N3Vis.lookup[this.visId]) != null ? _ref.renderFn() : void 0;
+      if ((_ref = N3Vis.lookup[this.visId]) != null) _ref.renderFn();
+      return N3Trigger.notify(N3Trigger.TYPES.VIS, [this.visId, this.stateId], this.val);
     };
 
     return N3State;
@@ -495,10 +496,11 @@
         }
       }
       if (trigger.type === this.TYPES.DOM) {
-        return d3.select(trigger.test).on(trigger.value, function() {
+        d3.select(trigger.test).on(trigger.value, function() {
           return n3.trigger.notify(this.TYPES.DOM, trigger.test, trigger.value);
         });
       }
+      return true;
     };
 
     N3Trigger.deregister = function(type, test, triggerId) {
@@ -515,14 +517,17 @@
     };
 
     N3Trigger.notify = function(type, test, value) {
-      var evaluatedAs, trigger, _i, _len, _ref, _results;
-      evaluatedAs = false;
+      var trigger, _i, _len, _ref, _results;
       if ((this.registered[type][test] != null) && type !== this.TYPES.DOM) {
         _ref = this.registered[type][test];
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           trigger = _ref[_i];
-          _results.push(evaluatedAs = trigger.evaluate(value));
+          if (trigger.evaluate(value)) {
+            _results.push(n3.timeline().notify(trigger.triggerId));
+          } else {
+            _results.push(void 0);
+          }
         }
         return _results;
       }
@@ -538,14 +543,14 @@
         if (typeof binding === 'object') {
           if (binding.visId != null) {
             this.type = N3Trigger.TYPES.VIS;
-            this.visId = binding.visId;
+            this.test || (this.test = [binding.visId, void 0]);
           } else {
             this.type = N3Trigger.TYPES.TIMELINE;
           }
         } else if (typeof binding === 'string') {
           if (N3Vis.lookup[binding] != null) {
             this.type = N3Trigger.TYPES.VIS;
-            this.visId = binding;
+            this.test || (this.test = [binding, void 0]);
           } else {
             this.type = N3Trigger.TYPES.DOM;
             this.test = binding;
@@ -560,7 +565,11 @@
     }
 
     N3Trigger.prototype.where = function(test) {
-      this.test = test;
+      if (this.type === N3Trigger.TYPES.VIS) {
+        this.test[1] = test;
+      } else {
+        this.test = test;
+      }
       return this;
     };
 
@@ -626,8 +635,29 @@
     };
 
     N3Trigger.prototype.evaluate = function(notifiedVal) {
-      if ((type === this.TYPES.DOM) || (trigger.condition === this.CONDITIONS.IS && notifiedVal === trigger.value) || (trigger.condition === this.CONDITIONS.NOT && notifiedVal !== trigger.value) || (trigger.condition === this.CONDITIONS.GT && notifiedVal > trigger.value) || (trigger.condition === this.CONDITIONS.LT && notifiedVal < trigger.value) || (trigger.condition === this.CONDITIONS.GTE && notifiedVal >= trigger.value) || (trigger.condition === this.CONDITIONS.LTE && notifiedVal <= trigger.value)) {
+      var result, trigger, _i, _j, _len, _len2, _ref, _ref2;
+      if (this.type === N3Trigger.TYPES.DOM) {
         return true;
+      } else if (this.type === N3Trigger.TYPES.OR) {
+        _ref = this.triggers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          trigger = _ref[_i];
+          result = trigger.evaluate(notifiedVal);
+          if (result === true) return true;
+        }
+        return false;
+      } else if (this.type === N3Trigger.TYPES.AND) {
+        _ref2 = this.triggers;
+        for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+          trigger = _ref2[_j];
+          result = trigger.evaluate(notifiedVal);
+          if (result === false) return false;
+        }
+        return true;
+      } else {
+        if ((type === this.TYPES.DOM) || (trigger.condition === this.CONDITIONS.IS && notifiedVal === trigger.value) || (trigger.condition === this.CONDITIONS.NOT && notifiedVal !== trigger.value) || (trigger.condition === this.CONDITIONS.GT && notifiedVal > trigger.value) || (trigger.condition === this.CONDITIONS.LT && notifiedVal < trigger.value) || (trigger.condition === this.CONDITIONS.GTE && notifiedVal >= trigger.value) || (trigger.condition === this.CONDITIONS.LTE && notifiedVal <= trigger.value)) {
+          return true;
+        }
       }
     };
 
@@ -780,6 +810,8 @@
       }
       return true;
     };
+
+    N3Timeline.prototype.notify = function(triggerId) {};
 
     return N3Timeline;
 

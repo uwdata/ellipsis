@@ -12,3 +12,4 @@ class N3State
         
     notify: ->
         N3Vis.lookup[@visId]?.renderFn();
+        N3Trigger.notify(N3Trigger.TYPES.VIS, [@visId, @stateId], @val)

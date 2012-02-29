@@ -65,13 +65,13 @@ class N3Trigger
             if typeof binding == 'object'   # could be an n3.vis or n3.timeline
                 if binding.visId?
                     @type = N3Trigger.TYPES.VIS
-                    @visId = binding.visId
+                    @test or= [binding.visId, undefined]
                 else
                     @type = N3Trigger.TYPES.TIMELINE
             else if typeof binding == 'string'  # could be a visID or a dom selector
                 if N3Vis.lookup[binding]?
                     @type = N3Trigger.TYPES.VIS
-                    @visId = binding
+                    @test or= [binding, undefined]
                 else
                     @type = N3Trigger.TYPES.DOM
                     @test = binding
@@ -83,7 +83,12 @@ class N3Trigger
                 
         return this
         
-    where: (@test) ->
+    where: (test) ->
+        if @type == N3Trigger.TYPES.VIS
+            @test[1] = test
+        else
+            @test = test
+            
         return this
         
     is: (@value) ->
