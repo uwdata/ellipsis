@@ -1,8 +1,7 @@
 class N3Timeline
-    constructor: ->
-        @triggers = {}
+    @triggers = {}
         
-    switchScene: (sceneId) ->
+    @switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
         @currSceneId = sceneId
         prevScene = N3Scene.scenes[@prevSceneId]
@@ -26,7 +25,7 @@ class N3Timeline
         if currentScene?
             for m, i in currentScene.members            
                 if m.trigger?
-                    # If we see a trigger, feed it current possible values, to see
+                    # If we see a trigger, feed it ambient values, to see
                     # if the trigger conditions have already been met. If it has,
                     # evaluate the member. If not, register the trigger and skip
                     # evaluation.
@@ -46,7 +45,7 @@ class N3Timeline
                                     
         true
         
-    registerTrigger: (trigger, memberIndex) ->
+    @registerTrigger: (trigger, memberIndex) ->
         return true unless trigger?
         
         @triggers[trigger.triggerId] = memberIndex
@@ -54,7 +53,7 @@ class N3Timeline
         
         true
         
-    deregisterTrigger: (trigger) ->
+    @deregisterTrigger: (trigger) ->
         return true unless trigger?
         
         delete @triggers[trigger.triggerId]
@@ -62,10 +61,11 @@ class N3Timeline
         
         true
         
-    notifyTrigger: (triggerId) ->
+    @notifyTrigger: (triggerId) ->
         N3Scene.scenes[@currSceneId]?.evalMember(i)
         
         true
     
-n3.timeline = ->
-    new N3Timeline()
+n3.timeline or= {}    
+n3.timeline.switchScene = (sceneId) ->
+    N3Timeline.switchScene(sceneId)

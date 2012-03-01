@@ -17,14 +17,16 @@ class N3Trigger
     @registered = {}
     
     @register = (trigger) ->
+        @registered[trigger.type] or= {}
         @registered[trigger.type][trigger.test] or= {}
         @registered[trigger.type][trigger.test][trigger.triggerId] = trigger
         
         # If we're a OR or AND trigger, register the individual sub-triggers
         # for fast look up, but have them point to the parent OR/AND trigger
-        if trigger.type == @Types.OR or trigger.type == @TYPES.AND
+        if trigger.type == @TYPES.OR or trigger.type == @TYPES.AND
             if trigger.triggers?
                 for t in trigger.triggers
+                    @registered[trigger.type] or= {}
                     @registered[t.type][t.test] or= {}
                     @registered[t.type][t.test][t.triggerId] = trigger
         
@@ -43,27 +45,23 @@ class N3Trigger
         
         trigger = @registered[type][test][triggerId]
         
-        delete @registered[type][test][triggerId]
-        delete @registered[type][test] if d3.keys(@registered[type][test]).length == 0
-        
         # If the trigger was a DOM event, use d3 to remove the event listener    
         if type == @TYPES.DOM
             d3.select(trigger.test)
                 .on(trigger.value, null)
+        
+        delete @registered[type][test][triggerId]
             
         true
         
     @notify = (type, test, value) ->
         if @registered[type]?[test]? and type != @TYPES.DOM
-            for trigger in @registered[type][test]
-                n3.timeline().notifyTrigger(trigger.triggerId) \
-                    if trigger.evaluate(value)
+            for triggerId, trigger of @registered[type][test]
+                N3Timeline.notifyTrigger(triggerId) \
+                    if trigger.evaluate(test, value)
 
     
-    constructor: (binding, triggers...) ->      
-        for t of N3Trigger.TYPES
-            N3Trigger.registered[t] or= {}
-        
+    constructor: (binding, triggers...) ->  
         if arguments.length == 1            # Only a single trigger
             if typeof binding == 'object'   # could be an n3.vis or n3.timeline
                 if binding.visId?
@@ -139,29 +137,37 @@ class N3Trigger
     on: (@value) ->        
         return this
         
-    evaluate: (notifiedVal) ->
+    evaluate: (notifiedTest, notifiedVal) ->
         if @type == N3Trigger.TYPES.DOM
             return true
         else if @type == N3Trigger.TYPES.OR
             for trigger in @triggers
-                result = trigger.evaluate(notifiedVal)
+                result = trigger.evaluate(notifiedTest, notifiedVal)
                 return true if result == true   # If at least one is true, then return
                             # If we've made it through all triggers without
             return false    # returning, then none of them were true
         else if @type == N3Trigger.TYPES.AND
             for trigger in @triggers
-                result = trigger.evaluate(notifiedVal)
+                result = trigger.evaluate(notifiedTest, notifiedVal)
+
+                # In AND triggers, we want to check the ambient value of states
+                # because they may have been triggered previously
+                if result == false and trigger.type == N3Trigger.TYPES.VIS
+                    result = trigger.evaluate(trigger.test, N3Vis.lookup[trigger.test[0]]?.state(trigger.test[1]))
+
                 return false if result == false   # If at least one is false, then return
                             # If we've made it through all triggers without
             return true     # returning, then none of them were false               
         else
-            return true if (type == @TYPES.DOM) or 
-                (trigger.condition == @CONDITIONS.IS  and notifiedVal == trigger.value) or \ 
-                (trigger.condition == @CONDITIONS.NOT and notifiedVal != trigger.value) or \ 
-                (trigger.condition == @CONDITIONS.GT  and notifiedVal >  trigger.value) or \ 
-                (trigger.condition == @CONDITIONS.LT  and notifiedVal <  trigger.value) or \ 
-                (trigger.condition == @CONDITIONS.GTE and notifiedVal >= trigger.value) or \ 
-                (trigger.condition == @CONDITIONS.LTE and notifiedVal <= trigger.value)        
+            return true if (@test + "") == (notifiedTest + "") and ((@type == N3Trigger.TYPES.DOM) or 
+                (@condition == N3Trigger.CONDITIONS.IS   and notifiedVal == @value) or \ 
+                (@condition == N3Trigger.CONDITIONS.NOT  and notifiedVal != @value) or \ 
+                (@condition == N3Trigger.CONDITIONS.GT   and notifiedVal >  @value) or \ 
+                (@condition == N3Trigger.CONDITIONS.LT   and notifiedVal <  @value) or \ 
+                (@condition == N3Trigger.CONDITIONS.GTE  and notifiedVal >= @value) or \ 
+                (@condition == N3Trigger.CONDITIONS.LTE  and notifiedVal <= @value))   
+                
+        return false 
         
 n3.trigger = (binding) ->
     new N3Trigger(binding)
