@@ -819,10 +819,12 @@
 
     N3Timeline.triggers = {};
 
+    N3Timeline.transitions = {};
+
     N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
-      var currentScene, currentValue, i, m, prevScene, stateId, visId, _i, _len, _len2, _ref, _ref2, _ref3, _ref4;
+      var currentScene, currentValue, i, m, prevScene, stateId, transFunc, visId, _i, _j, _len, _len2, _len3, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
       this.prevSceneId = this.currSceneId;
       this.currSceneId = sceneId;
       prevScene = N3Scene.scenes[this.prevSceneId];
@@ -842,11 +844,18 @@
           }
         }
       }
+      if (((_ref3 = this.transitions[this.prevSceneId]) != null ? _ref3[this.currSceneId] : void 0) != null) {
+        _ref4 = this.transitions[this.prevSceneId][this.currSceneId];
+        for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
+          transFunc = _ref4[_j];
+          transFunc(prevScene, currentScene);
+        }
+      }
       this.start(true);
       if (currentScene != null) {
-        _ref3 = currentScene.members;
-        for (i = 0, _len2 = _ref3.length; i < _len2; i++) {
-          m = _ref3[i];
+        _ref5 = currentScene.members;
+        for (i = 0, _len3 = _ref5.length; i < _len3; i++) {
+          m = _ref5[i];
           if (m.trigger != null) {
             if (m.trigger.type === N3Trigger.TYPES.DELAY) {
               m.trigger.where(N3Trigger.WHERE.DELAY + (i - 1));
@@ -855,7 +864,7 @@
             if (m.trigger.type === N3Trigger.TYPES.VIS) {
               visId = m.trigger.test[0];
               stateId = m.trigger.test[1];
-              currentValue = (_ref4 = N3Vis.lookup[visId]) != null ? _ref4.state(stateId) : void 0;
+              currentValue = (_ref6 = N3Vis.lookup[visId]) != null ? _ref6.state(stateId) : void 0;
             }
             if (m.trigger.evaluate(currentValue) === false || m.trigger.type === N3Trigger.TYPES.DOM) {
               registerTrigger(m.trigger, i);
@@ -886,6 +895,36 @@
       var _ref;
       if ((_ref = N3Scene.scenes[this.currSceneId]) != null) _ref.evalMember(i);
       return true;
+    };
+
+    N3Timeline.parseTransSyntax = function(transQ) {
+      var sceneId, scenes;
+      if (transQ instanceof Array) return transQ;
+      scenes = [];
+      if (transQ === '*') {
+        for (sceneId in N3Scene.scenes) {
+          scenes.push(sceneId);
+        }
+      }
+      return scenes;
+    };
+
+    N3Timeline.transition = function(fromScenes, toScenes, func) {
+      var fromScene, fromSceneId, toScene, toSceneId, _base, _base2, _i, _j, _len, _len2;
+      fromScenes = this.parseTransSyntax(fromScenes);
+      toScenes = this.parseTransSyntax(toScenes);
+      for (_i = 0, _len = fromScenes.length; _i < _len; _i++) {
+        fromScene = fromScenes[_i];
+        fromSceneId = fromScene.sceneId(typeof fromScene === 'object' ? void 0 : fromScene);
+        (_base = this.transitions)[fromSceneId] || (_base[fromSceneId] = {});
+        for (_j = 0, _len2 = toScenes.length; _j < _len2; _j++) {
+          toScene = toScenes[_j];
+          toSceneId = toScene.sceneId(typeof toScene === 'object' ? void 0 : toScene);
+          (_base2 = this.transitions[fromSceneId])[toSceneId] || (_base2[toSceneId] = []);
+          this.transitions[fromSceneId][toSceneId].push(func);
+        }
+      }
+      return this;
     };
 
     N3Timeline.start = function(reset) {

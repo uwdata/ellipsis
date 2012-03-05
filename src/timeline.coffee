@@ -1,6 +1,6 @@
 class N3Timeline
     @triggers = {}
-    
+    @transitions = {}    
     @paused = false
         
     @switchScene: (sceneId) ->
@@ -22,9 +22,15 @@ class N3Timeline
                   continue unless m.member?.annotId?  # check for N3Annotation
                   
                   m.member.vis(m.visId) # just in case
-                  m.member.remove() if m.member.autoRemoveFlag
+                  m.member.remove() if m.member.autoRemoveFlag 
         
-        @start(true)          
+        # Run any transitions
+        if @transitions[@prevSceneId]?[@currSceneId]?      
+            for transFunc in @transitions[@prevSceneId][@currSceneId]
+                transFunc(prevScene, currentScene)  
+       
+        # Start the timer for the current scene after the transition is complete
+        @start(true)
        
         if currentScene?
             for m, i in currentScene.members            
@@ -74,6 +80,39 @@ class N3Timeline
         N3Scene.scenes[@currSceneId]?.evalMember(i)
         
         true  
+        
+    @parseTransSyntax: (transQ) ->
+        return transQ if transQ instanceof Array
+        
+        scenes = []
+        
+        if transQ == '*'
+            for sceneId of N3Scene.scenes
+                scenes.push sceneId
+                
+        return scenes
+        
+    @transition: (fromScenes, toScenes, func) ->   
+        fromScenes = @parseTransSyntax fromScenes
+        toScenes = @parseTransSyntax toScenes
+         
+        for fromScene in fromScenes
+            # Allow people to pass in scene objs too
+            fromSceneId = fromScene.sceneId \
+                    if typeof fromScene == 'object' else fromScene
+            
+            @transitions[fromSceneId] or= {}
+            
+            for toScene in toScenes
+                # Allow people to pass in scene objs too
+                toSceneId = toScene.sceneId \
+                        if typeof toScene == 'object' else toScene
+                            
+                @transitions[fromSceneId][toSceneId] or= []
+                @transitions[fromSceneId][toSceneId].push func
+                
+        return this
+                
         
     @start: (reset) ->    
         if reset
