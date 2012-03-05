@@ -309,3 +309,6 @@ class N3Annotation
         
 n3.annotation = (typeId) ->
     new N3Annotation(typeId)
+    
+n3.annotation.def = (typeId) ->
+    new N3Annotation(typeId)

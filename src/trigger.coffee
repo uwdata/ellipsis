@@ -142,13 +142,13 @@ class N3Trigger
             return true
         else if @type == N3Trigger.TYPES.OR
             for trigger in @triggers
-                result = trigger.evaluate(notifiedTest, notifiedVal)
+                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal) else false
                 return true if result == true   # If at least one is true, then return
                             # If we've made it through all triggers without
             return false    # returning, then none of them were true
         else if @type == N3Trigger.TYPES.AND
             for trigger in @triggers
-                result = trigger.evaluate(notifiedTest, notifiedVal)
+                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal) else false
 
                 # In AND triggers, we want to check the ambient value of states
                 # because they may have been triggered previously
@@ -159,13 +159,13 @@ class N3Trigger
                             # If we've made it through all triggers without
             return true     # returning, then none of them were false               
         else
-            return true if (@test + "") == (notifiedTest + "") and ((@type == N3Trigger.TYPES.DOM) or 
+            return true if (@type == N3Trigger.TYPES.DOM) or 
                 (@condition == N3Trigger.CONDITIONS.IS   and notifiedVal == @value) or \ 
                 (@condition == N3Trigger.CONDITIONS.NOT  and notifiedVal != @value) or \ 
                 (@condition == N3Trigger.CONDITIONS.GT   and notifiedVal >  @value) or \ 
                 (@condition == N3Trigger.CONDITIONS.LT   and notifiedVal <  @value) or \ 
                 (@condition == N3Trigger.CONDITIONS.GTE  and notifiedVal >= @value) or \ 
-                (@condition == N3Trigger.CONDITIONS.LTE  and notifiedVal <= @value))   
+                (@condition == N3Trigger.CONDITIONS.LTE  and notifiedVal <= @value) 
                 
         return false 
         

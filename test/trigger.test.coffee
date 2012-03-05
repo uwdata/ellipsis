@@ -80,6 +80,25 @@ describe "trigger", ->
         expect(t.evaluate([vis.visId, 'state_2'], 4)).toBe false
         expect(t.evaluate([vis.visId, 'state_2'], 3)).toBe true
         
+        t1 = n3.trigger.and(
+                n3.trigger(vis)
+                        .where('state_1')
+                        .is('value'),
+                
+                n3.trigger(vis)
+                        .where('state_2')
+                        .gt(3)                
+            )
+        
+        vis.state('state_1', 'valid')
+        vis.state('state_2', 1)
+        expect(t1.evaluate([vis.visId, 'state_1'], 'value')).toBe false
+        expect(t1.evaluate([vis.visId, 'state_2'], 4)).toBe false
+        
+        vis.state('state_2', 5)
+        expect(t1.evaluate([vis.visId, 'state_1'], 'valid')).toBe false
+        expect(t1.evaluate([vis.visId, 'state_1'], 'value')).toBe true
+        
     it "is or", ->
         t = n3.trigger.or(
                 n3.trigger(vis)

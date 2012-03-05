@@ -462,6 +462,10 @@
     return new N3Annotation(typeId);
   };
 
+  n3.annotation.def = function(typeId) {
+    return new N3Annotation(typeId);
+  };
+
   N3Trigger = (function() {
 
     N3Trigger.TYPES = {
@@ -639,7 +643,7 @@
         _ref = this.triggers;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           trigger = _ref[_i];
-          result = trigger.evaluate(notifiedTest, notifiedVal);
+          result = (trigger.test + "") === (notifiedTest + "") ? trigger.evaluate(notifiedTest, notifiedVal) : false;
           if (result === true) return true;
         }
         return false;
@@ -647,7 +651,7 @@
         _ref2 = this.triggers;
         for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
           trigger = _ref2[_j];
-          result = trigger.evaluate(notifiedTest, notifiedVal);
+          result = (trigger.test + "") === (notifiedTest + "") ? trigger.evaluate(notifiedTest, notifiedVal) : false;
           if (result === false && trigger.type === N3Trigger.TYPES.VIS) {
             result = trigger.evaluate(trigger.test, (_ref3 = N3Vis.lookup[trigger.test[0]]) != null ? _ref3.state(trigger.test[1]) : void 0);
           }
@@ -655,7 +659,7 @@
         }
         return true;
       } else {
-        if ((this.test + "") === (notifiedTest + "") && ((this.type === N3Trigger.TYPES.DOM) || (this.condition === N3Trigger.CONDITIONS.IS && notifiedVal === this.value) || (this.condition === N3Trigger.CONDITIONS.NOT && notifiedVal !== this.value) || (this.condition === N3Trigger.CONDITIONS.GT && notifiedVal > this.value) || (this.condition === N3Trigger.CONDITIONS.LT && notifiedVal < this.value) || (this.condition === N3Trigger.CONDITIONS.GTE && notifiedVal >= this.value) || (this.condition === N3Trigger.CONDITIONS.LTE && notifiedVal <= this.value))) {
+        if ((this.type === N3Trigger.TYPES.DOM) || (this.condition === N3Trigger.CONDITIONS.IS && notifiedVal === this.value) || (this.condition === N3Trigger.CONDITIONS.NOT && notifiedVal !== this.value) || (this.condition === N3Trigger.CONDITIONS.GT && notifiedVal > this.value) || (this.condition === N3Trigger.CONDITIONS.LT && notifiedVal < this.value) || (this.condition === N3Trigger.CONDITIONS.GTE && notifiedVal >= this.value) || (this.condition === N3Trigger.CONDITIONS.LTE && notifiedVal <= this.value)) {
           return true;
         }
       }
