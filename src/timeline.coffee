@@ -24,7 +24,7 @@ class N3Timeline
                   continue unless m.member?.annotId?  # check for N3Annotation
                   
                   m.member.vis(m.visId) # just in case
-                  m.member.remove()
+                  m.member.remove() if m.member.autoRemoveFlag
                   
         
         @switchTime  = Date.now() 

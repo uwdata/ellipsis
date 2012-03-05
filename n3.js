@@ -836,7 +836,7 @@
               continue;
             }
             m.member.vis(m.visId);
-            m.member.remove();
+            if (m.member.autoRemoveFlag) m.member.remove();
           }
         }
       }
