@@ -2,6 +2,7 @@ class N3Trigger
     @TYPES =
         VIS: 'vis'
         TIMELINE: 'timeline'
+        DELAY: 'delay'
         DOM: 'dom'
         OR: 'or'
         AND: 'and'
@@ -16,6 +17,7 @@ class N3Trigger
         
     @WHERE =
         ELAPSED: 'elapsed'
+        DELAY: 'delay_'
     
     @registered = {}
     
@@ -140,6 +142,12 @@ class N3Trigger
     on: (@value) ->        
         return this
         
+    # Delay triggers always evaluate as false but a d3.timer registers that calls
+    # this function to manually notify the timeline.     
+    fireDelay: () ->                
+        N3Timeline.notifyTrigger(@triggerId)        
+        return true
+        
     evaluate: (notifiedTest, notifiedVal) ->
         if @type == N3Trigger.TYPES.DOM
             return true
@@ -160,7 +168,10 @@ class N3Trigger
 
                 return false if result == false   # If at least one is false, then return
                             # If we've made it through all triggers without
-            return true     # returning, then none of them were false               
+            return true     # returning, then none of them were false
+        else if @type == N3Trigger.TYPES.DELAY  # If it's a delay, register a timer
+            d3.timer(@fireDelay, @value)        # and evaluate this trigger as false
+            return false
         else
             return true if (@type == N3Trigger.TYPES.DOM) or 
                 (@condition == N3Trigger.CONDITIONS.IS   and notifiedVal == @value) or \ 
@@ -183,3 +194,7 @@ n3.trigger.and = (triggers...) ->
     
 n3.trigger.notify = (type, test, value) ->
     N3Trigger.notify(type, test, value)
+    
+n3.trigger.afterPrev = (delay) ->
+    t = new N3Trigger(N3Trigger.TYPES.DELAY)
+    t.gte(delay)

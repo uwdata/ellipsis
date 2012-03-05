@@ -82,6 +82,8 @@ class N3Scene
             else if m.member?.annotId?   # check for N3Annotation
                 m.member.vis(m.visId)
                 m.member.add()
+        
+        N3Trigger.notify(N3Trigger.TYPES.DELAY, N3Trigger.WHERE.DELAY + memberIndex, 1)
                 
         true
         

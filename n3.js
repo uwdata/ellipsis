@@ -471,6 +471,7 @@
     N3Trigger.TYPES = {
       VIS: 'vis',
       TIMELINE: 'timeline',
+      DELAY: 'delay',
       DOM: 'dom',
       OR: 'or',
       AND: 'and'
@@ -486,7 +487,8 @@
     };
 
     N3Trigger.WHERE = {
-      ELAPSED: 'elapsed'
+      ELAPSED: 'elapsed',
+      DELAY: 'delay_'
     };
 
     N3Trigger.registered = {};
@@ -639,6 +641,11 @@
       return this;
     };
 
+    N3Trigger.prototype.fireDelay = function() {
+      N3Timeline.notifyTrigger(this.triggerId);
+      return true;
+    };
+
     N3Trigger.prototype.evaluate = function(notifiedTest, notifiedVal) {
       var result, trigger, _i, _j, _len, _len2, _ref, _ref2, _ref3;
       if (this.type === N3Trigger.TYPES.DOM) {
@@ -662,6 +669,9 @@
           if (result === false) return false;
         }
         return true;
+      } else if (this.type === N3Trigger.TYPES.DELAY) {
+        d3.timer(this.fireDelay, this.value);
+        return false;
       } else {
         if ((this.type === N3Trigger.TYPES.DOM) || (this.condition === N3Trigger.CONDITIONS.IS && notifiedVal === this.value) || (this.condition === N3Trigger.CONDITIONS.NOT && notifiedVal !== this.value) || (this.condition === N3Trigger.CONDITIONS.GT && notifiedVal > this.value) || (this.condition === N3Trigger.CONDITIONS.LT && notifiedVal < this.value) || (this.condition === N3Trigger.CONDITIONS.GTE && notifiedVal >= this.value) || (this.condition === N3Trigger.CONDITIONS.LTE && notifiedVal <= this.value)) {
           return true;
@@ -700,6 +710,12 @@
 
   n3.trigger.notify = function(type, test, value) {
     return N3Trigger.notify(type, test, value);
+  };
+
+  n3.trigger.afterPrev = function(delay) {
+    var t;
+    t = new N3Trigger(N3Trigger.TYPES.DELAY);
+    return t.gte(delay);
   };
 
   N3Scene = (function() {
@@ -779,6 +795,7 @@
           m.member.add();
         }
       }
+      N3Trigger.notify(N3Trigger.TYPES.DELAY, N3Trigger.WHERE.DELAY + memberIndex, 1);
       return true;
     };
 
@@ -831,6 +848,9 @@
         for (i = 0, _len2 = _ref3.length; i < _len2; i++) {
           m = _ref3[i];
           if (m.trigger != null) {
+            if (m.trigger.type === N3Trigger.TYPES.DELAY) {
+              m.trigger.where(N3Trigger.WHERE.DELAY + (i - 1));
+            }
             currentValue = null;
             if (m.trigger.type === N3Trigger.TYPES.VIS) {
               visId = m.trigger.test[0];

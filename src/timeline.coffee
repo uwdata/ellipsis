@@ -33,6 +33,11 @@ class N3Timeline
         if currentScene?
             for m, i in currentScene.members            
                 if m.trigger?
+                    # If it's a delay trigger, automatically bind it to the prev
+                    # member's index
+                    if m.trigger.type == N3Trigger.TYPES.DELAY
+                        m.trigger.where(N3Trigger.WHERE.DELAY + (i - 1))
+                    
                     # If we see a trigger, feed it ambient values, to see
                     # if the trigger conditions have already been met. If it has,
                     # evaluate the member. If not, register the trigger and skip
