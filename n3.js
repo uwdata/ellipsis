@@ -758,6 +758,11 @@
       return this;
     };
 
+    N3Scene.prototype.member = function(memberIndex) {
+      var _ref;
+      return (_ref = this.members[memberIndex + 1]) != null ? _ref.member : void 0;
+    };
+
     N3Scene.prototype.clone = function(sceneID) {
       var newScene;
       newScene = n3.scene(sceneID);
@@ -814,10 +819,7 @@
 
     N3Timeline.triggers = {};
 
-    N3Timeline.incrementTime = function() {
-      this.elapsedTime = Date.now() - this.switchTime;
-      return N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, this.elapsedTime);
-    };
+    N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
       var currentScene, currentValue, i, m, prevScene, stateId, visId, _i, _len, _len2, _ref, _ref2, _ref3, _ref4;
@@ -840,9 +842,7 @@
           }
         }
       }
-      this.switchTime = Date.now();
-      this.elapsedTime = 0;
-      d3.timer(this.incrementTime);
+      this.start(true);
       if (currentScene != null) {
         _ref3 = currentScene.members;
         for (i = 0, _len2 = _ref3.length; i < _len2; i++) {
@@ -888,6 +888,25 @@
       return true;
     };
 
+    N3Timeline.start = function(reset) {
+      if (reset) {
+        this.startTime = Date.now();
+        this.elapsedTime = 0;
+      }
+      this.pause = false;
+      return d3.timer(this.incrementTime);
+    };
+
+    N3Timeline.incrementTime = function() {
+      this.elapsedTime = Date.now() - this.startTime;
+      N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, this.elapsedTime);
+      return this.paused;
+    };
+
+    N3Timeline.pause = function() {
+      return this.pause = true;
+    };
+
     return N3Timeline;
 
   })();
@@ -896,6 +915,14 @@
 
   n3.timeline.switchScene = function(sceneId) {
     return N3Timeline.switchScene(sceneId);
+  };
+
+  n3.timeline.pause = function() {
+    return N3Timeline.pause();
+  };
+
+  n3.timeline.resume = function() {
+    return N3Timeline.start(false);
   };
 
 }).call(this);

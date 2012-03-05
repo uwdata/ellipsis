@@ -45,6 +45,10 @@ class N3Scene
         @members.push member
         
         return this
+    
+    # 1-index    
+    member: (memberIndex) ->
+        return @members[memberIndex + 1]?.member
 
     clone: (sceneID) ->
         newScene = n3.scene(sceneID)

@@ -1,14 +1,12 @@
 class N3Timeline
     @triggers = {}
     
-    @incrementTime = ->
-        @elapsedTime = Date.now() - @switchTime
-        N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, @elapsedTime)
+    @paused = false
         
     @switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
         @currSceneId = sceneId
-        prevScene = N3Scene.scenes[@prevSceneId]
+        prevScene    = N3Scene.scenes[@prevSceneId]
         currentScene = N3Scene.scenes[@currSceneId]
         
         # We want to remove annotations only if prevScene and currentScene
@@ -25,11 +23,9 @@ class N3Timeline
                   
                   m.member.vis(m.visId) # just in case
                   m.member.remove() if m.member.autoRemoveFlag
-                  
         
-        @switchTime  = Date.now() 
-        @elapsedTime = 0
-        d3.timer(@incrementTime)         
+        @start(true)          
+       
         if currentScene?
             for m, i in currentScene.members            
                 if m.trigger?
@@ -77,8 +73,31 @@ class N3Timeline
     @notifyTrigger: (triggerId) ->
         N3Scene.scenes[@currSceneId]?.evalMember(i)
         
-        true
+        true  
+        
+    @start: (reset) ->    
+        if reset
+            @startTime   = Date.now() 
+            @elapsedTime = 0
+        
+        @pause = false
+        d3.timer(@incrementTime)
+        
+    @incrementTime = ->
+        @elapsedTime = Date.now() - @startTime
+        N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, @elapsedTime)
+
+        return @paused
+        
+    @pause: ->
+        @pause = true
     
 n3.timeline or= {}    
 n3.timeline.switchScene = (sceneId) ->
     N3Timeline.switchScene(sceneId)
+    
+n3.timeline.pause = ->
+    N3Timeline.pause()
+    
+n3.timeline.resume = ->
+    N3Timeline.start(false)
