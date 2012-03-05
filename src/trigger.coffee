@@ -13,6 +13,9 @@ class N3Trigger
         LT: 'lt'
         GTE: 'gte'
         LTE: 'lte'
+        
+    @WHERE =
+        ELAPSED: 'elapsed'
     
     @registered = {}
     

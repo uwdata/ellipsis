@@ -485,6 +485,10 @@
       LTE: 'lte'
     };
 
+    N3Trigger.WHERE = {
+      ELAPSED: 'elapsed'
+    };
+
     N3Trigger.registered = {};
 
     N3Trigger.register = function(trigger) {
@@ -793,6 +797,11 @@
 
     N3Timeline.triggers = {};
 
+    N3Timeline.incrementTime = function() {
+      this.elapsedTime = Date.now() - this.switchTime;
+      return N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, this.elapsedTime);
+    };
+
     N3Timeline.switchScene = function(sceneId) {
       var currentScene, currentValue, i, m, prevScene, stateId, visId, _i, _len, _len2, _ref, _ref2, _ref3, _ref4;
       this.prevSceneId = this.currSceneId;
@@ -814,6 +823,9 @@
           }
         }
       }
+      this.switchTime = Date.now();
+      this.elapsedTime = 0;
+      d3.timer(this.incrementTime);
       if (currentScene != null) {
         _ref3 = currentScene.members;
         for (i = 0, _len2 = _ref3.length; i < _len2; i++) {

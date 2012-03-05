@@ -1,5 +1,9 @@
 class N3Timeline
     @triggers = {}
+    
+    @incrementTime = ->
+        @elapsedTime = Date.now() - @switchTime
+        N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, @elapsedTime)
         
     @switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
@@ -21,7 +25,11 @@ class N3Timeline
                   
                   m.member.vis(m.visId) # just in case
                   m.member.remove()
-
+                  
+        
+        @switchTime  = Date.now() 
+        @elapsedTime = 0
+        d3.timer(@incrementTime)         
         if currentScene?
             for m, i in currentScene.members            
                 if m.trigger?
