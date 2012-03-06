@@ -94,6 +94,8 @@ class N3Timeline
         if transQ == '*'
             for sceneId of N3Scene.scenes
                 scenes.push sceneId
+        else    # To allow individual sceneIds just to be passed without being arrays
+            scenes.push transQ
                 
         return scenes
         
@@ -103,15 +105,13 @@ class N3Timeline
          
         for fromScene in fromScenes
             # Allow people to pass in scene objs too
-            fromSceneId = fromScene.sceneId \
-                    if typeof fromScene == 'object' else fromScene
+            fromSceneId = if typeof fromScene == 'object' then fromScene.sceneId else fromScene
             
             @transitions[fromSceneId] or= {}
             
             for toScene in toScenes
                 # Allow people to pass in scene objs too
-                toSceneId = toScene.sceneId \
-                        if typeof toScene == 'object' else toScene
+                toSceneId = if typeof toScene == 'object' then toScene.sceneId else toScene
                             
                 @transitions[fromSceneId][toSceneId] or= []
                 @transitions[fromSceneId][toSceneId].push func
@@ -148,3 +148,6 @@ n3.timeline.resume = ->
     
 n3.timeline.currentTime = ->
     @elapsedTime
+    
+n3.timeline.transition = (fromScenes, toScenes, func) ->   
+    N3Timeline.transition(fromScenes, toScenes, func)

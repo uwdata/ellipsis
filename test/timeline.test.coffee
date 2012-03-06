@@ -133,3 +133,34 @@ describe "timeline", ->
         expect(d3.selectAll('ellipse')[0].length).toBe 1
         # expect(d3.selectAll('line')[0].length).toBe 1             
     
+    it "transitions scenes", ->
+        n3.timeline.switchScene('timelineScene_1')
+        
+        t1 = (fromScene, toScene) ->
+            console.log('t1: ' + fromScene.sceneId + ' -> ' + toScene.sceneId)
+            
+        t2 = (fromScene, toScene) ->
+            console.log('t2: ' + fromScene.sceneId + ' -> ' + toScene.sceneId)
+            
+        t3 = (fromScene, toScene) ->
+            console.log('t3: ' + fromScene.sceneId + ' -> ' + toScene.sceneId)
+            
+        n3.timeline.transition('*', '*', t1)
+                    .transition('timelineScene_3', 'timelineScene_1', t2)
+                    .transition(['timelineScene_3'], ['timelineScene_2', 'timelineScene_4'], t3)
+        
+        n3.timeline.switchScene('timelineScene_2')
+        n3.timeline.switchScene('timelineScene_4')
+        n3.timeline.switchScene('timelineScene_3')
+        n3.timeline.switchScene('timelineScene_1')
+
+        n3.timeline.switchScene('timelineScene_3')
+        n3.timeline.switchScene('timelineScene_2')
+        n3.timeline.switchScene('timelineScene_1')
+        
+        n3.timeline.switchScene('timelineScene_3')
+        n3.timeline.switchScene('timelineScene_4')
+        n3.timeline.switchScene('timelineScene_2')
+        
+        n3.timeline.switchScene('timelineScene_3')
+        n3.timeline.switchScene('timelineScene_1')

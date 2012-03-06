@@ -943,6 +943,8 @@
         for (sceneId in N3Scene.scenes) {
           scenes.push(sceneId);
         }
+      } else {
+        scenes.push(transQ);
       }
       return scenes;
     };
@@ -953,11 +955,11 @@
       toScenes = this.parseTransSyntax(toScenes);
       for (_i = 0, _len = fromScenes.length; _i < _len; _i++) {
         fromScene = fromScenes[_i];
-        fromSceneId = fromScene.sceneId(typeof fromScene === 'object' ? void 0 : fromScene);
+        fromSceneId = typeof fromScene === 'object' ? fromScene.sceneId : fromScene;
         (_base = this.transitions)[fromSceneId] || (_base[fromSceneId] = {});
         for (_j = 0, _len2 = toScenes.length; _j < _len2; _j++) {
           toScene = toScenes[_j];
-          toSceneId = toScene.sceneId(typeof toScene === 'object' ? void 0 : toScene);
+          toSceneId = typeof toScene === 'object' ? toScene.sceneId : toScene;
           (_base2 = this.transitions[fromSceneId])[toSceneId] || (_base2[toSceneId] = []);
           this.transitions[fromSceneId][toSceneId].push(func);
         }
@@ -1007,6 +1009,10 @@
 
   n3.timeline.currentTime = function() {
     return this.elapsedTime;
+  };
+
+  n3.timeline.transition = function(fromScenes, toScenes, func) {
+    return N3Timeline.transition(fromScenes, toScenes, func);
   };
 
 }).call(this);
