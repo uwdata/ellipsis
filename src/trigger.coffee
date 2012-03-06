@@ -85,7 +85,7 @@ class N3Trigger
             @type = binding
             @triggers = triggers
                 
-        @triggerId = @type + '' + new Date().getTime()   
+        @triggerId = @type + '' + Date.now()  
                 
         return this
         
@@ -144,7 +144,7 @@ class N3Trigger
         
     # Delay triggers always evaluate as false but a d3.timer registers that calls
     # this function to manually notify the timeline.     
-    fireDelay: () ->                
+    fireDelay: () ->             
         N3Timeline.notifyTrigger(@triggerId)        
         return true
         
@@ -170,7 +170,8 @@ class N3Trigger
                             # If we've made it through all triggers without
             return true     # returning, then none of them were false
         else if @type == N3Trigger.TYPES.DELAY  # If it's a delay, register a timer
-            d3.timer(@fireDelay, @value)        # and evaluate this trigger as false
+            c = => return @fireDelay()
+            d3.timer(c, @value)        # and evaluate this trigger as false
             return false
         else
             return true if (@type == N3Trigger.TYPES.DOM) or 
@@ -196,5 +197,5 @@ n3.trigger.notify = (type, test, value) ->
     N3Trigger.notify(type, test, value)
     
 n3.trigger.afterPrev = (delay) ->
-    t = new N3Trigger(N3Trigger.TYPES.DELAY)
+    t = new N3Trigger(N3Trigger.TYPES.DELAY, N3Trigger.WHERE.DELAY)
     t.gte(delay)

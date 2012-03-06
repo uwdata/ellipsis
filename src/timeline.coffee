@@ -1,6 +1,8 @@
 class N3Timeline
     @triggers = {}
-    @transitions = {}    
+    @transitions = {}  
+    @startTime = 0
+    @elapsedTime = 0  
     @paused = false
         
     @switchScene: (sceneId) ->
@@ -51,9 +53,11 @@ class N3Timeline
                         stateId = m.trigger.test[1]
                     
                         currentValue = N3Vis.lookup[visId]?.state(stateId)
-                
-                    if m.trigger.evaluate(m.trigger.test, currentValue) == false or \
-                                        m.trigger.type == N3Trigger.TYPES.DOM
+                    
+                    if m.trigger.type == N3Trigger.TYPES.DOM or \
+                            m.trigger.type == N3Trigger.TYPES.DELAY or \
+                                m.trigger.evaluate(m.trigger.test, currentValue) == false
+                           
                         @registerTrigger(m.trigger, i)
                         continue
                 
@@ -115,13 +119,13 @@ class N3Timeline
         return this
                 
         
-    @start: (reset) ->    
+    @start: (reset) ->  
         if reset
             @startTime   = Date.now() 
             @elapsedTime = 0
         
         @pause = false
-        d3.timer(@incrementTime)
+        d3.timer(=> @incrementTime())
         
     @incrementTime: ->
         @elapsedTime = Date.now() - @startTime

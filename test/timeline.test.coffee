@@ -119,6 +119,17 @@ describe "timeline", ->
                                     n3.trigger.afterPrev(1))        
                                     
         n3.timeline.switchScene('timelineScene_4')
-        # expect(d3.selectAll('ellipse')[0].length).toBe 0
-        # expect(d3.selectAll('line')[0].length).toBe 0
+        expect(d3.selectAll('ellipse')[0].length).toBe 0
+        expect(d3.selectAll('line')[0].length).toBe 0
+        
+        vis.state('state_2', false)
+        expect(vis.state('state_2')).toBe false
+        expect(d3.selectAll('circle')[0].length).toBe 1
+        expect(d3.selectAll('rect')[0].length).toBe 0
+        expect(d3.selectAll('ellipse')[0].length).toBe 0
+        expect(d3.selectAll('line')[0].length).toBe 0
+        
+        vis.state('state_1', 'values')
+        expect(d3.selectAll('ellipse')[0].length).toBe 1
+        # expect(d3.selectAll('line')[0].length).toBe 1             
     

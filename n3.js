@@ -567,7 +567,7 @@
         this.type = binding;
         this.triggers = triggers;
       }
-      this.triggerId = this.type + '' + new Date().getTime();
+      this.triggerId = this.type + '' + Date.now();
       return this;
     }
 
@@ -647,7 +647,8 @@
     };
 
     N3Trigger.prototype.evaluate = function(notifiedTest, notifiedVal) {
-      var result, trigger, _i, _j, _len, _len2, _ref, _ref2, _ref3;
+      var c, result, trigger, _i, _j, _len, _len2, _ref, _ref2, _ref3,
+        _this = this;
       if (this.type === N3Trigger.TYPES.DOM) {
         return true;
       } else if (this.type === N3Trigger.TYPES.OR) {
@@ -670,7 +671,10 @@
         }
         return true;
       } else if (this.type === N3Trigger.TYPES.DELAY) {
-        d3.timer(this.fireDelay, this.value);
+        c = function() {
+          return _this.fireDelay();
+        };
+        d3.timer(c, this.value);
         return false;
       } else {
         if ((this.type === N3Trigger.TYPES.DOM) || (this.condition === N3Trigger.CONDITIONS.IS && notifiedVal === this.value) || (this.condition === N3Trigger.CONDITIONS.NOT && notifiedVal !== this.value) || (this.condition === N3Trigger.CONDITIONS.GT && notifiedVal > this.value) || (this.condition === N3Trigger.CONDITIONS.LT && notifiedVal < this.value) || (this.condition === N3Trigger.CONDITIONS.GTE && notifiedVal >= this.value) || (this.condition === N3Trigger.CONDITIONS.LTE && notifiedVal <= this.value)) {
@@ -714,7 +718,7 @@
 
   n3.trigger.afterPrev = function(delay) {
     var t;
-    t = new N3Trigger(N3Trigger.TYPES.DELAY);
+    t = new N3Trigger(N3Trigger.TYPES.DELAY, N3Trigger.WHERE.DELAY);
     return t.gte(delay);
   };
 
@@ -821,6 +825,10 @@
 
     N3Timeline.transitions = {};
 
+    N3Timeline.startTime = 0;
+
+    N3Timeline.elapsedTime = 0;
+
     N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
@@ -866,7 +874,7 @@
               stateId = m.trigger.test[1];
               currentValue = (_ref6 = N3Vis.lookup[visId]) != null ? _ref6.state(stateId) : void 0;
             }
-            if (m.trigger.evaluate(m.trigger.test, currentValue) === false || m.trigger.type === N3Trigger.TYPES.DOM) {
+            if (m.trigger.type === N3Trigger.TYPES.DOM || m.trigger.type === N3Trigger.TYPES.DELAY || m.trigger.evaluate(m.trigger.test, currentValue) === false) {
               this.registerTrigger(m.trigger, i);
               continue;
             }
@@ -932,12 +940,15 @@
     };
 
     N3Timeline.start = function(reset) {
+      var _this = this;
       if (reset) {
         this.startTime = Date.now();
         this.elapsedTime = 0;
       }
       this.pause = false;
-      return d3.timer(this.incrementTime);
+      return d3.timer(function() {
+        return _this.incrementTime();
+      });
     };
 
     N3Timeline.incrementTime = function() {
