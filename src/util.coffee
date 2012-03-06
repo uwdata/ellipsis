@@ -19,3 +19,23 @@ n3.util.clone = (obj) ->
         copy[key] = n3.util.clone val for key, val of obj
         
         return copy
+        
+n3.util.iterate = (args...) ->
+    arr = []
+    step = args[args.length - 2]
+    delay = args[args.length - 1]
+    
+    if arguments.length == 3
+        arr   = args[0]
+    else if arguments.length == 4
+        arr   = d3.range(args[0], args[1])
+        
+    return (vis, stateId) ->
+        currIndex = 0
+        c = ->
+            vis.state(stateId, arr[currIndex++])            
+            return currIndex >= arr.length
+            
+        d3.timer(c, delay)
+        
+        false

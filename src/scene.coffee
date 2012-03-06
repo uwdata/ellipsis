@@ -75,11 +75,13 @@ class N3Scene
         vis = N3Vis.lookup[m.visId]
         
         if m.state?
-            val = m.state.value
-            if typeof val == 'function'     # states can be set with a fn
-                val = val(vis)              # pass it the vis as an arg
-            
-            vis?.state(m.state.id, val)        
+            # To allow for some fun, allow states to be set my a function. If the fn returns
+            # false, assume that it'll be setting the state itself. 
+            if typeof val == 'function'     
+                val = val(vis, m.state.id) 
+                vis?.state(m.state.id, val) unless val == false                         
+            else
+                vis?.state(m.state.id, m.state.value)            
         else
             if typeof m.member == 'function'
                 m.member(vis)    # call the function, pass vis as arg

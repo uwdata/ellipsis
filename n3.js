@@ -41,6 +41,29 @@
     }
   };
 
+  n3.util.iterate = function() {
+    var args, arr, delay, step;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    arr = [];
+    step = args[args.length - 2];
+    delay = args[args.length - 1];
+    if (arguments.length === 3) {
+      arr = args[0];
+    } else if (arguments.length === 4) {
+      arr = d3.range(args[0], args[1]);
+    }
+    return function(vis, stateId) {
+      var c, currIndex;
+      currIndex = 0;
+      c = function() {
+        vis.state(stateId, arr[currIndex++]);
+        return currIndex >= arr.length;
+      };
+      d3.timer(c, delay);
+      return false;
+    };
+  };
+
   N3State = (function() {
 
     function N3State(stateId, validValues, visId) {
@@ -793,9 +816,12 @@
       if (m == null) return true;
       vis = N3Vis.lookup[m.visId];
       if (m.state != null) {
-        val = m.state.value;
-        if (typeof val === 'function') val = val(vis);
-        if (vis != null) vis.state(m.state.id, val);
+        if (typeof val === 'function') {
+          val = val(vis, m.state.id);
+          if (val !== false) if (vis != null) vis.state(m.state.id, val);
+        } else {
+          if (vis != null) vis.state(m.state.id, m.state.value);
+        }
       } else {
         if (typeof m.member === 'function') {
           m.member(vis);
