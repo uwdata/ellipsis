@@ -11,6 +11,10 @@ describe 'annotation', ->
         vis = n3.vis('annotation_test')
                     .stage('#stage', 500, 600)
                     
+    afterEach ->
+        vis = null
+        d3.selectAll('#stage').remove()
+                    
     it 'sets/gets the vis', ->
         a = n3.annotation('custom').vis(vis)
         

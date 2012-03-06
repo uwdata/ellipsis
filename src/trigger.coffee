@@ -48,14 +48,14 @@ class N3Trigger
     @deregister = (trigger) ->
         [type, test, triggerId] = [trigger.type, trigger.test, trigger.triggerId]
         
-        trigger = @registered[type][test][triggerId]
+        trigger = @registered[type][test]?[triggerId]
         
         # If the trigger was a DOM event, use d3 to remove the event listener    
         if type == @TYPES.DOM
             d3.select(trigger.test)
                 .on(trigger.value, null)
         
-        delete @registered[type][test][triggerId]
+        delete @registered[type][test]?[triggerId]
             
         true
         

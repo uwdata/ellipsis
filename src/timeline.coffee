@@ -45,15 +45,16 @@ class N3Timeline
                     # evaluate the member. If not, register the trigger and skip
                     # evaluation.
                     currentValue = null
+
                     if m.trigger.type == N3Trigger.TYPES.VIS
                         visId = m.trigger.test[0]
                         stateId = m.trigger.test[1]
                     
                         currentValue = N3Vis.lookup[visId]?.state(stateId)
                 
-                    if m.trigger.evaluate(currentValue) == false or \
+                    if m.trigger.evaluate(m.trigger.test, currentValue) == false or \
                                         m.trigger.type == N3Trigger.TYPES.DOM
-                        registerTrigger(m.trigger, i)
+                        @registerTrigger(m.trigger, i)
                         continue
                 
                 currentScene.evalMember(i)
@@ -77,7 +78,7 @@ class N3Timeline
         true
         
     @notifyTrigger: (triggerId) ->
-        N3Scene.scenes[@currSceneId]?.evalMember(i)
+        N3Scene.scenes[@currSceneId]?.evalMember(@triggers[triggerId]) if @triggers[triggerId]?
         
         true  
         
@@ -122,7 +123,7 @@ class N3Timeline
         @pause = false
         d3.timer(@incrementTime)
         
-    @incrementTime = ->
+    @incrementTime: ->
         @elapsedTime = Date.now() - @startTime
         N3Trigger.notify(N3Trigger.TYPES.TIMELINE, N3Trigger.WHERE.ELAPSED, @elapsedTime)
 
@@ -140,3 +141,6 @@ n3.timeline.pause = ->
     
 n3.timeline.resume = ->
     N3Timeline.start(false)
+    
+n3.timeline.currentTime = ->
+    @elapsedTime
