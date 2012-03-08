@@ -74,15 +74,17 @@ class N3Timeline
         true
         
     @deregisterTrigger: (trigger) ->
-        return true unless trigger?
+        return true unless @triggers[trigger?.triggerId]?
         
         delete @triggers[trigger.triggerId]
         N3Trigger.deregister(trigger)
         
         true
         
-    @notifyTrigger: (triggerId) ->
-        N3Scene.scenes[@currSceneId]?.evalMember(@triggers[triggerId]) if @triggers[triggerId]?
+    @notifyTrigger: (trigger) ->
+        if @triggers[trigger.triggerId]?
+            N3Scene.scenes[@currSceneId]?.evalMember(@triggers[trigger.triggerId]) 
+            @deregisterTrigger trigger
         
         true  
         
@@ -124,7 +126,7 @@ class N3Timeline
             @startTime   = Date.now() 
             @elapsedTime = 0
         
-        @pause = false
+        @paused = false
         d3.timer(=> @incrementTime())
         
     @incrementTime: ->
@@ -134,7 +136,7 @@ class N3Timeline
         return @paused
         
     @pause: ->
-        @pause = true
+        @paused = true
     
 n3.timeline or= {}    
 n3.timeline.switchScene = (sceneId) ->
@@ -146,8 +148,8 @@ n3.timeline.pause = ->
 n3.timeline.resume = ->
     N3Timeline.start(false)
     
-n3.timeline.currentTime = ->
-    @elapsedTime
+n3.timeline.elapsedTime = ->
+    N3Timeline.elapsedTime
     
 n3.timeline.transition = (fromScenes, toScenes, func) ->   
     N3Timeline.transition(fromScenes, toScenes, func)

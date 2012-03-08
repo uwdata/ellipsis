@@ -158,11 +158,17 @@
     };
 
     N3Vis.prototype["const"] = function(constId, value) {
+      var constVal;
       if (arguments.length === 2) {
         if (!(constId in this.consts)) this.consts[constId] = value;
         return this;
       } else {
-        return this.consts[constId];
+        constVal = this.consts[constId];
+        if (typeof constVal === 'function') {
+          return constVal.apply(this);
+        } else {
+          return constVal;
+        }
       }
     };
 
@@ -284,8 +290,8 @@
           selector = n3.util.getSelector('div', this.attrs);
           stage = this.vis() != null ? this.vis().stage() : d3;
           this.styles['position'] = 'absolute';
-          this.styles['left'] = x + 'px';
-          this.styles['top'] = y + 'px';
+          this.styles['left'] = (stage.property('offsetLeft') + x) + 'px';
+          this.styles['top'] = (stage.property('offsetTop') + y) + 'px';
           d = d3.select('body').selectAll(selector).data(this.data() != null ? this.data() : [0]);
           d.enter().append('div').text(text).html(html);
           this.applyAttrs(d);
@@ -517,7 +523,8 @@
     N3Trigger.registered = {};
 
     N3Trigger.register = function(trigger) {
-      var t, _base, _base2, _base3, _base4, _i, _len, _name, _name2, _name3, _name4, _ref;
+      var t, _base, _base2, _base3, _base4, _i, _len, _name, _name2, _name3, _name4, _ref,
+        _this = this;
       (_base = this.registered)[_name = trigger.type] || (_base[_name] = {});
       (_base2 = this.registered[trigger.type])[_name2 = trigger.test] || (_base2[_name2] = {});
       this.registered[trigger.type][trigger.test][trigger.triggerId] = trigger;
@@ -534,7 +541,7 @@
       }
       if (trigger.type === this.TYPES.DOM) {
         d3.select(trigger.test).on(trigger.value, function() {
-          return n3.trigger.notify(this.TYPES.DOM, trigger.test, trigger.value);
+          return n3.trigger.notify(_this.TYPES.DOM, trigger.test, trigger.value);
         });
       }
       return true;
@@ -551,13 +558,13 @@
 
     N3Trigger.notify = function(type, test, value) {
       var trigger, triggerId, _ref, _ref2, _results;
-      if ((((_ref = this.registered[type]) != null ? _ref[test] : void 0) != null) && type !== this.TYPES.DOM) {
+      if (((_ref = this.registered[type]) != null ? _ref[test] : void 0) != null) {
         _ref2 = this.registered[type][test];
         _results = [];
         for (triggerId in _ref2) {
           trigger = _ref2[triggerId];
           if (trigger.evaluate(test, value)) {
-            _results.push(N3Timeline.notifyTrigger(triggerId));
+            _results.push(N3Timeline.notifyTrigger(trigger));
           } else {
             _results.push(void 0);
           }
@@ -665,7 +672,7 @@
     };
 
     N3Trigger.prototype.fireDelay = function() {
-      N3Timeline.notifyTrigger(this.triggerId);
+      N3Timeline.notifyTrigger(this);
       return true;
     };
 
@@ -919,18 +926,21 @@
     };
 
     N3Timeline.deregisterTrigger = function(trigger) {
-      if (trigger == null) return true;
+      if (this.triggers[trigger != null ? trigger.triggerId : void 0] == null) {
+        return true;
+      }
       delete this.triggers[trigger.triggerId];
       N3Trigger.deregister(trigger);
       return true;
     };
 
-    N3Timeline.notifyTrigger = function(triggerId) {
+    N3Timeline.notifyTrigger = function(trigger) {
       var _ref;
-      if (this.triggers[triggerId] != null) {
+      if (this.triggers[trigger.triggerId] != null) {
         if ((_ref = N3Scene.scenes[this.currSceneId]) != null) {
-          _ref.evalMember(this.triggers[triggerId]);
+          _ref.evalMember(this.triggers[trigger.triggerId]);
         }
+        this.deregisterTrigger(trigger);
       }
       return true;
     };
@@ -973,7 +983,7 @@
         this.startTime = Date.now();
         this.elapsedTime = 0;
       }
-      this.pause = false;
+      this.paused = false;
       return d3.timer(function() {
         return _this.incrementTime();
       });
@@ -986,7 +996,7 @@
     };
 
     N3Timeline.pause = function() {
-      return this.pause = true;
+      return this.paused = true;
     };
 
     return N3Timeline;
@@ -1007,8 +1017,8 @@
     return N3Timeline.start(false);
   };
 
-  n3.timeline.currentTime = function() {
-    return this.elapsedTime;
+  n3.timeline.elapsedTime = function() {
+    return N3Timeline.elapsedTime;
   };
 
   n3.timeline.transition = function(fromScenes, toScenes, func) {

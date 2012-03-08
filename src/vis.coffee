@@ -60,7 +60,8 @@ class N3Vis
             
             return this
         else
-            @consts[constId]        
+            constVal = @consts[constId]        
+            if typeof constVal == 'function' then constVal.apply(this) else constVal
             
     render: (@renderFn) ->
         return this

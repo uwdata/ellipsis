@@ -142,8 +142,8 @@ class N3Annotation
 
                 # position the div absolutely
                 @styles['position'] = 'absolute'
-                @styles['left'] = x + 'px'
-                @styles['top'] = y + 'px'
+                @styles['left'] = (stage.property('offsetLeft') + x) + 'px'
+                @styles['top'] = (stage.property('offsetTop') + y) + 'px'
             
                 d = d3.select('body').selectAll(selector)
                         .data(if @data()? then @data() else [0])

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>N3 System Test</title>
+    <script type="text/javascript" src="../node_modules/d3/d3.js"></script>
+    <script type="text/javascript" src="../n3.js"></script>
+    <style>        
+        svg { 
+            border: 1px solid black; 
+            float: left;
+            margin-top: 20px;
+        }
+        
+        #text {
+            float: left;
+            width: 250px;
+            margin-left: 20px;
+        }
+        
+        text { 
+          font: 11px sans-serif;
+          fill: gray;
+        }
+        
+        ul li {
+            list-style-type: none;
+            float: left;
+            display: block;
+            padding: 5px 10px;            
+            background: #eee;
+            border: 1px solid #999;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li><a href="#" onclick="n3.timeline.switchScene('scene_1')">1</a></li>
+        <li><a href="#" onclick="n3.timeline.switchScene('scene_2')">2</a></li>
+        <li><a href="#" onclick="n3.timeline.switchScene('scene_3')">3</a></li>
+    </ul>
+    
+    <br clear="all" />
+    <svg id="stage" width="700" height="400"></svg>
+    
+    <div id="text">
+        <div id="scene_1" style="display: none;">
+            <h2>Scene One</h2>
+            
+            <p>Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. He's got style, a groovy style, and a car that just won't stop. When the going gets tough, he's really rough, with a Hong Kong Phooey chop (Hi-Ya!). Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. Hong Kong Phooey, he's fan-riffic!</p>
+        </div>
+        
+        <div id="scene_2" style="display: none;">
+            <h2>Scene Two</h2>
+            
+            <p><a href="#" id="knight">Knight Rider</a>, a shadowy flight into the dangerous world of a man who does not exist. Michael Knight, a young loner on a crusade to champion the cause of the innocent, the helpless in a world of criminals who operate above the law.</p>
+        </div>
+        
+        <div id="scene_3" style="display: none;">
+            <h2>Scene Three</h2>
+            
+            <p>Thunder, thunder, thundercats, Ho! Thundercats are on the move, Thundercats are loose. Feel the magic, hear the roar, Thundercats are loose. Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thunder, thunder, thunder, Thundercats! Thundercats!</p>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+/* Vis */
+var data = {
+    thirteen:  d3.range(17, 88, 13),
+    seventeen: d3.range(13, 88, 17),
+    nineteen:  d3.range(11, 88, 19)
+};
+var width = 700
+var height = 400
+
+var vis = n3.vis('simpleTest1')
+                .stage('#stage', width, height)
+                .data(data)
+                .state('numberRange', ['thirteen', 'seventeen', 'nineteen'])
+                .const('sx', function() {
+                    return d3.scale.linear()
+                                    .domain([0, this.data()[this.state('numberRange')].length])
+                                    .range([0, this.width()])
+                })
+                .const('sy', function() {
+                    return d3.scale.linear()
+                                    .domain([0, 88])
+                                    .range([0, this.height()])
+                })
+                .render(renderVis)
+
+function renderVis() {
+    var svg = this.stage()
+    
+    var selBar = svg.selectAll('rect')
+                        .data(this.data()[this.state('numberRange')])
+                        
+    selBar.enter().append('svg:rect')
+            .attr('x', function(d, i) { return vis.const('sx')(i) })
+            .attr('y', this.height())
+            .attr('width', 80)
+            .attr('height', this.const('sy'))
+            .style('fill', 'steelblue')
+        
+    selBar.transition()
+            .duration(1000)
+            .delay(function(d, i) { return i * 125 })
+            .attr('y', function(d) { return vis.height() - vis.const('sy')(d) })
+            .attr('height', this.const('sy'))
+            .style('fill', 'steelblue')
+            
+    selBar.exit().transition()
+            .duration(1000)
+            .attr('y', this.height())
+            .remove()
+}
+
+n3.scene('scene_1')
+    .set(vis, 'numberRange', 'thirteen')
+    
+n3.scene('scene_2')
+    .add(vis, n3.annotation('circle')
+                    .radius(10)
+                    .center([625, 30])
+                    .style('fill', 'firebrick'))
+                    
+    .add(vis, n3.annotation('line')
+                    .start([600, 30])
+                    .end([150, 150])
+                    .style('stroke-width', 2)
+                    .style('stroke', 'firebrick'))
+                    
+    .add(vis, n3.annotation('label')
+                    .attr('id', 'circleLabel')
+                    .html('<p align="center">Whoa, that circle is<br /> up high!</p>')
+                    .pos([75, 150]))   
+                                   
+    .set(vis, 'numberRange', 'nineteen', n3.trigger('#knight').on('click'))  
+    
+    .add(vis, function() {
+        d3.selectAll('rect').transition().duration(500).style('fill', 'forestgreen')
+    }, n3.trigger.afterPrev(2000)) 
+    
+n3.scene('scene_3')
+    .set(vis, 'numberRange', 'seventeen', n3.trigger(n3.timeline)
+                                                .where('elapsed')
+                                                .gt(2000))
+
+n3.timeline.transition('*', '*', function(fromScene, toScene) {
+    d3.selectAll('#' + fromScene.sceneId).style('display', 'none')
+    d3.selectAll('#' + toScene.sceneId).style('display', 'block')    
+})
+
+n3.timeline.switchScene('scene_1')
+</script>
+</html>

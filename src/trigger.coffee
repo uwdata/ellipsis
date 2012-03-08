@@ -39,7 +39,7 @@ class N3Trigger
         # to the DOM node
         if trigger.type == @TYPES.DOM
             d3.select(trigger.test)
-                .on(trigger.value, ->
+                .on(trigger.value, =>
                     return n3.trigger.notify(@TYPES.DOM, trigger.test, trigger.value)
                 )
                 
@@ -60,9 +60,9 @@ class N3Trigger
         true
         
     @notify = (type, test, value) ->
-        if @registered[type]?[test]? and type != @TYPES.DOM
+        if @registered[type]?[test]?
             for triggerId, trigger of @registered[type][test]
-                N3Timeline.notifyTrigger(triggerId) \
+                N3Timeline.notifyTrigger(trigger) \
                     if trigger.evaluate(test, value)
 
     
@@ -145,7 +145,7 @@ class N3Trigger
     # Delay triggers always evaluate as false but a d3.timer registers that calls
     # this function to manually notify the timeline.     
     fireDelay: () ->             
-        N3Timeline.notifyTrigger(@triggerId)        
+        N3Timeline.notifyTrigger(this)        
         return true
         
     evaluate: (notifiedTest, notifiedVal) ->

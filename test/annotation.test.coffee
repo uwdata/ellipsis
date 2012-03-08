@@ -209,8 +209,8 @@ describe 'annotation', ->
         d = d3.selectAll('div#label')
         
         expect(d.style('position')).toBe 'absolute' 
-        expect(d.style('left')).toBe '3px'
-        expect(d.style('top')).toBe '7px'
+        expect(d.style('left')).toBe '11px'
+        expect(d.style('top')).toBe '15px'
         expect(d.html()).toBe '<p>Hello</p>'
         
     it 'sets/gets attrs', ->
