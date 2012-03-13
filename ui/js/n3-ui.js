@@ -184,10 +184,9 @@ function populateMember(m, memberIndex) {
     
     scenes[sceneId].members[memberIndex] = m;
     
+    var memberId = 'n3-ui_scene' + sceneId + '_member' + memberIndex;
     var content;
     var isState = m.state != null;
-    
-    var memberId = 'n3-ui_scene' + sceneId + '_member' + memberIndex;
     
     if(isState)
         content = '<li id="' + memberId + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
@@ -196,12 +195,15 @@ function populateMember(m, memberIndex) {
         content = '<li id="' + memberId + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
     
-    content += '<a href="#" title="Edit Triggers" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
+    content += '<a href="#" title="' + ((m.trigger == null) ? 'Add Triggers' : 'Edit Triggers') + '" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
                '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((!isState) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
                '<a href="#" title="Delete" class="ui-icon ui-icon-delete" onclick="removeMember(' + memberIndex + ');"></a></li>';
         
     $('#n3-scene_' + sceneId + ' .members')
         .append(content);
+        
+    if(m.trigger == null)
+        $('#' + memberId + ' .ui-icon-trigger').addClass('ui-icon-trigger-empty');
         
     $('#' + memberId).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
     
@@ -248,6 +250,8 @@ function saveTriggers() {
     scenes[sceneId].members[memberIndex].trigger = $('#triggers').val();
     $('#triggers').val('');
     
+    $('#n3-ui_scene' + sceneId + '_member' + memberIndex + ' .ui-icon-trigger')
+        .removeClass('ui-icon-trigger-empty');
     $('#n3-ui_triggerDialog').dialog('close');
 }
 

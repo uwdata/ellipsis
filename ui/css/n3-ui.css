@@ -131,6 +131,7 @@ body {
 
 .ui-icon-edit { background: url(../imgs/edit.png) no-repeat !important; }
 .ui-icon-trigger { background: url(../imgs/trigger.png) no-repeat 0px 7px !important; }
+.ui-icon-trigger-empty { background: url(../imgs/trigger-empty.png) no-repeat 0px 7px !important; }
 .ui-icon-style { background: url(../imgs/styles.png) no-repeat 0px 7px !important; }
 .ui-icon-delete { background: url(../imgs/delete.png) no-repeat 0px 7px !important; }
 
