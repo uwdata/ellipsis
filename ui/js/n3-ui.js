@@ -65,15 +65,15 @@ function saveVis() {
         }
         
         $('#n3-ui_stage')           // Need to replace this for other selector types
-            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage">' + 
+            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage"><div class="infobar"><p>Visualization: ' + visId + '</p></div>' + 
                         '<svg id="' + vis.stageSelector.replace('#', '') + '" width="' + vis.width() + 
                             '" height="' + vis.height() + '"></svg></div>');
         
-        var stateSettings = '<div class="state_settings">';                    
+        var stateSettings = '<div class="infobar state_settings">';                    
         for(var stateId in vis.states) {
             var s = vis.states[stateId];
             stateSettings += '<p>' + stateId + ': ' + 
-                '<select onchange="setState(\'' + visId + '\',\'' + stateId + '\', $(this).val())"><option value="">Select...</option>';
+                '<select onchange="setState(\'' + visId + '\',\'' + stateId + '\', $(this).val())" id="n3-ui_state' + stateId + '"><option value="">Select...</option>';
             
             for(var i in s.validValues)
                 stateSettings += '<option>' + s.validValues[i] + '</option>';
@@ -84,9 +84,7 @@ function saveVis() {
         $('#n3-vis_' + visId)
             .append(stateSettings)
             
-        $('#n3-vis_' + visId + ' .state_settings')
-            .width(vis.width())
-            .hide();
+        $('#n3-vis_' + visId + ' .infobar:last').hide();
     }
     
     if(closeDialog)
@@ -180,7 +178,7 @@ function populateMember(m, memberIndex) {
     
     content += '<a href="#" title="Edit Triggers" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
                '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((!isState) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
-               '<a href="#" title="Delete" class="ui-icon ui-icon-delete"></a></li>';
+               '<a href="#" title="Delete" class="ui-icon ui-icon-delete" onclick="removeMember(' + memberIndex + ');"></a></li>';
         
     $('#n3-scene_' + sceneId + ' .members')
         .append(content);
@@ -193,6 +191,28 @@ function populateMember(m, memberIndex) {
     else
         $('#n3-ui_member' + memberIndex).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
                                                 function() { d3.select('#' + m.annotation.id).classed('hover', false); });
+}
+
+function removeMember(memberIndex) {    
+    var m = scenes[sceneId].members.splice(memberIndex, 1)[0];
+    var members = scenes[sceneId].members;
+    
+    if(m.state != null) {   // If we delete a state, try and find the last prev state
+        for(var i = members.length - 1; i >= 0; i--) {
+            if(members[i].state != null) {
+                n3.vis(members[i].visId).state(members[i].state.id, members[i].state.value);
+                $('#n3-ui_state' + members[i].state.id).val(members[i].state.value);
+                break;
+            }                
+        }
+    } else {    // If it's an annotation, remove it
+        $('#' + m.annotation.id).remove();
+    }  
+    
+    // Repopulate members in the scene
+    $('#n3-scene_' + sceneId + ' .members').html('');
+    for(var i in members)
+        populateMember(members[i], i);
 }
 
 function editTriggers(memberIndex) {
@@ -325,7 +345,7 @@ function exportStory() {
             if(member.trigger != null)
                 story += ",\n    " + member.trigger;
                 
-            story += "    )\n"
+            story += ")\n"
         }
     }  
     
@@ -346,11 +366,19 @@ function toggleShape(elem, shapeType) {
 }
 
 function getMouseX(e) {
-    return e.pageX - e.target.offsetLeft;
+    var svg = e.target;
+    while(svg.nodeName != 'svg')
+        svg = svg.parentNode;
+        
+    return e.pageX - svg.offsetLeft;
 }
 
 function getMouseY(e) {
-    return e.pageY - e.target.offsetTop;
+    var svg = e.target;
+    while(svg.nodeName != 'svg')
+        svg = svg.parentNode;
+    
+    return e.pageY - svg.offsetTop;
 }
 
 function startDrawing(shapeType) {
@@ -379,7 +407,6 @@ function startDrawing(shapeType) {
 // Called with an arg when finished drawing an individual annotation.
 function endDrawing(e) {
     if(e) {
-        console.log(e);
         // When a shape is finished drawing, we want to still
         // allow users to continue to draw more of the selected annotation.
         $('svg').unbind('mousemove.n3_edit');
@@ -390,6 +417,7 @@ function endDrawing(e) {
                 id: e.data.id
             }
         };
+        
         populateMember(m)
     } else {    // End drawing current shape annotation.
         $('svg').parent().removeClass('draw');

@@ -16,7 +16,7 @@ body {
     border: 1px solid #ccc;
 }
 
-#n3-ui_stage div.hover { outline: 2px solid firebrick; }
+#n3-ui_stage div.hover { outline: 3px solid firebrick; }
 
 #n3-ui_stage svg { padding: 0px 10px; }
 
@@ -27,15 +27,15 @@ body {
     stroke-width: 3;
 }
 
-#n3-ui_stage .state_settings {
+#n3-ui_stage .infobar {
     clear: both;
     display: block;
-    background: #666;
+    background: #333;
     color: #fff;
     padding: 5px 10px;
 }
 
-#n3-ui_stage .state_settings p { margin: 5px 0; }
+#n3-ui_stage .infobar p { margin: 5px 0; }
 
 #n3-ui_bottom_panel {
     position: fixed;
@@ -81,10 +81,15 @@ body {
     background-image:         linear-gradient(to bottom, #ddd, #bbb);
     font-weight:bold;
     color:#333;
-    text-shadow:0px -1px 1px #fff;
+    border-radius: 0px !important;
 }
-.scene-header { padding: 5px; }
-.scene-header, .member-header { cursor: move; }
+.scene-header { 
+    background-image: none !important;
+    padding: 5px; 
+    cursor: move; 
+    border-radius: 0px !important;
+    color: #fff;
+}
 .ui-icon-plusthick, .ui-icon-minusthick { 
     float: right;
     cursor: pointer;
