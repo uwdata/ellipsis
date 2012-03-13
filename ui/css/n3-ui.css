@@ -9,9 +9,23 @@ body {
     font-family: monospace;
 }
 
-#n3-ui_stage svg { border: 1px solid #ccc; }
+.n3-vis_stage {
+    float: left; 
+    margin-right: 20px; 
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+#n3-ui_stage div.hover { outline: 2px solid firebrick; }
+
+#n3-ui_stage svg { padding: 0px 10px; }
 
 #n3-ui_stage .draw svg { cursor: crosshair; }
+
+#n3-ui_stage svg .hover {
+    stroke: firebrick;
+    stroke-width: 3;
+}
 
 #n3-ui_stage .state_settings {
     clear: both;
@@ -69,7 +83,7 @@ body {
     color:#333;
     text-shadow:0px -1px 1px #fff;
 }
-.scene-header, .scene-content { padding: 5px; }
+.scene-header { padding: 5px; }
 .scene-header, .member-header { cursor: move; }
 .ui-icon-plusthick, .ui-icon-minusthick { 
     float: right;
@@ -90,7 +104,10 @@ body {
     border: 0 !important;
     height: 32px !important;
     margin-bottom: 15px !important;
+    padding: 5px !important;
 }
+
+.members .hover { background: #ddd !important; }
 
 .ui-icon-draggable, .ui-icon-trigger, .ui-icon-style, .ui-icon-delete { 
     display: inline-block !important;

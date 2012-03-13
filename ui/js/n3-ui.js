@@ -65,7 +65,8 @@ function saveVis() {
         }
         
         $('#n3-ui_stage')           // Need to replace this for other selector types
-            .append('<div id="n3-vis_' + visId + '" style="float: left; margin-right: 20px; background: #fff;"><svg id="' + vis.stageSelector.replace('#', '') + '" width="' + vis.width() + 
+            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage">' + 
+                        '<svg id="' + vis.stageSelector.replace('#', '') + '" width="' + vis.width() + 
                             '" height="' + vis.height() + '"></svg></div>');
         
         var stateSettings = '<div class="state_settings">';                    
@@ -105,7 +106,7 @@ function startScene() {
     
     $('#n3-ui_side_panel')
         .append('<div class="scene" id="n3-scene_' + sceneId 
-                    + '"><div class="scene-header">' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
+                    + '"><div class="scene-header">Scene: ' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
     
     $('#n3-scene_' + sceneId)
         .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
@@ -128,7 +129,7 @@ function startScene() {
 	
 	$('#n3-scene_' + sceneId + ' .members').sortable();
 	
-	$('body').css('backgroundColor', '#FFD4D4');
+	$('body').css('backgroundColor', '#ddd');
 }
 
 function endScene() {
@@ -168,20 +169,30 @@ function populateMember(m, memberIndex) {
     scenes[sceneId].members[memberIndex] = m;
     
     var content;
+    var isState = m.state != null;
     
-    if(m.state != null)
-        content = '<li class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+    if(isState)
+        content = '<li id="n3-ui_member' + memberIndex + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             m.state.id + '<br />&rarr; &nbsp;' + m.state.value + '</span>';
     else
-        content = '<li class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+        content = '<li id="n3-ui_member' + memberIndex + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
     
     content += '<a href="#" title="Edit Triggers" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
-               '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((m.annotation != null) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
+               '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((!isState) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
                '<a href="#" title="Delete" class="ui-icon ui-icon-delete"></a></li>';
         
     $('#n3-scene_' + sceneId + ' .members')
         .append(content);
+        
+    $('#n3-ui_member' + memberIndex).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
+    
+    if(isState)
+        $('#n3-ui_member' + memberIndex).hover(function() { $('#n3-vis_' + m.visId).addClass('hover'); }, 
+                                                function() { $('#n3-vis_' + m.visId).removeClass('hover'); })
+    else
+        $('#n3-ui_member' + memberIndex).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
+                                                function() { d3.select('#' + m.annotation.id).classed('hover', false); });
 }
 
 function editTriggers(memberIndex) {
