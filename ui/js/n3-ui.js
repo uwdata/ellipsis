@@ -35,6 +35,7 @@ $(function() {
         });
         
         $('#n3-ui_side_panel').sortable();
+        $('#n3-ui_side_panel').disableSelection();
     });
 })
 
@@ -104,7 +105,7 @@ function startScene() {
     
     $('#n3-ui_side_panel')
         .append('<div class="scene" id="n3-scene_' + sceneId 
-                    + '"><div class="scene-header">' + sceneId + '</div><div class="scene-content"><p>Members:</p><div class="members"></div></div></div>');
+                    + '"><div class="scene-header">' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
     
     $('#n3-scene_' + sceneId)
         .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
@@ -166,41 +167,21 @@ function populateMember(m, memberIndex) {
     
     scenes[sceneId].members[memberIndex] = m;
     
-    var content = '<div class="member" id="n3-scene_' + sceneId + '-member_' + memberIndex +
-                '"><div class="member-header">' + memberIndex + '</div><div class="member-content">' + 
-                '<p>VisId: ' + m.visId + '</p>';
-                
+    var content;
+    
     if(m.state != null)
-        content += '<p>State: ' + m.state.id + ' &rarr; ' + m.state.value + '</p>';
+        content = '<li class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+                            m.state.id + '<br />&rarr; &nbsp;' + m.state.value + '</span>';
     else
-        content += '<p>Annotation: ' + SHAPE_LABELS[m.annotation.type] + '</p>' + 
-                   '<p><a href="#" onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')">Edit Styles</a></p>';
+        content = '<li class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+                            'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
     
-    // content += '<h3>Triggers</h3>' + 
-    //             '<div class="triggers">' + 
-    //                 '<p><a href="#" onclick="newTrigger(' + memberIndex + ');">New Trigger</a></p>' + 
-    //                 '<p><select class="parent_trigger_type"><option>or</option><option>and</option> the following triggers: </p>' + 
-    //             '</div>';  
-    
-    content += '<p><a href="#" onclick="editTriggers(' + memberIndex + ');">Edit Triggers</a></p>';
-              
-    content += '</div></div>';
+    content += '<a href="#" title="Edit Triggers" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
+               '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((m.annotation != null) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
+               '<a href="#" title="Delete" class="ui-icon ui-icon-delete"></a></li>';
         
     $('#n3-scene_' + sceneId + ' .members')
         .append(content);
-
-    $('#n3-scene_' + sceneId + '-member_' + memberIndex)
-        .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
-    	.find('.member-header')
-    		.addClass('ui-widget-header ui-corner-all')
-    		.prepend('<span class="ui-icon ui-icon-minusthick"></span>')
-    		.end()
-    	.find('.member-content');
-
-    $('#n3-scene_' + sceneId + '-member_' + memberIndex).find('.member-header .ui-icon').click(function() {
-        $(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
-    	$(this).parents('.member:first').find('.member-content').toggle();
-	});
 }
 
 function editTriggers(memberIndex) {

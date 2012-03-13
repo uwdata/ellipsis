@@ -45,17 +45,30 @@ body {
 }
 
 #n3-ui_palette a.selected { background: #eaf2ff; }
+#n3-ui_palette img { width: 20px; }
 #n3-ui_palette a:hover img { opacity: 0.5; }
 
 #n3-ui_side_panel {
     position: fixed;
-    right: 0;
+    right: 15px;
     width: 300px;
     height: 90%;
     overflow: auto;
 }
 
-.scene { margin-bottom: 10px; }
+.scene { 
+    margin-bottom: 10px; 
+    background-color: #ddd;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#bbb)); 
+    background-image: -webkit-linear-gradient(top, #ddd, #bbb); 
+    background-image:    -moz-linear-gradient(top, #ddd, #bbb); 
+    background-image:     -ms-linear-gradient(top, #ddd, #bbb); 
+    background-image:      -o-linear-gradient(top, #ddd, #bbb); 
+    background-image:         linear-gradient(to bottom, #ddd, #bbb);
+    font-weight:bold;
+    color:#333;
+    text-shadow:0px -1px 1px #fff;
+}
 .scene-header, .scene-content { padding: 5px; }
 .scene-header, .member-header { cursor: move; }
 .ui-icon-plusthick, .ui-icon-minusthick { 
@@ -63,11 +76,48 @@ body {
     cursor: pointer;
 }
 
-.member {
+/*.member {
     width: 275px;
     margin: 0 auto 5px auto;
 }
-.member-header, .member-content { padding: 5px; }
+.member-header, .member-content { padding: 5px; }*/
+.members { padding-left: 0px !important; }
+
+.member {
+    list-style-type: none !important;
+    background: none !important;
+    color: #333 !important;
+    border: 0 !important;
+    height: 32px !important;
+    margin-bottom: 15px !important;
+}
+
+.ui-icon-draggable, .ui-icon-trigger, .ui-icon-style, .ui-icon-delete { 
+    display: inline-block !important;
+    float: left !important;
+    height: 32px !important;
+    margin-right: 15px !important;
+    cursor: pointer !important;
+}
+
+.ui-icon-draggable {
+    background: url(../imgs/drag-handle.png) no-repeat 0px 7px !important; 
+    cursor: move !important;
+}
+
+.ui-icon-trigger { background: url(../imgs/trigger.png) no-repeat 0px 7px !important; }
+.ui-icon-style { background: url(../imgs/styles.png) no-repeat 0px 7px !important; }
+.ui-icon-delete { background: url(../imgs/delete.png) no-repeat 0px 7px !important; }
+
+/*.state .member-text { background: url(../imgs/state.png) no-repeat 0px 10px !important; }*/
+.state .ui-icon-style { background-image: none !important; }
+
+.member-text {
+    display: inline-block;
+    float: left;
+    width: 160px;
+    padding-left: 4px;
+}
 
 #n3-ui_triggerDialog textarea {
     width: 100%;
