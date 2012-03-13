@@ -90,10 +90,6 @@ body {
     border-radius: 0px !important;
     color: #fff;
 }
-.ui-icon-plusthick, .ui-icon-minusthick { 
-    float: right;
-    cursor: pointer;
-}
 
 /*.member {
     width: 275px;
@@ -114,6 +110,12 @@ body {
 
 .members .hover { background: #ddd !important; }
 
+.ui-icon-edit, .ui-icon-plusthick, .ui-icon-minusthick { 
+    float: right;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
 .ui-icon-draggable, .ui-icon-trigger, .ui-icon-style, .ui-icon-delete { 
     display: inline-block !important;
     float: left !important;
@@ -127,6 +129,7 @@ body {
     cursor: move !important;
 }
 
+.ui-icon-edit { background: url(../imgs/edit.png) no-repeat !important; }
 .ui-icon-trigger { background: url(../imgs/trigger.png) no-repeat 0px 7px !important; }
 .ui-icon-style { background: url(../imgs/styles.png) no-repeat 0px 7px !important; }
 .ui-icon-delete { background: url(../imgs/delete.png) no-repeat 0px 7px !important; }

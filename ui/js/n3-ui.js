@@ -91,41 +91,57 @@ function saveVis() {
         $('#n3-ui_visDialog').dialog('close')
 }
 
-function startScene() {
+function editScene(editSceneId) {
+    endScene();
     $('.n3-ui_member' + sceneId).hide();
     
-    sceneId = prompt("Enter a scene ID: ");
-    scenes[sceneId] = { id: sceneId };
+    if(!editSceneId) {
+        sceneId = prompt("Enter a scene ID: ");
+        scenes[sceneId] = { id: sceneId };  
+        
+        $('#n3-ui_side_panel')
+            .append('<div class="scene" id="n3-scene_' + sceneId 
+                        + '"><div class="scene-header">Scene: ' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
+
+        $('#n3-scene_' + sceneId)
+            .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
+        	.find('.scene-header')
+        		.addClass('ui-widget-header ui-corner-all')
+        		.prepend('<span class="ui-icon ui-icon-toggle ui-icon-minusthick"></span><span class="ui-icon ui-icon-edit"></span>')
+        		.end()
+        	.find('.scene-content');
+
+        $('#n3-scene_' + sceneId).find('.scene-header .ui-icon-toggle').click(function() {
+            $(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
+        	$(this).parents('.scene:first').find('.scene-content').toggle();
+
+        	var myId = $(this).parents('.scene:first').attr('id').replace('n3-scene_', '');
+        	if($(this).hasClass('ui-icon-minusthick'))
+        	    $('.n3-ui_member' + myId).show();
+        	else
+        	    $('.n3-ui_member' + myId).hide();
+    	});
+    	
+    	$('#n3-scene_' + sceneId).find('.scene-header .ui-icon-edit').click(function() { 
+    	    var myId = $(this).parents('.scene:first').attr('id').replace('n3-scene_', '');
+    	    return editScene(myId); 
+    	});
+
+    	$('#n3-scene_' + sceneId + ' .members').sortable();      
+    } else {        
+        sceneId = editSceneId;
+        
+        $('.n3-ui_member' + sceneId).show();
+        $('#n3-scene_' + sceneId).find('.scene-content').show();
+        $('#n3-scene_' + sceneId).find('.scene-header .ui-icon')
+                                    .removeClass('ui-icon-plusthick')
+                                    .addClass('ui-icon-minusthick');        
+    }
     
     $('.state_settings').show();
     $('#n3-ui_startScene').hide();
     $('#n3-ui_endScene').show();
     $('#n3-ui_palette').show();
-    
-    $('#n3-ui_side_panel')
-        .append('<div class="scene" id="n3-scene_' + sceneId 
-                    + '"><div class="scene-header">Scene: ' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
-    
-    $('#n3-scene_' + sceneId)
-        .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
-    	.find('.scene-header')
-    		.addClass('ui-widget-header ui-corner-all')
-    		.prepend('<span class="ui-icon ui-icon-minusthick"></span>')
-    		.end()
-    	.find('.scene-content');
-
-    $('#n3-scene_' + sceneId).find('.scene-header .ui-icon').click(function() {
-        $(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
-    	$(this).parents('.scene:first').find('.scene-content').toggle();
-    	
-    	var myId = $(this).parents('.scene:first').attr('id').replace('n3-scene_', '');
-    	if($(this).hasClass('ui-icon-minusthick'))
-    	    $('.n3-ui_member' + myId).show();
-    	else
-    	    $('.n3-ui_member' + myId).hide();
-	});
-	
-	$('#n3-scene_' + sceneId + ' .members').sortable();
 	
 	$('body').css('backgroundColor', '#ddd');
 }
@@ -141,7 +157,9 @@ function endScene() {
     $('body').css('backgroundColor', '#fff');  
     
     $('#n3-scene_' + sceneId).find('.scene-content').hide();
-    $('#n3-scene_' + sceneId).find('.scene-header .ui-icon').toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
+    $('#n3-scene_' + sceneId).find('.scene-header .ui-icon')
+                                .removeClass('ui-icon-minusthick')
+                                .addClass('ui-icon-plusthick');
 }
 
 function setState(visId, stateId, value) {
@@ -169,11 +187,13 @@ function populateMember(m, memberIndex) {
     var content;
     var isState = m.state != null;
     
+    var memberId = 'n3-ui_scene' + sceneId + '_member' + memberIndex;
+    
     if(isState)
-        content = '<li id="n3-ui_member' + memberIndex + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+        content = '<li id="' + memberId + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             m.state.id + '<br />&rarr; &nbsp;' + m.state.value + '</span>';
     else
-        content = '<li id="n3-ui_member' + memberIndex + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+        content = '<li id="' + memberId + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
     
     content += '<a href="#" title="Edit Triggers" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
@@ -183,13 +203,13 @@ function populateMember(m, memberIndex) {
     $('#n3-scene_' + sceneId + ' .members')
         .append(content);
         
-    $('#n3-ui_member' + memberIndex).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
+    $('#' + memberId).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
     
     if(isState)
-        $('#n3-ui_member' + memberIndex).hover(function() { $('#n3-vis_' + m.visId).addClass('hover'); }, 
+        $('#' + memberId).hover(function() { $('#n3-vis_' + m.visId).addClass('hover'); }, 
                                                 function() { $('#n3-vis_' + m.visId).removeClass('hover'); })
     else
-        $('#n3-ui_member' + memberIndex).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
+        $('#' + memberId).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
                                                 function() { d3.select('#' + m.annotation.id).classed('hover', false); });
 }
 
