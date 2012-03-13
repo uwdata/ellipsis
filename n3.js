@@ -158,17 +158,11 @@
     };
 
     N3Vis.prototype["const"] = function(constId, value) {
-      var constVal;
       if (arguments.length === 2) {
         if (!(constId in this.consts)) this.consts[constId] = value;
         return this;
       } else {
-        constVal = this.consts[constId];
-        if (typeof constVal === 'function') {
-          return constVal.apply(this);
-        } else {
-          return constVal;
-        }
+        return this.consts[constId];
       }
     };
 

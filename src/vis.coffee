@@ -60,8 +60,10 @@ class N3Vis
             
             return this
         else
-            constVal = @consts[constId]        
-            if typeof constVal == 'function' then constVal.apply(this) else constVal
+            @consts[constId]   
+            # We don't actually want to call the function because people are probably
+            # expecting a fn ptr returned. 
+            # if typeof constVal == 'function' then constVal.apply(this) else constVal
             
     render: (@renderFn) ->
         return this

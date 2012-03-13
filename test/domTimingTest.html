@@ -44,7 +44,7 @@
     <svg id="stage" width="700" height="400"></svg>
     
     <div id="text">
-        <div id="scene_1" style="display: none;">
+        <div id="scene_1">
             <h2>Scene One</h2>
             
             <p>Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. He's got style, a groovy style, and a car that just won't stop. When the going gets tough, he's really rough, with a Hong Kong Phooey chop (Hi-Ya!). Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. Hong Kong Phooey, he's fan-riffic!</p>
@@ -79,13 +79,13 @@ var vis = n3.vis('simpleTest1')
                 .state('numberRange', ['thirteen', 'seventeen', 'nineteen'])
                 .const('sx', function() {
                     return d3.scale.linear()
-                                    .domain([0, this.data()[this.state('numberRange')].length])
-                                    .range([0, this.width()])
+                                    .domain([0, vis.data()[vis.state('numberRange')].length])
+                                    .range([0, vis.width()])
                 })
                 .const('sy', function() {
                     return d3.scale.linear()
                                     .domain([0, 88])
-                                    .range([0, this.height()])
+                                    .range([0, vis.height()])
                 })
                 .render(renderVis)
 
@@ -96,17 +96,17 @@ function renderVis() {
                         .data(this.data()[this.state('numberRange')])
                         
     selBar.enter().append('svg:rect')
-            .attr('x', function(d, i) { return vis.const('sx')(i) })
+            .attr('x', function(d, i) { return vis.const('sx')()(i) })
             .attr('y', this.height())
             .attr('width', 80)
-            .attr('height', this.const('sy'))
+            .attr('height', this.const('sy')())
             .style('fill', 'steelblue')
         
     selBar.transition()
             .duration(1000)
             .delay(function(d, i) { return i * 125 })
-            .attr('y', function(d) { return vis.height() - vis.const('sy')(d) })
-            .attr('height', this.const('sy'))
+            .attr('y', function(d) { return vis.height() - vis.const('sy')()(d) })
+            .attr('height', this.const('sy')())
             .style('fill', 'steelblue')
             
     selBar.exit().transition()
