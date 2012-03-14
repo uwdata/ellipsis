@@ -93,17 +93,17 @@ function saveVis() {
 
 function editScene(editSceneId) {
     endScene();
-    $('.n3-ui_member' + sceneId).hide();
+    $('.n3-ui_scene' + sceneId).hide();
     
     if(!editSceneId) {
         sceneId = prompt("Enter a scene ID: ");
         scenes[sceneId] = { id: sceneId };  
         
         $('#n3-ui_side_panel')
-            .append('<div class="scene" id="n3-scene_' + sceneId 
+            .append('<div class="scene" id="n3-ui_scene' + sceneId 
                         + '"><div class="scene-header">Scene: ' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
 
-        $('#n3-scene_' + sceneId)
+        $('#n3-ui_scene' + sceneId)
             .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
         	.find('.scene-header')
         		.addClass('ui-widget-header ui-corner-all')
@@ -111,29 +111,31 @@ function editScene(editSceneId) {
         		.end()
         	.find('.scene-content');
 
-        $('#n3-scene_' + sceneId).find('.scene-header .ui-icon-toggle').click(function() {
+        $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon-toggle').click(function() {
             $(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
         	$(this).parents('.scene:first').find('.scene-content').toggle();
 
-        	var myId = $(this).parents('.scene:first').attr('id').replace('n3-scene_', '');
+        	var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
         	if($(this).hasClass('ui-icon-minusthick'))
-        	    $('.n3-ui_member' + myId).show();
+        	    $('.n3-ui_scene' + mySceneId).show();
         	else
-        	    $('.n3-ui_member' + myId).hide();
+        	    $('.n3-ui_scene' + mySceneId).hide();
     	});
     	
-    	$('#n3-scene_' + sceneId).find('.scene-header .ui-icon-edit').click(function() { 
-    	    var myId = $(this).parents('.scene:first').attr('id').replace('n3-scene_', '');
-    	    return editScene(myId); 
+    	$('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon-edit').click(function() { 
+    	    var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
+    	    return editScene(mySceneId); 
     	});
 
-    	$('#n3-scene_' + sceneId + ' .members').sortable();      
+    	$('#n3-ui_scene' + sceneId + ' .members').sortable({
+    	    stop: reorderMembers
+    	});      
     } else {        
         sceneId = editSceneId;
         
-        $('.n3-ui_member' + sceneId).show();
-        $('#n3-scene_' + sceneId).find('.scene-content').show();
-        $('#n3-scene_' + sceneId).find('.scene-header .ui-icon')
+        $('.n3-ui_scene' + sceneId).show();
+        $('#n3-ui_scene' + sceneId).find('.scene-content').show();
+        $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon')
                                     .removeClass('ui-icon-plusthick')
                                     .addClass('ui-icon-minusthick');        
     }
@@ -156,8 +158,8 @@ function endScene() {
     $('#n3-ui_palette').hide();
     $('body').css('backgroundColor', '#fff');  
     
-    $('#n3-scene_' + sceneId).find('.scene-content').hide();
-    $('#n3-scene_' + sceneId).find('.scene-header .ui-icon')
+    $('#n3-ui_scene' + sceneId).find('.scene-content').hide();
+    $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon')
                                 .removeClass('ui-icon-minusthick')
                                 .addClass('ui-icon-plusthick');
 }
@@ -179,39 +181,41 @@ function setState(visId, stateId, value) {
 function populateMember(m, memberIndex) {
     scenes[sceneId].members = (scenes[sceneId].members == undefined) ? [] : scenes[sceneId].members;
     
+    // Give each member an ID if it doesn't point it doesn't already have one
+    m.memberId = (m.annotation != null) ? m.annotation.id : 'state_' + Date.now();
+    
     if(arguments.length == 1) 
         memberIndex = scenes[sceneId].members.length;
     
     scenes[sceneId].members[memberIndex] = m;
     
-    var memberId = 'n3-ui_scene' + sceneId + '_member' + memberIndex;
     var content;
     var isState = m.state != null;
     
     if(isState)
-        content = '<li id="' + memberId + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+        content = '<li id="n3-ui_' + m.memberId + '" class="ui-state-default member state"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             m.state.id + '<br />&rarr; &nbsp;' + m.state.value + '</span>';
     else
-        content = '<li id="' + memberId + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
+        content = '<li id="n3-ui_' + m.memberId + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
                             'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
     
     content += '<a href="#" title="' + ((m.trigger == null) ? 'Add Triggers' : 'Edit Triggers') + '" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
                '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((!isState) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
                '<a href="#" title="Delete" class="ui-icon ui-icon-delete" onclick="removeMember(' + memberIndex + ');"></a></li>';
         
-    $('#n3-scene_' + sceneId + ' .members')
+    $('#n3-ui_scene' + sceneId + ' .members')
         .append(content);
         
     if(m.trigger == null)
-        $('#' + memberId + ' .ui-icon-trigger').addClass('ui-icon-trigger-empty');
+        $('#n3-ui_' + m.memberId + ' .ui-icon-trigger').addClass('ui-icon-trigger-empty');
         
-    $('#' + memberId).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
+    $('#n3-ui_' + m.memberId).hover(function() { $(this).addClass('hover'); }, function() { $(this).removeClass('hover'); })
     
     if(isState)
-        $('#' + memberId).hover(function() { $('#n3-vis_' + m.visId).addClass('hover'); }, 
+        $('#n3-ui_' + m.memberId).hover(function() { $('#n3-vis_' + m.visId).addClass('hover'); }, 
                                                 function() { $('#n3-vis_' + m.visId).removeClass('hover'); })
     else
-        $('#' + memberId).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
+        $('#n3-ui_' + m.memberId).hover(function() { d3.select('#' + m.annotation.id).classed('hover', true); }, 
                                                 function() { d3.select('#' + m.annotation.id).classed('hover', false); });
 }
 
@@ -232,9 +236,44 @@ function removeMember(memberIndex) {
     }  
     
     // Repopulate members in the scene
-    $('#n3-scene_' + sceneId + ' .members').html('');
+    $('#n3-ui_scene' + sceneId + ' .members').html('');
     for(var i in members)
         populateMember(members[i], i);
+}
+
+function reorderMembers(event, ui) {
+    var scene = $(ui.item).parents('.scene:first');
+    var mySceneId = scene.attr('id').replace('n3-ui_scene', '');
+    
+    var oldOrder = scenes[sceneId].members;
+    scenes[sceneId].members = [];
+    
+    // We need to clear the scene box and re-draw it for all events to properly register.
+    // Probably a better way to register them initially...
+    
+    var memberOrder = scene.find('li.member');
+    $('#n3-ui_scene' + sceneId + ' .members').html('');
+    
+    memberOrder.each(function(i, e) {
+        var memberId = $(e).attr('id').replace('n3-ui_', '');
+        var member = null; 
+        
+        for(var i in oldOrder) {
+            if(oldOrder[i].memberId == memberId) {
+                member = oldOrder[i];
+                break;
+            }
+        }
+        
+        if(member != null)
+            populateMember(member)
+            
+        // Reorder annotations on svg stage
+        if(member.annotation != null) {
+            var annotation = $('#' + memberId);
+            annotation.parents('svg').append(annotation);
+        }
+    });
 }
 
 function editTriggers(memberIndex) {
@@ -247,11 +286,16 @@ function editTriggers(memberIndex) {
 
 function saveTriggers() {
     var memberIndex = $('#n3-ui_triggerDialog').dialog('option', 'memberIndex');
-    scenes[sceneId].members[memberIndex].trigger = $('#triggers').val();
-    $('#triggers').val('');
+    var memberDomId = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';
     
-    $('#n3-ui_scene' + sceneId + '_member' + memberIndex + ' .ui-icon-trigger')
-        .removeClass('ui-icon-trigger-empty');
+    scenes[sceneId].members[memberIndex].trigger = $('#triggers').val();
+    
+    if($('#triggers').val() == '')
+        $(memberDomId).addClass('ui-icon-trigger-empty');
+    else
+        $(memberDomId).removeClass('ui-icon-trigger-empty');
+        
+    $('#triggers').val('');    
     $('#n3-ui_triggerDialog').dialog('close');
 }
 
@@ -457,7 +501,7 @@ function startCircle(e) {
     d3.select(e.target)
         .append('svg:circle')
         .attr('id', id)
-        .attr('class', 'n3-ui_member' + sceneId)
+        .attr('class', 'n3-ui_scene' + sceneId)
         .attr('cx', getMouseX(e))
         .attr('cy', getMouseY(e))
         .attr('r', 1)
@@ -481,7 +525,7 @@ function startEllipse(e) {
     d3.select(e.target)
         .append('svg:ellipse')
         .attr('id', id)
-        .attr('class', 'n3-ui_member' + sceneId)
+        .attr('class', 'n3-ui_scene' + sceneId)
         .attr('cx', getMouseX(e))
         .attr('cy', getMouseY(e))
         .attr('rx', 1)
@@ -506,7 +550,7 @@ function startLine(e) {
     d3.select(e.target)
         .append('svg:line')
         .attr('id', id)
-        .attr('class', 'n3-ui_member' + sceneId)
+        .attr('class', 'n3-ui_scene' + sceneId)
         .attr('x1', getMouseX(e))
         .attr('y1', getMouseY(e))
         .attr('x2', getMouseX(e))
@@ -533,7 +577,7 @@ function startRect(e) {
     d3.select(e.target)
         .append('svg:rect')
         .attr('id', id)
-        .attr('class', 'n3-ui_member' + sceneId)
+        .attr('class', 'n3-ui_scene' + sceneId)
         .attr('x', x)
         .attr('y', y)
         .attr('width', 1)
