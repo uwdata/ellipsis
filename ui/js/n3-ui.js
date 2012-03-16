@@ -471,6 +471,7 @@ function showStyles(shapeId, shapeType) {
 
 function exportStory() {
     var story = $('#vis').val() + "\n";
+    var indent = "        ";
     
     for(var id in scenes) {
         story += "\nn3.scene('" + id + "')\n";
@@ -487,44 +488,85 @@ function exportStory() {
                 var annotation = "    n3.annotation('" + SHAPE_LABELS[member.annotation.type] + "')\n";
                 switch(member.annotation.type) {
                     case SHAPES.CIRCLE:
-                        annotation += "        .radius(" + elem.attr('r') + ")\n" +
-                                      "        .center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
+                        annotation += indent + ".radius(" + elem.attr('r') + ")\n" +
+                                      indent + ".center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
                     break;
                     
                     case SHAPES.ELLIPSE:
-                        annotation += "        .radius([" + elem.attr('rx') + ", " + elem.attr('ry') + "])\n" +
-                                      "        .center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
+                        annotation += indent + ".radius([" + elem.attr('rx') + ", " + elem.attr('ry') + "])\n" +
+                                      indent + ".center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
                     break;
                     
                     case SHAPES.LINE:
-                        annotation += "        .start([" + elem.attr('x1') + ", " + elem.attr('y1') + "])\n" +
-                                      "        .end([" + elem.attr('x2') + ", " + elem.attr('y2') + "])\n";
+                        annotation += indent + ".start([" + elem.attr('x1') + ", " + elem.attr('y1') + "])\n" +
+                                      indent + ".end([" + elem.attr('x2') + ", " + elem.attr('y2') + "])\n";
                     break;
                     
                     case SHAPES.RECTANGLE:
-                        annotation += "        .size([" + elem.attr('width') + ", " + elem.attr('height') + "])\n" +
-                                      "        .pos([" + elem.attr('x') + ", " + elem.attr('y') + "])\n";
+                        annotation += indent + ".size([" + elem.attr('width') + ", " + elem.attr('height') + "])\n" +
+                                      indent + ".pos([" + elem.attr('x') + ", " + elem.attr('y') + "])\n";
                     break;
                 }
                  
-                annotation += "        .attr('id', '" + member.annotation.id + "')\n";    
-                annotation += "        .style('fill', '" + (elem.attr('fill') || '#000000') + "')\n";
-                annotation += "        .style('fill-opacity', '" + (elem.attr('fill-opacity') || '1') + "')\n";
-                annotation += "        .style('stroke-width', '" + (elem.attr('stroke-width') || '1') + "')\n";
-                annotation += "        .style('stroke', '" + (elem.attr('stroke') || '#000000') + "')";
+                annotation += indent + ".attr('id', '" + member.annotation.id + "')\n";    
+                annotation += indent + ".style('fill', '" + (elem.attr('fill') || '#000000') + "')\n";
+                annotation += indent + ".style('fill-opacity', '" + (elem.attr('fill-opacity') || '1') + "')\n";
+                annotation += indent + ".style('stroke-width', '" + (elem.attr('stroke-width') || '1') + "')\n";
+                annotation += indent + ".style('stroke', '" + (elem.attr('stroke') || '#000000') + "')";
                 
                 story += ".add('" + member.visId + "',\n" + annotation;
             }
             
-            if(member.trigger != null)
-                story += ",\n    " + member.trigger;
+            if(member.trigger != null) {
+                story += ",\n";
                 
+                story += recursiveExportTrigger(member.trigger);
+            }
+            
             story += ")\n"
         }
     }  
     
     $('#export').val(story);  
     $('#n3-ui_exportDialog').dialog('open');
+}
+
+function recursiveExportTrigger(trigger) {
+    var indent = "                    ";
+    var story = indent;
+    
+    switch(trigger.type) {
+        case 'or':
+        case 'and':
+            story += "n3.trigger." + trigger.type + "(\n";
+
+            for(var i in trigger.triggers)
+                story += recursiveExportTrigger(trigger.triggers[i]) +
+                                ((i == trigger.triggers.length - 1) ? "" : ",\n");
+
+            story += ")\n";
+        break;
+        
+        case 'delay':
+            story += 'n3.trigger.afterPrev(' + trigger.value + ')';
+        break;
+        
+        case 'state':
+            var test = trigger.where.split('_');
+        
+            story += "n3.trigger('" + test[0] + "')\n" + 
+                     indent + ".where('" + test[1] + "')\n" +
+                     indent + "." + trigger.condition + "('" + trigger.value + "')"; // Eeks, what about numbers??
+        break;
+        
+        case 'timeline':
+            story += "n3.trigger(n3.timeline)\n" +
+                     indent + ".where('elapsed')\n" +
+                     indent + "." + trigger.condition + "(" + trigger.value + ")";
+        break;
+    }
+    
+    return story;
 }
 
 // Get coordinates of mouse within the svg
