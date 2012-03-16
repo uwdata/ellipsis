@@ -15,12 +15,19 @@ $(function() {
     $(document).ready(function() {
         $('#n3-ui_visDialog').dialog({
             modal: true,
-            width: 500
+            width: 500,
+            buttons: {
+                "Save": saveVis
+            }
         });
         
         $('#n3-ui_triggerDialog').dialog({
             modal: true,
-            autoOpen: false
+            autoOpen: false,
+            width: 400,
+            buttons: {
+                "Save": saveTriggers
+            }
         });
         
         $('#n3-ui_stylesDialog').dialog({
@@ -85,6 +92,24 @@ function saveVis() {
             .append(stateSettings)
             
         $('#n3-vis_' + visId + ' .infobar:last').hide();
+        
+        // Populate state settings into triggers dialog
+        var tmpl = $('#triggerTemplate');
+        for(var stateId in vis.states) {
+            var className = visId + '_' + stateId;
+            
+            tmpl.find('p.state:first')
+                    .find('select.where:first')
+                        .append('<option value="' + className + '">' + visId + ': ' + stateId + '</option>');
+                        
+            tmpl.find('p.state:first')
+                    .append('<select class="value ' + className + '" style="display:none;"><option value="">Select value...</option></select>');
+         
+            for(var i in s.validValues)
+                tmpl.find('p.state:first')
+                        .find('select.value.' + className)
+                            .append('<option>' + s.validValues[i] + '</option>');
+        }
     }
     
     if(closeDialog)
@@ -101,7 +126,7 @@ function editScene(editSceneId) {
         
         $('#n3-ui_side_panel')
             .append('<div class="scene" id="n3-ui_scene' + sceneId 
-                        + '"><div class="scene-header">Scene: ' + sceneId + '</div><div class="scene-content"><ul class="members"></ul></div></div>');
+                        + '"><div class="scene-header"><span>Currently Editing Scene: ' + sceneId + '</span></div><div class="scene-content"><ul class="members"></ul></div></div>');
 
         $('#n3-ui_scene' + sceneId)
             .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
@@ -135,6 +160,7 @@ function editScene(editSceneId) {
         
         $('.n3-ui_scene' + sceneId).show();
         $('#n3-ui_scene' + sceneId).find('.scene-content').show();
+        $('#n3-ui_scene' + sceneId).find('.scene-header span').text('Currently Editing Scene: ' + sceneId);
         $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon')
                                     .removeClass('ui-icon-plusthick')
                                     .addClass('ui-icon-minusthick');        
@@ -159,6 +185,7 @@ function endScene() {
     $('body').css('backgroundColor', '#fff');  
     
     $('#n3-ui_scene' + sceneId).find('.scene-content').hide();
+    $('#n3-ui_scene' + sceneId).find('.scene-header span').text('Scene: ' + sceneId);
     $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon')
                                 .removeClass('ui-icon-minusthick')
                                 .addClass('ui-icon-plusthick');
@@ -280,23 +307,102 @@ function editTriggers(memberIndex) {
     $('#n3-ui_triggerDialog').dialog('option', 'memberIndex', memberIndex);
     $('#n3-ui_triggerDialog').dialog('open');
     
-    if(scenes[sceneId].members[memberIndex].trigger != null)
-        $('#triggers').val(scenes[sceneId].members[memberIndex].trigger);
+    $('#triggerTemplate').nextAll('*').remove();
+    $('#triggerTemplate').parent().append('<li>' + $('#triggerTemplate').html() + '</li>');
+    
+    var trigger = scenes[sceneId].members[memberIndex].trigger;
+    
+    if(trigger != null)
+        recursivePopulateTriggers(trigger, $('#triggerTemplate').next('li'));
+        
+}
+
+function recursivePopulateTriggers(trigger, li) {
+    if(typeof trigger != "object")
+        return;
+
+    li.html($('#triggerTemplate').html());
+    
+    li.find('p:first select.trigger_type').val(trigger.type);
+    
+    if(trigger.type == 'or' || trigger.type == 'and') {
+        for(var i in trigger.triggers) {
+            var subTrigger = trigger.triggers[i];
+            
+            li.append('<ul><li>' + $('#triggerTemplate').html() + '</li></ul>');
+            
+            recursivePopulateTriggers(subTrigger, li.find('ul:eq(' + i + ') li'));
+        }
+    } else {
+        var typeOpts = li.find('p.' + trigger.type + ':first');
+        typeOpts.find('.where').val(trigger.where);
+        typeOpts.find('.condition').val(trigger.condition);
+        typeOpts.find('.value' + (trigger.type == 'state' ? '.' + trigger.where : '')).val(trigger.value);
+        typeOpts.find('.value').hide();
+        typeOpts.find('.value' + (trigger.type == 'state' ? '.' + trigger.where : '')).show();
+        typeOpts.show();
+    }
+}
+
+function chooseTrigger(trigger) {
+    var type = $(trigger).val();
+    $(trigger).parent().nextAll('p').hide();
+    $(trigger).parent().find('a.add_sub_trigger').hide();
+    
+    if(type != 'or' && type != 'and') {
+        $(trigger).parent().parent().children('ul').remove();
+        
+        if(type != '')
+            $(trigger).parent().nextAll('p.' + type).show();    
+    }   
+    
+    if(type == 'or' || type == 'and')    
+        addSubTrigger(trigger);
+}
+
+function addSubTrigger(trigger) {
+    $(trigger).parent().find('a.add_sub_trigger').show();
+    $(trigger).parent().parent().append('<ul><li>' + $('#triggerTemplate').html() + '</li></ul>');
 }
 
 function saveTriggers() {
     var memberIndex = $('#n3-ui_triggerDialog').dialog('option', 'memberIndex');
     var memberDomId = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';
     
-    scenes[sceneId].members[memberIndex].trigger = $('#triggers').val();
+    var triggers = recursiveSaveTriggers($('#triggerTemplate').next('li'));
     
-    if($('#triggers').val() == '')
+    scenes[sceneId].members[memberIndex].trigger = triggers;
+    
+    if(triggers == null)
         $(memberDomId).addClass('ui-icon-trigger-empty');
     else
         $(memberDomId).removeClass('ui-icon-trigger-empty');
         
-    $('#triggers').val('');    
     $('#n3-ui_triggerDialog').dialog('close');
+}
+
+function recursiveSaveTriggers(li) {
+    var t = {};
+    t.type  = li.find('p:first select.trigger_type').val();
+
+    if(t.type == '')
+        return null;
+        
+    if(t.type == 'and' || t.type == 'or') {
+        t.triggers = [];
+        li.children('ul').each(function(i, ul) {
+            $(ul).children('li').each(function(i, subLi) {
+                t.triggers.push(recursiveSaveTriggers($(subLi)));
+            });
+        });
+    }
+    
+    var typeOpts = li.find('p.' + t.type + ':first');
+    t.where     = typeOpts.find('.where').val();
+    t.condition = typeOpts.find('.condition').val();
+    t.value     = typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val();
+    
+    return t;
 }
 
 function showStyles(shapeId, shapeType) {

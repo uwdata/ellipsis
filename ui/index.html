@@ -67,7 +67,6 @@
                         .remove()
             }
     	</textarea></p>
-    	<p><input type="button" name="n3-ui_visSave" value="Save" id="n3-ui_visSave" onclick="saveVis();" /></p>
     </div>
         
     <div id="n3-ui_stage">
@@ -94,9 +93,62 @@
     </div>
     
     <div id="n3-ui_triggerDialog" title="Triggers">
-    	<p>Please enter triggers for this member using n3 syntax.</p>
-    	<p><textarea name="triggers" id="triggers"></textarea></p>
-    	<p><input type="button" name="n3-ui_visSave" value="Save" id="n3-ui_visSave" onclick="saveTriggers();" /></p>
+        <ul>
+            <li id="triggerTemplate" style="display: none;">
+                <p>Trigger type: 
+                <select class="trigger_type" onchange="chooseTrigger(this);">
+                    <option value="">Select...</option>
+                    <option value="state">State</option>
+                    <!-- <option value="dom">Page Element</option> -->
+                    <option value="timeline">Timeline</option>
+                    <option value="delay">After previous delay</option>
+                    <option value="or">Or</option>
+                    <option value="and">And</option>
+                </select>
+                
+                <a href="#" onclick="addSubTrigger(this);" class="add_sub_trigger" style="display: none;">Add</a>
+                </p>
+                
+                <p class="state" style="display: none;">
+                    <select class="where" onchange="$(this).nextAll('select.value').hide(); if($(this).val() != '') $(this).nextAll('select.value.' + $(this).val() + ':first').show();">
+                        <option value="">Select state...</option>
+                    </select>
+                    
+                    <select class="condition">
+                        <option value="is">is</option>
+                        <option value="not">not</option>
+                        <option value="gt">&gt;</option>
+                        <option value="gte">&gt;=</option>
+                        <option value="lt">&lt;</option>
+                        <option value="lte">&lt;=</option>
+                    </select>
+                    
+                    <select class="value">
+                        <option value="">Select value...</option>
+                    </select>
+                </p>
+                
+                <p class="dom" style="display: none;"><input type="button" class="on" value="Select element" /></p>
+                
+                <p class="timeline" style="display: none;">Elapsed time
+                    <input type="hidden" class="where" value="elapsed" />
+                    <select class="condition">
+                        <option value="is">is</option>
+                        <option value="not">not</option>
+                        <option value="gt">&gt;</option>
+                        <option value="gte">&gt;=</option>
+                        <option value="lt">&lt;</option>
+                        <option value="lte">&lt;=</option>
+                    </select>
+                    
+                    <input type="text" class="value" value="" size="2" />ms
+                </p>
+                
+                <p class="delay" style="display: none;"><input type="hidden" class="where" value="delay" /><input type="text" class="value" value="" size="2" />ms</p>
+            </li>
+    	<!-- <p>Please enter triggers for this member using n3 syntax.</p>
+    	       <p><textarea name="triggers" id="triggers"></textarea></p>
+    	       <p><input type="button" name="n3-ui_visSave" value="Save" id="n3-ui_visSave" onclick="saveTriggers();" /></p> -->
     </div>
     
     <div id="n3-ui_stylesDialog" title="Styles">
