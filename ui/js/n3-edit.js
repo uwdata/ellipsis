@@ -506,6 +506,15 @@ function exportStory() {
                         annotation += indent + ".size([" + elem.attr('width') + ", " + elem.attr('height') + "])\n" +
                                       indent + ".pos([" + elem.attr('x') + ", " + elem.attr('y') + "])\n";
                     break;
+                    
+                    case SHAPES.LABEL:
+                        var svgOffset = $('#n3-vis_' + member.visId + ' svg').offset();
+                        var x = parseFloat(elem.style('left')) - svgOffset.left;
+                        var y = parseFloat(elem.style('top')) - svgOffset.top;
+                    
+                        annotation += indent + ".html(\"" + elem.html() + "\")\n" + 
+                                      indent + ".pos([" + x + ", " + y + "])\n";
+                    break;
                 }
                  
                 annotation += indent + ".attr('id', '" + member.annotation.id + "')\n";    
@@ -640,6 +649,10 @@ function startDrawing(shapeType) {
         
         case SHAPES.RECTANGLE:
             $('svg').bind('mousedown.n3_edit', startRect);
+        break;
+        
+        case SHAPES.LABEL:
+            $('svg').bind('click.n3_edit', startLabel);
         break;
         
     }
@@ -780,4 +793,27 @@ function drawRect(e) {
     
     s.attr('width', Math.abs(mouseX - startX))
      .attr('height', Math.abs(mouseY - startY));
+}
+
+function startLabel(e) {
+    var id = 'label_' + Date.now();
+    
+    var x = getMouseX(e);
+    var y = getMouseY(e);
+
+    d3.select('body')
+        .append('p')
+        .html('Label text')
+        .attr('id', id)
+        .attr('class', 'editable n3-ui_scene' + sceneId)
+        .attr('contenteditable', 'true')
+        .style('position', 'absolute')
+        .style('left', e.pageX + 'px')
+        .style('top', e.pageY + 'px')
+        .style('margin', '0');
+    console.log(e.target.parentNode.id);
+    // Labels shouldn't work like normal shapes. You don't add them repetitively because you edit. 
+    endDrawing({ data: { id: id, visId: e.target.parentNode.id, type: SHAPES.LABEL }});
+    toggleShape($('#n3-ui_palette a.text')[0], SHAPES.LABEL);
+    $('svg').unbind('click.n3_edit');
 }

@@ -69,12 +69,22 @@ body {
 
 #n3-ui_palette a { 
     float: left; 
-    margin-left: 20px;
-    padding: 4px 5px 0 5px;
+    margin-left: 30px;
+    padding: 0 5px;
+    width: 32px;
+    height: 40px;
+    text-indent: -999em;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
 }
 
-#n3-ui_palette a.selected { background: #eaf2ff; }
-#n3-ui_palette a:hover img { opacity: 0.5; }
+#n3-ui_palette a.selected { background-color: #eaf2ff; }
+#n3-ui_palette a:hover { opacity: 0.5; }
+
+#n3-ui_palette a.circle { background-image: url(../imgs/draw-circle.png); }
+#n3-ui_palette a.rect { background-image: url(../imgs/draw-rect.png); }
+#n3-ui_palette a.line { background-image: url(../imgs/draw-line.png); }
+#n3-ui_palette a.text { background-image: url(../imgs/draw-text.png); }
 
 #n3-ui_side_panel {
     position: fixed;
@@ -203,3 +213,5 @@ body {
     border: 1px solid #fff;
     cursor: pointer;
 }
+
+p.editable:hover { outline: 1px dotted #CCC; }
