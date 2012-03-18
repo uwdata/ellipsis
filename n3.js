@@ -551,20 +551,15 @@
     };
 
     N3Trigger.notify = function(type, test, value) {
-      var trigger, triggerId, _ref, _ref2, _results;
+      var trigger, triggerId, _ref, _ref2;
       if (((_ref = this.registered[type]) != null ? _ref[test] : void 0) != null) {
         _ref2 = this.registered[type][test];
-        _results = [];
         for (triggerId in _ref2) {
           trigger = _ref2[triggerId];
-          if (trigger.evaluate(test, value)) {
-            _results.push(N3Timeline.notifyTrigger(trigger));
-          } else {
-            _results.push(void 0);
-          }
+          if (trigger.evaluate(test, value)) N3Timeline.notifyTrigger(trigger);
         }
-        return _results;
       }
+      return true;
     };
 
     function N3Trigger() {
@@ -859,7 +854,7 @@
     N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
-      var currentScene, currentValue, i, m, prevScene, stateId, transFunc, visId, _i, _j, _len, _len2, _len3, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var currentScene, currentValue, evaluateMembers, i, m, prevScene, stateId, transFunc, visId, _i, _j, _len, _len2, _len3, _len4, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
       this.prevSceneId = this.currSceneId;
       this.currSceneId = sceneId;
       prevScene = N3Scene.scenes[this.prevSceneId];
@@ -887,10 +882,12 @@
         }
       }
       this.start(true);
+      evaluateMembers = [];
       if (currentScene != null) {
         _ref5 = currentScene.members;
         for (i = 0, _len3 = _ref5.length; i < _len3; i++) {
           m = _ref5[i];
+          evaluateMembers[i] = false;
           if (m.trigger != null) {
             if (m.trigger.type === N3Trigger.TYPES.DELAY) {
               m.trigger.where(N3Trigger.WHERE.DELAY + (i - 1));
@@ -906,7 +903,12 @@
               continue;
             }
           }
-          currentScene.evalMember(i);
+          evaluateMembers[i] = true;
+        }
+        _ref7 = currentScene.members;
+        for (i = 0, _len4 = _ref7.length; i < _len4; i++) {
+          m = _ref7[i];
+          if (evaluateMembers[i]) currentScene.evalMember(i);
         }
       }
       return true;
@@ -934,7 +936,9 @@
         if ((_ref = N3Scene.scenes[this.currSceneId]) != null) {
           _ref.evalMember(this.triggers[trigger.triggerId]);
         }
-        this.deregisterTrigger(trigger);
+        if (trigger.type === N3Trigger.TYPES.TIMELINE) {
+          this.deregisterTrigger(trigger);
+        }
       }
       return true;
     };

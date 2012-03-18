@@ -64,6 +64,8 @@ class N3Trigger
             for triggerId, trigger of @registered[type][test]
                 N3Timeline.notifyTrigger(trigger) \
                     if trigger.evaluate(test, value)
+                        
+        true;
 
     
     constructor: (binding, triggers...) ->  

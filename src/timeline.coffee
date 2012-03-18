@@ -33,9 +33,13 @@ class N3Timeline
        
         # Start the timer for the current scene after the transition is complete
         @start(true)
+        
+        evaluateMembers = [];
        
         if currentScene?
             for m, i in currentScene.members            
+                evaluateMembers[i] = false;
+                
                 if m.trigger?
                     # If it's a delay trigger, automatically bind it to the prev
                     # member's index
@@ -61,7 +65,10 @@ class N3Timeline
                         @registerTrigger(m.trigger, i)
                         continue
                 
-                currentScene.evalMember(i)
+                evaluateMembers[i] = true;
+                
+            for m, i in currentScene.members
+                currentScene.evalMember(i) if evaluateMembers[i]
                                     
         true
         
@@ -84,7 +91,9 @@ class N3Timeline
     @notifyTrigger: (trigger) ->
         if @triggers[trigger.triggerId]?
             N3Scene.scenes[@currSceneId]?.evalMember(@triggers[trigger.triggerId]) 
-            @deregisterTrigger trigger
+            
+            # Deregister a timeline trigger once it has fired because we can't go back in time
+            @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE
         
         true  
         
