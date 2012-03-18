@@ -46,11 +46,26 @@ body {
     background: black url(../imgs/ui-bg_inset-soft_25_000000_1x100.png) 50% bottom repeat-x
 }
 
-#n3-ui_bottom_panel input { float:left; }
-#n3-ui_play, #n3-ui_export {
-    float: right !important;
+#n3-ui_bottom_panel .button {
+    float: right;
     margin-right: 15px;
+    background-color: #444;
+    background-repeat: no-repeat;
+    background-position: 5px 50%;
+    border: 1px solid #ddd;
+    height: 40px;
+    padding: 5px 5px 5px 45px;
+    color: #fff;
+    cursor: pointer;
 }
+
+#n3-ui_bottom_panel .button-left { float: left !important; }
+#n3-ui_bottom_panel .button:hover { background-color: #555; }
+
+#n3-ui_bottom_panel .new { background-image: url(../imgs/add-large.png);}
+#n3-ui_bottom_panel .end { background-image: url(../imgs/accept.png);}
+#n3-ui_bottom_panel .play { background-image: url(../imgs/play.png); }
+#n3-ui_bottom_panel .export { background-image: url(../imgs/export.png); }
 
 #n3-ui_palette a { 
     float: left; 
@@ -59,7 +74,6 @@ body {
 }
 
 #n3-ui_palette a.selected { background: #eaf2ff; }
-#n3-ui_palette img { width: 20px; }
 #n3-ui_palette a:hover img { opacity: 0.5; }
 
 #n3-ui_side_panel {
