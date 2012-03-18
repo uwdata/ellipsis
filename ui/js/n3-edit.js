@@ -569,7 +569,32 @@ function recursiveExportTrigger(trigger) {
     return story;
 }
 
-// Get coordinates of mouse within the svg
+function playStory() {
+    // Easy way to grab the n3 js
+    exportStory();
+    $('#n3-ui_exportDialog').dialog('close');
+    
+    // N3 doesn't provide an explicit way of ordering scenes, 
+    // grab their linear order from the scene boxes
+    var sceneOrder = [];
+    $('#n3-ui_side_panel .scene').each(function(i, e) {
+        sceneOrder.push($(e).attr('id').replace('n3-ui_scene', ''));
+    });
+    
+    var json = {
+        visIds: visIds,
+        sceneOrder: sceneOrder,
+        n3Js: $('#export').val()
+    };
+    
+    var playWin = window.open('http://localhost:8000/play.html', 'playWin', 'width=1024,height=768,status=yes,menubar=yes,titlebar=yes,toolbar=yes,location=yes,scrollbar=yes');
+    var wait = setInterval(function() { 
+        playWin.postMessage($.toJSON(json), 'http://localhost:8000'); 
+        clearInterval(wait);
+    }, 1000);
+}
+
+// Get coordinates of mouse within the svgply
 function toggleShape(elem, shapeType) {
     var selected = $(elem).hasClass('selected');
     endDrawing();

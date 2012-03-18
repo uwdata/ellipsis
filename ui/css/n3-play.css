@@ -1,0 +1,41 @@
+body { 
+    background: #dcfad0; 
+    font-family: Verdana, sans-serif;
+}
+
+.n3-vis_stage {
+    float: left; 
+    margin-right: 20px; 
+    background: #fff;
+    border: 1px solid #ccc;
+}
+
+#n3-ui_stage svg { padding: 0px 10px; }
+
+#n3-ui_playbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    color: #fff;
+    background: #333;
+}
+
+#n3-ui_playbar ul { 
+    margin: 0;
+    list-style-type: none;
+}
+
+#n3-ui_playbar li a {
+    float: left;
+    padding: 5px 20px;
+    border-right: 1px solid #dcfad0;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+#n3-ui_playbar a:hover, #n3-ui_playbar a.selected { 
+    background: #dcfad0; 
+    color: #333;
+}

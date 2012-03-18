@@ -47,7 +47,7 @@ body {
 }
 
 #n3-ui_bottom_panel input { float:left; }
-#n3-ui_export {
+#n3-ui_play, #n3-ui_export {
     float: right !important;
     margin-right: 15px;
 }
