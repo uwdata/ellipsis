@@ -508,9 +508,9 @@ function exportStory() {
                     break;
                     
                     case SHAPES.LABEL:
-                        var svgOffset = $('#n3-vis_' + member.visId + ' svg').offset();
-                        var x = parseFloat(elem.style('left')) - svgOffset.left;
-                        var y = parseFloat(elem.style('top')) - svgOffset.top;
+                        var svg = d3.select('#n3-vis_' + member.visId + ' svg');
+                        var x = parseFloat(elem.style('left')) - svg.property('offsetLeft');
+                        var y = parseFloat(elem.style('top')) - svg.property('offsetTop');
                     
                         annotation += indent + ".html(\"" + elem.html() + "\")\n" + 
                                       indent + ".pos([" + x + ", " + y + "])\n";
@@ -811,9 +811,11 @@ function startLabel(e) {
         .style('left', e.pageX + 'px')
         .style('top', e.pageY + 'px')
         .style('margin', '0');
-    console.log(e.target.parentNode.id);
+
     // Labels shouldn't work like normal shapes. You don't add them repetitively because you edit. 
     endDrawing({ data: { id: id, visId: e.target.parentNode.id, type: SHAPES.LABEL }});
     toggleShape($('#n3-ui_palette a.text')[0], SHAPES.LABEL);
     $('svg').unbind('click.n3_edit');
+    
+    $('#' + id).focus(function() { $(this).select(); });
 }
