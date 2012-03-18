@@ -87,7 +87,7 @@ class N3Trigger
             @type = binding
             @triggers = triggers
                 
-        @triggerId = @type + '' + Date.now()  
+        @triggerId = @type + @test + '' + Date.now() + (Math.random() * 11)
                 
         return this
         

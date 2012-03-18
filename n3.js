@@ -586,7 +586,7 @@
         this.type = binding;
         this.triggers = triggers;
       }
-      this.triggerId = this.type + '' + Date.now();
+      this.triggerId = this.type + this.test + '' + Date.now() + (Math.random() * 11);
       return this;
     }
 
