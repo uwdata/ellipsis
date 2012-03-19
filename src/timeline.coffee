@@ -99,7 +99,11 @@ class N3Timeline
     @registerTrigger: (trigger, memberIndex) ->
         return true unless trigger?
         
-        @triggers[trigger.triggerId] = memberIndex
+        @triggers[trigger.triggerId] = 
+            sceneId: @currSceneId
+            parentId: @currParentId
+            memberIndex: memberIndex
+            
         N3Trigger.register(trigger)
         
         true
@@ -114,9 +118,11 @@ class N3Timeline
         
     @notifyTrigger: (trigger) ->
         if @triggers[trigger.triggerId]?
-            scene = if @currParentId? then N3Scene.scenes[@currParentId].subScenes[@currSceneId] else N3Scene.scenes[@currSceneId]
+            t = @triggers[trigger.triggerId]
             
-            scene?.evalMember(@triggers[trigger.triggerId]) 
+            scene = if t.parentId? then N3Scene.scenes[t.parentId].subScenes[t.sceneId] else N3Scene.scenes[t.sceneId]
+            
+            scene?.evalMember(t.memberIndex) 
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE

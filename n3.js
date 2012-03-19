@@ -926,7 +926,11 @@
 
     N3Timeline.registerTrigger = function(trigger, memberIndex) {
       if (trigger == null) return true;
-      this.triggers[trigger.triggerId] = memberIndex;
+      this.triggers[trigger.triggerId] = {
+        sceneId: this.currSceneId,
+        parentId: this.currParentId,
+        memberIndex: memberIndex
+      };
       N3Trigger.register(trigger);
       return true;
     };
@@ -941,10 +945,11 @@
     };
 
     N3Timeline.notifyTrigger = function(trigger) {
-      var scene;
+      var scene, t;
       if (this.triggers[trigger.triggerId] != null) {
-        scene = this.currParentId != null ? N3Scene.scenes[this.currParentId].subScenes[this.currSceneId] : N3Scene.scenes[this.currSceneId];
-        if (scene != null) scene.evalMember(this.triggers[trigger.triggerId]);
+        t = this.triggers[trigger.triggerId];
+        scene = t.parentId != null ? N3Scene.scenes[t.parentId].subScenes[t.sceneId] : N3Scene.scenes[t.sceneId];
+        if (scene != null) scene.evalMember(t.memberIndex);
         if (trigger.type === N3Trigger.TYPES.TIMELINE) {
           this.deregisterTrigger(trigger);
         }
