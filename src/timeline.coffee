@@ -11,6 +11,12 @@ class N3Timeline
         prevScene    = N3Scene.scenes[@prevSceneId]
         currentScene = N3Scene.scenes[@currSceneId]
         
+        if sceneId.indexOf('>') != -1   # switching to subscene
+            parentSceneId = sceneId.split('>')[0].trim()
+            parentScene   = N3Scene.scenes[parentSceneId]
+            @currSceneId  = sceneId.split('>')[1].trim()
+            currentScene  = parentScene.subScenes[@currSceneId]
+        
         # We want to remove annotations only if prevScene and currentScene
         # aren't subscenes of the same parent scene
         if prevScene?
@@ -27,6 +33,15 @@ class N3Timeline
                   m.member.remove() if m.member.autoRemoveFlag 
         
         # Run any transitions
+        if parentSceneId? and parentScene?  # Transition parsing for subscenes
+            if @transitions[@prevSceneId]?[parentSceneId]?  # Transitions for parent scenes
+                for transFunc in @transitions[@prevSceneId][parentSceneId]
+                    transFunc(prevScene, parentScene)
+                    
+            if @transitions[@prevSceneId]?[sceneId]?      # Transitions defined for parent > child
+                for transFunc in @transitions[@prevSceneId][sceneId]
+                    transFunc(prevScene, currentScene)
+            
         if @transitions[@prevSceneId]?[@currSceneId]?      
             for transFunc in @transitions[@prevSceneId][@currSceneId]
                 transFunc(prevScene, currentScene)  
@@ -105,6 +120,11 @@ class N3Timeline
         if transQ == '*'
             for sceneId of N3Scene.scenes
                 scenes.push sceneId
+                
+                scene = N3Scene.scenes[sceneId]
+                for subSceneId of scene.subScenes
+                    scenes.push subSceneId
+                
         else    # To allow individual sceneIds just to be passed without being arrays
             scenes.push transQ
                 

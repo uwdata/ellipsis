@@ -59,7 +59,7 @@ class N3Scene
         
     subScene: (subSceneId) ->
         if @subScenes[subSceneId]?
-            return @subScenes
+            return @subScenes[subSceneId]
         else
             subScene = new N3Scene(subSceneId)
             subScene.parent = this
@@ -75,6 +75,8 @@ class N3Scene
         vis = N3Vis.lookup[m.visId]
         
         if m.state?
+            val = m.state.value
+            
             # To allow for some fun, allow states to be set my a function. If the fn returns
             # false, assume that it'll be setting the state itself. 
             if typeof val == 'function'     

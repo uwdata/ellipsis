@@ -199,7 +199,7 @@ class N3Annotation
             
             return this
         else
-            @dataObj
+            return if typeof @dataObj == 'function' then @dataObj() else @dataObj
             
     vis: (vis) ->
         if arguments.length == 1

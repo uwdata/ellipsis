@@ -39,7 +39,7 @@ class N3Vis
                         
             return this
         else
-            @dataObj
+            return if typeof @dataObj == 'function' then @dataObj() else @dataObj
     
     state: (stateId, arg2) ->
         if arguments.length == 2        # state can be a setter
