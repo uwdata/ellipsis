@@ -949,7 +949,9 @@
       if (this.triggers[trigger.triggerId] != null) {
         t = this.triggers[trigger.triggerId];
         scene = t.parentId != null ? N3Scene.scenes[t.parentId].subScenes[t.sceneId] : N3Scene.scenes[t.sceneId];
-        if (scene != null) scene.evalMember(t.memberIndex);
+        if (t.memberIndex != null) {
+          if (scene != null) scene.evalMember(t.memberIndex);
+        }
         if (trigger.type === N3Trigger.TYPES.TIMELINE) {
           this.deregisterTrigger(trigger);
         }

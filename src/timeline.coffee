@@ -8,17 +8,20 @@ class N3Timeline
     @switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
         @prevParentId = @currParentId
-        prevScene    = if @prevParentId? then N3Scene.scenes[@prevParentId].subScenes[@prevSceneId] else N3Scene.scenes[@prevSceneId]
+        prevScene    = if @prevParentId? then \
+                                N3Scene.scenes[@prevParentId].subScenes[@prevSceneId] else \
+                                                                N3Scene.scenes[@prevSceneId]
         
         if sceneId.indexOf('>') != -1   # switching to subscene
             @currParentId = sceneId.split('>')[0].trim()
-            currParent   = N3Scene.scenes[@currParentId]
+            currParent    = N3Scene.scenes[@currParentId]
             @currSceneId  = sceneId.split('>')[1].trim()
             currentScene  = currParent.subScenes[@currSceneId]
         else
-            @currParentId    = undefined
-            @currSceneId = sceneId
-            currentScene = N3Scene.scenes[@currSceneId]
+            @currParentId = undefined
+            currParent    = undefined
+            @currSceneId  = sceneId
+            currentScene  = N3Scene.scenes[@currSceneId]
         
         # We want to remove annotations only if prevScene and currentScene
         # aren't subscenes of the same parent scene
@@ -120,9 +123,14 @@ class N3Timeline
         if @triggers[trigger.triggerId]?
             t = @triggers[trigger.triggerId]
             
-            scene = if t.parentId? then N3Scene.scenes[t.parentId].subScenes[t.sceneId] else N3Scene.scenes[t.sceneId]
+            scene = if t.parentId? then \
+                                    N3Scene.scenes[t.parentId].subScenes[t.sceneId] else \
+                                                                    N3Scene.scenes[t.sceneId]
             
-            scene?.evalMember(t.memberIndex) 
+            if t.memberIndex?       # Member triggers
+                scene?.evalMember(t.memberIndex)
+            # else                    # Scene triggers
+                # if t.parentId? then @switchScenes(t.parentId + '>' + t.sceneId) else @switchScenes(t.sceneId)
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE

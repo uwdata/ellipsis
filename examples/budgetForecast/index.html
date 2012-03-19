@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+    @import url("../lib/jquery-ui/jquery-ui.css");
+    
+    body {
+        font-family: Verdana, sans-serif;
+        font-size: 12px;
+    }
+    
+    svg {
+        float: left;
+        width: 700px;
+        height: 400px;
+        border: 1px solid #999;
+    }
+    
+    #explanation { 
+        float: left; 
+        width: 200px;
+        margin-right: 50px;
+        height: 500px; 
+    }
+    
+    #slider {
+        float: left;
+        width: 700px;
+        margin-top: 20px;
+    }
+    
+    line { shape-rendering:crispEdges }
+    
+    path#zero {
+        stroke: black;
+        stroke-width: 1;
+    }
+    
+    path.forecast {
+        stroke: steelblue;
+        stroke-width: 0.5;
+        fill: none;
+    }
+    
+    path#actual {
+        stroke: steelblue;
+        stroke-width: 3;
+        fill: none;
+    }
+    
+    path#projected {
+        stroke: grey;
+        stroke-width: 3;
+        fill: none;        
+    }
+        
+    circle.annotation { 
+        opacity: 0.5; 
+        fill: orange;
+        stroke: orange;
+    }
+    
+    circle.point {
+        fill: grey;
+        stroke: grey;
+    }
+    
+    span.annotation { color: #999; }
+    </style>
+    
+    <script type="text/javascript" src="../../node_modules/d3/d3.js"></script>
+    <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="../../n3.js"></script>
+</head>
+<body>
+    <div id="progress">
+        <a href="javascript: n3.timeline.switchScene('scene_1');">1</a>
+        <a href="javascript: n3.timeline.switchScene('scene_2');">2</a>
+        <a href="javascript: n3.timeline.switchScene('scene_3 > scene_3a');">3</a>
+        <a href="javascript: n3.timeline.switchScene('scene_3 > scene_3b');">4</a>
+        <a href="javascript: n3.timeline.switchScene('scene_3 > scene_3c');">5</a>
+        <a href="javascript: n3.timeline.switchScene('scene_6');">6</a>
+    </div>
+    
+    <div id="explanation">
+        <div id="scene_1" class="scene_1">
+            <h3>Falling Short</h3>
+            
+            <p>President Obama's budget proposal estimates a deficit of $1.6 trillion for the current fiscal year and $1.3 trillion in 2011.</p>
+        </div>
+        
+        <div id="scene_2" class="scene_2" style="display: none;">
+            <h3>Forecasts worsen</h3>
+            
+            <p>The forecast for the next decade is somewhat worse than it was a year ago, mostly because of a revised economic outlook. From 2011 to 2020, a total deficit of $8.5 trillion is expect</p>
+        </div>
+        
+        <div id="scene_3a" class="scene_3a" style="display: none;">
+            <h3>Past forecasts</h3>
+            
+            <p>Even that may be an understatement. In the last 30 years, about 80 percent of four_year deficit forecasts have been too optimistic.</p>
+            <p>The early Clinton budgets &mdash; which failed to predict the surpluses that were generated, in part, by a stock market bubble &mdash; are the only major exception</p>
+        </div>
+        
+        <div id="scene_3b" class="scene_4" style="display: none;">
+            <h3>Past forecasts</h3>
+            
+            <p>In contrast, just two years ago, the Bush administration projected a surplus by 2012.</p>
+        </div>
+        
+        <div id="scene_5" class="scene_5" style="display: none;">
+            <h3>Latest forecast</h3>
+            
+            <p>Today, with a better understanding of the severity of the economic downturn, the deficit situation is much more dire. </p>
+        </div>
+        
+        <div id="scene_6" class="scene_6" style="display: none;">
+            <h3>Reasons for error</h3>
+            
+            <p>Budget forecasts require assumptions about both policy and the economy, and both can turn out to be spectacularly wrong.</p>
+            <p>In 2008, for example, the unemployment rate in 2012 was assumed to be 4.8 percent. The most recent assumption is 8.2 percent.</p>
+        </div>
+    </div>
+    
+    <svg id="stage">
+        
+    </svg>
+    
+    <div id="slider" class="scene-6 scene-5 scene-4 scene-3" style="display: none;"></div>    
+</body>
+<script type="text/javascript" src="vis.js"></script>
+<script type="text/javascript" src="annotation.js"></script>
+<script type="text/javascript" src="timeline.js"></script>
+</html>
