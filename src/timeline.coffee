@@ -7,15 +7,18 @@ class N3Timeline
         
     @switchScene: (sceneId) ->
         @prevSceneId = @currSceneId
-        @currSceneId = sceneId
-        prevScene    = N3Scene.scenes[@prevSceneId]
-        currentScene = N3Scene.scenes[@currSceneId]
+        @prevParentId = @currParentId
+        prevScene    = if @prevParentId? then N3Scene.scenes[@prevParentId].subScenes[@prevSceneId] else N3Scene.scenes[@prevSceneId]
         
         if sceneId.indexOf('>') != -1   # switching to subscene
-            parentSceneId = sceneId.split('>')[0].trim()
-            parentScene   = N3Scene.scenes[parentSceneId]
+            @currParentId = sceneId.split('>')[0].trim()
+            currParent   = N3Scene.scenes[@currParentId]
             @currSceneId  = sceneId.split('>')[1].trim()
-            currentScene  = parentScene.subScenes[@currSceneId]
+            currentScene  = currParent.subScenes[@currSceneId]
+        else
+            @currParentId    = undefined
+            @currSceneId = sceneId
+            currentScene = N3Scene.scenes[@currSceneId]
         
         # We want to remove annotations only if prevScene and currentScene
         # aren't subscenes of the same parent scene
@@ -33,19 +36,24 @@ class N3Timeline
                   m.member.remove() if m.member.autoRemoveFlag 
         
         # Run any transitions
-        if parentSceneId? and parentScene?  # Transition parsing for subscenes
-            if @transitions[@prevSceneId]?[parentSceneId]?  # Transitions for parent scenes
-                for transFunc in @transitions[@prevSceneId][parentSceneId]
-                    transFunc(prevScene, parentScene)
-                    
-            if @transitions[@prevSceneId]?[sceneId]?      # Transitions defined for parent > child
-                for transFunc in @transitions[@prevSceneId][sceneId]
-                    transFunc(prevScene, currentScene)
-            
         if @transitions[@prevSceneId]?[@currSceneId]?      
             for transFunc in @transitions[@prevSceneId][@currSceneId]
-                transFunc(prevScene, currentScene)  
-       
+                transFunc(prevScene, currentScene)
+                
+        # TODO: TRANSITIONS for Parents/Subscenes
+                
+        # if prevParent? or currParent?  # Transition parsing for subscenes
+        #     
+        #     
+        #     
+        #     if @transitions[@prevSceneId]?[currParentId]?  # Transitions for parent scenes
+        #         for transFunc in @transitions[@prevSceneId][currParentId]
+        #             transFunc(prevScene, currParent)
+        #             
+        #     if @transitions[@prevSceneId]?[sceneId]?      # Transitions defined for parent > child
+        #         for transFunc in @transitions[@prevSceneId][sceneId]
+        #             transFunc(prevScene, currentScene)
+            
         # Start the timer for the current scene after the transition is complete
         @start(true)
         
@@ -65,20 +73,21 @@ class N3Timeline
                     # if the trigger conditions have already been met. If it has,
                     # evaluate the member. If not, register the trigger and skip
                     # evaluation.
-                    currentValue = null
-
-                    if m.trigger.type == N3Trigger.TYPES.VIS
-                        visId = m.trigger.test[0]
-                        stateId = m.trigger.test[1]
-                    
-                        currentValue = N3Vis.lookup[visId]?.state(stateId)
-                    
-                    if m.trigger.type == N3Trigger.TYPES.DOM or \
-                            m.trigger.type == N3Trigger.TYPES.DELAY or \
-                                m.trigger.evaluate(m.trigger.test, currentValue) == false
+                    # ACTUALLY -- since we register triggers first, don't check ambience. 
+                    # currentValue = null
+                    # 
+                    # if m.trigger.type == N3Trigger.TYPES.VIS
+                    #     visId = m.trigger.test[0]
+                    #     stateId = m.trigger.test[1]
+                    # 
+                    #     currentValue = N3Vis.lookup[visId]?.state(stateId)
+                    # 
+                    # if m.trigger.type == N3Trigger.TYPES.DOM or \
+                    #         m.trigger.type == N3Trigger.TYPES.DELAY or \
+                    #             m.trigger.evaluate(m.trigger.test, currentValue) == false
                            
-                        @registerTrigger(m.trigger, i)
-                        continue
+                    @registerTrigger(m.trigger, i)
+                    continue
                 
                 evaluateMembers[i] = true;
                 
@@ -105,7 +114,9 @@ class N3Timeline
         
     @notifyTrigger: (trigger) ->
         if @triggers[trigger.triggerId]?
-            N3Scene.scenes[@currSceneId]?.evalMember(@triggers[trigger.triggerId]) 
+            scene = if @currParentId? then N3Scene.scenes[@currParentId].subScenes[@currSceneId] else N3Scene.scenes[@currSceneId]
+            
+            scene?.evalMember(@triggers[trigger.triggerId]) 
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE
@@ -124,7 +135,8 @@ class N3Timeline
                 scene = N3Scene.scenes[sceneId]
                 for subSceneId of scene.subScenes
                     scenes.push subSceneId
-                
+        else if transQ.indexOf('>') != -1   # Subscening
+            scenes.push (id.trim() for id in transQ.split('>')).join('>')
         else    # To allow individual sceneIds just to be passed without being arrays
             scenes.push transQ
                 
