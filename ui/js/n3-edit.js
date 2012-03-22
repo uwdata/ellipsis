@@ -97,6 +97,7 @@ function saveVis() {
         var tmpl = $('#triggerTemplate');
         for(var stateId in vis.states) {
             var className = visId + '_' + stateId;
+            var s = vis.states[stateId];
             
             tmpl.find('p.state:first')
                     .find('select.where:first')
