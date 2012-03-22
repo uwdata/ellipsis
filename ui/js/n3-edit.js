@@ -596,9 +596,9 @@ function playStory() {
         n3Js: $('#export').val()
     };
     
-    var playWin = window.open('http://localhost:8000/play.html', 'playWin', 'width=1024,height=768,status=yes,menubar=yes,titlebar=yes,toolbar=yes,location=yes,scrollbar=yes');
+    var playWin = window.open('play.html', 'playWin', 'width=1024,height=768,status=yes,menubar=yes,titlebar=yes,toolbar=yes,location=yes,scrollbar=yes');
     var wait = setInterval(function() { 
-        playWin.postMessage($.toJSON(json), 'http://localhost:8000'); 
+        playWin.postMessage($.toJSON(json), 'http://' + window.location.host); 
         clearInterval(wait);
     }, 1000);
 }
@@ -681,6 +681,12 @@ function endDrawing(e) {
     }
 }
 
+function blockEvents(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+}
+
 function startCircle(e) {
     var id = 'circle_' + Date.now();
     
@@ -697,12 +703,16 @@ function startCircle(e) {
         
     $(e.target).bind('mousemove.n3_edit', { id: id }, drawCircle);
     $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.CIRCLE }, endDrawing);
+    
+    blockEvents(e);
 }
 
 function drawCircle(e) {
     var s = d3.select('#' + e.data.id);    
     var r = Math.sqrt(Math.pow(getMouseX(e) - s.attr('cx'), 2) + Math.pow(getMouseY(e) - s.attr('cy'), 2))
     s.attr('r', r);
+    
+    blockEvents(e);
 }
 
 function startEllipse(e) {
@@ -722,12 +732,16 @@ function startEllipse(e) {
         
     $(e.target).bind('mousemove.n3_edit', { id: id }, drawEllipse);
     $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.ELLIPSE }, endDrawing);
+    
+    blockEvents(e);
 }
 
 function drawEllipse(e) {
     var s = d3.select('#' + e.data.id);    
     s.attr('rx', Math.abs(getMouseX(e) - s.attr('cx')))
      .attr('ry', Math.abs(getMouseY(e) - s.attr('cy')));
+     
+    blockEvents(e);
 }
 
 function startLine(e) {
@@ -746,12 +760,16 @@ function startLine(e) {
         
     $(e.target).bind('mousemove.n3_edit', { id: id }, drawLine);
     $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.LINE }, endDrawing);
+    
+    blockEvents(e);
 }
 
 function drawLine(e) {
     var s = d3.select('#' + e.data.id);    
     s.attr('x2', getMouseX(e))
      .attr('y2', getMouseY(e));
+     
+    blockEvents(e);
 }
 
 function startRect(e) {
@@ -774,6 +792,8 @@ function startRect(e) {
         
     $(e.target).bind('mousemove.n3_edit', { id: id, startX: x, startY: y }, drawRect);   
     $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.RECTANGLE }, endDrawing); 
+    
+    blockEvents(e);
 }
 
 function drawRect(e) {
@@ -793,6 +813,8 @@ function drawRect(e) {
     
     s.attr('width', Math.abs(mouseX - startX))
      .attr('height', Math.abs(mouseY - startY));
+     
+    blockEvents(e);
 }
 
 function startLabel(e) {

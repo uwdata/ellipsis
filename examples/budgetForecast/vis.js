@@ -3,7 +3,7 @@ var vis = n3.vis('budgetForecast')
     
     .stage('#stage', 700, 400)
     
-    .state('year', d3.range(1980, 2010))
+    .state('year', d3.range(1980, 2011))
     .state('plotForecasts', [true, false])
     
     .const('minYear', 1980)
@@ -36,7 +36,7 @@ var vis = n3.vis('budgetForecast')
     
     .render(function() {
         // First draw zero line
-        drawZero(this);
+        drawAxes(this);
 
         // Plot forecasts
         drawForecasts(this);
@@ -45,7 +45,94 @@ var vis = n3.vis('budgetForecast')
         drawActual(this);
     });
     
-function drawZero(vis) {
+function drawAxes(vis) {
+    var sx = vis.const('sx')();
+    var sy = vis.const('sy')();
+        
+    var formatNumber = function(nStr) {
+        nStr += '';
+    	x = nStr.split('.');
+    	x1 = x[0];
+    	x2 = x.length > 1 ? '.' + x[1] : '';
+    	var rgx = /(\d+)(\d{3})/;
+    	while (rgx.test(x1)) {
+    		x1 = x1.replace(rgx, '$1' + '.' + '$2');
+    	}
+    	
+    	var newStr = x1 + x2;
+    	if(newStr.indexOf('-') != -1) {
+    	    newStr = '-$' + newStr.substring(1);
+    	} else {
+    	    newStr = '$' + newStr;
+    	}
+    	
+    	return newStr;
+    }
+    
+    var xAxis = d3.range(vis.const('minYear'), vis.const('maxYearForecast'), 2); 
+    var yAxis = d3.range(vis.const('minValue'), vis.const('maxValue'), 200);
+    
+    vis.stage()
+        .selectAll('line.xAxis')
+        .data(xAxis)
+        .enter()
+            .append("svg:line")
+            .attr("x1", function(d) { return sx(d); })
+            .attr("y1", function() { return vis.height() + 20 })
+            .attr("x2", function(d) { return sx(d); })
+            .attr("y2", 0)
+            .attr("stroke", "#fff")
+            .attr("class", "xAxis");
+            
+    vis.stage()
+        .selectAll("line.yAxis")
+        .data(yAxis)
+        .enter()
+            .append("svg:line")
+            .attr("x1", -20)
+            .attr("y1", function(d) { return sy(d); })
+            .attr("x2", function(d) { return vis.width() + 20 })
+            .attr("y2", function(d) { return sy(d); })
+            .attr("stroke", "#fff")
+            .attr("class", "yAxis");
+            
+    vis.stage()
+        .selectAll("text.xAxisLabels")
+        .data(xAxis)
+        .enter()
+            .append("svg:text")
+            .text(function(d) { 
+                if(d == vis.const('minYear') || d == vis.const('maxYearForecast')) 
+                    return;
+                
+                var fullYear = d + '';
+                return "'" + fullYear.substring(2); 
+            })
+            .attr("x", function(d) { return sx(d); })
+            .attr("dx", "10")
+            .attr("y", function(d) { return sy(0); })
+            .attr("dy", "-5")
+            .attr("class", "xAxisLabels")
+            .attr("fill", "#aaa")
+            .attr("text-anchor", "end");        
+    
+    vis.stage()
+        .selectAll("text.yAxisLabels")
+        .data(yAxis)
+        .enter()
+            .append("svg:text")
+            .text(function(d) {
+                if(d != 19 && d != vis.const('minValue'))
+                    return formatNumber(Math.round(d)) + ((Math.abs(d) > 1000) ? ' trillion' : ' billion'); 
+            })
+            .attr("x", 75)
+            .attr("dx", function(d) { return Math.abs(d) > 1000 ? 15 : 0 })
+            .attr("y", function(d) { return sy(d); })
+            .attr("dy", "4")
+            .attr("class", "yAxisLabels")
+            .attr("fill", "#aaa")
+            .attr("text-anchor", "end");
+            
     var zeroData = [];
     for(var i = vis.const('minYear'); i <= vis.const('maxYearForecast'); i++)
         zeroData[zeroData.length] = vis.const('dataTransform')(i, 0);

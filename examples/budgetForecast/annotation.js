@@ -41,6 +41,5 @@ n3.annotation.def('highlightedPoint')
         var vis = this.vis();
         vis.stage().selectAll('circle.point').remove();
         vis.stage().selectAll('circle.annotation').remove();
-        console.log('REMOVED');
     });
     

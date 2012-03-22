@@ -41,7 +41,7 @@
 
 n3.scene('scene_1')
     .set(vis, 'year', 2010)
-    .set(vis, 'plotForecast', false)
+    .set(vis, 'plotForecasts', false)
     
     .add(vis, function() {          // Init jQuery slider
         $('#slider').slider({
@@ -76,19 +76,19 @@ n3.scene('scene_1')
     .add(vis, 
         n3.annotation('label')
             .attr('id', 'lbl_2010')
-            .html('<p>2010 estimate:<br /><span class="annotation">-$1.56</span></p>')
+            .html('<p>2010 estimate:<br /><span class="annotation">-$1.56 trillion</span></p>')
             .pos([540, 341])
     )
     .add(vis,
         n3.annotation('label')
             .attr('id', 'lbl_2011')
-            .html('<p>2011 proposal:<br /><span class="annotation">-$1.27</span></p>')
+            .html('<p>2011 proposal:<br /><span class="annotation">-$1.27 trillion</span></p>')
             .pos([560, 280])
     );
 
 n3.scene('scene_2')
     .set(vis, 'year', 2010)
-    .set(vis, 'plotForecast', false)
+    .set(vis, 'plotForecasts', false)
     
     .add(vis, function() {
         var drawLineGraph = vis.const('drawLineGraph')();

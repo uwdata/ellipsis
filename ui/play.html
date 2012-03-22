@@ -12,6 +12,43 @@
     <script type="text/javascript" src="js/d3.min.js"></script>
     <script type="text/javascript" src="js/n3.js"></script>
     <script type="text/javascript" src="js/n3-play.js"></script>
+    <style>
+    line { shape-rendering:crispEdges }
+    
+    path#zero {
+        stroke: black;
+        stroke-width: 1;
+    }
+    
+    path.forecast {
+        stroke: steelblue;
+        stroke-width: 0.5;
+        fill: none;
+    }
+    
+    path#actual {
+        stroke: steelblue;
+        stroke-width: 3;
+        fill: none;
+    }
+    
+    path#projected {
+        stroke: grey;
+        stroke-width: 3;
+        fill: none;        
+    }
+        
+    circle.annotation { 
+        opacity: 0.5; 
+        fill: orange;
+        stroke: orange;
+    }
+    
+    circle.point {
+        fill: grey;
+        stroke: grey;
+    }
+    </style>
 </head>
 <body>        
     <div id="n3-ui_stage">
