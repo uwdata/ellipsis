@@ -123,6 +123,7 @@ function editScene(editSceneId) {
     
     if(!editSceneId) {
         sceneId = prompt("Enter a scene ID: ");
+        sceneId = sceneId.replace(/[^a-zA-Z0-9]/g, '');
         scenes[sceneId] = { id: sceneId };  
         
         $('#n3-ui_side_panel')
