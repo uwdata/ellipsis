@@ -41,15 +41,17 @@ class N3Vis
         else
             return if typeof @dataObj == 'function' then @dataObj() else @dataObj
     
-    state: (stateId, arg2) ->
-        if arguments.length == 2        # state can be a setter
+    state: (stateId, arg2) ->        
+        if arguments.length >= 2        # state can be a setter
             if arg2 instanceof Array    # or a definition of a new state
-                @states[stateId] = new N3State(stateId, arg2, @visId)
+                @states[stateId] = new N3State(@visId, stateId, arg2, arguments[2])
             else
+                throw "no such state '#{stateId}'" unless @states[stateId]?
                 @states[stateId]?.set(arg2)
             
             return this
         else
+            throw "no such state '#{stateId}'" unless @states[stateId]?
             @states[stateId]?.get()            
 
     const: (constId, value) ->

@@ -44,14 +44,14 @@ describe "scene", ->
         
     it "evaluates members", ->        
         scene = n3.scene('scene_3')
-                    .set(vis, 'state_1', 'value')
+                    .set(vis, 'state_1', 'values')
                     .add(vis, f)
                     .set(vis, 'state_2', true)
                     .add(vis, a)
                     
         spyOn(vis, 'renderFn')
         scene.evalMember(0)
-        expect(vis.state('state_1')).toBe 'value'
+        expect(vis.state('state_1')).toBe 'values'
         expect(vis.renderFn).toHaveBeenCalledWith()
         
         spyOn(scene.members[1], 'member')
@@ -71,7 +71,7 @@ describe "scene", ->
         
     it "clones a scene", ->
         scene = n3.scene('scene_4')
-                    .set(vis, 'state_1', 'value')
+                    .set(vis, 'state_1', 'values')
                     .add(vis, f)
                     .set(vis, 'state_2', true)
                     
@@ -80,11 +80,11 @@ describe "scene", ->
                         
         expect(scene2.members[0].visId).toBe vis.visId
         expect(scene2.members[0].state.id).toBe 'state_1'
-        expect(scene2.members[0].state.value).toBe 'value'
+        expect(scene2.members[0].state.value).toBe 'values'
         
         spyOn(vis, 'renderFn')
         scene2.evalMember(0)
-        expect(vis.state('state_1')).toBe 'value'
+        expect(vis.state('state_1')).toBe 'values'
         expect(vis.renderFn).toHaveBeenCalledWith()        
         
         expect(scene2.members[1].visId).toBe vis.visId

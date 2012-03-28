@@ -66,10 +66,11 @@
 
   N3State = (function() {
 
-    function N3State(stateId, validValues, visId) {
+    function N3State(visId, stateId, validValues, continuous) {
+      this.visId = visId;
       this.stateId = stateId;
       this.validValues = validValues;
-      this.visId = visId;
+      this.continuous = continuous;
     }
 
     N3State.prototype.get = function() {
@@ -77,7 +78,12 @@
     };
 
     N3State.prototype.set = function(val) {
+      var valid;
       this.prevVal = this.val;
+      valid = this.continuous ? val >= this.validValues[0] && val <= this.validValues[1] : this.validValues.indexOf(val) !== -1;
+      if (!valid) {
+        throw "" + val + " not in the list of valid values: " + this.validValues;
+      }
       this.val = val;
       return this.notify();
     };
@@ -149,14 +155,18 @@
 
     N3Vis.prototype.state = function(stateId, arg2) {
       var _ref, _ref2;
-      if (arguments.length === 2) {
+      if (arguments.length >= 2) {
         if (arg2 instanceof Array) {
-          this.states[stateId] = new N3State(stateId, arg2, this.visId);
+          this.states[stateId] = new N3State(this.visId, stateId, arg2, arguments[2]);
         } else {
+          if (this.states[stateId] == null) {
+            throw "no such state '" + stateId + "'";
+          }
           if ((_ref = this.states[stateId]) != null) _ref.set(arg2);
         }
         return this;
       } else {
+        if (this.states[stateId] == null) throw "no such state '" + stateId + "'";
         return (_ref2 = this.states[stateId]) != null ? _ref2.get() : void 0;
       }
     };
