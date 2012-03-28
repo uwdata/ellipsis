@@ -53,22 +53,22 @@ describe 'annotation', ->
             console.log('F1Arg1: ' + arg1 + ' F1Arg2: ' + arg2)
             
         a = n3.annotation('custom')
-        expect(a.adderFn).toBeUndefined
+        expect(a.enterFn).toBeUndefined
         
-        a.adder(f)
-            .remover(f1)
+        a.enter(f)
+            .exit(f1)
             .args('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
                 
-        expect(a.adderFn).toBe f
-        expect(a.removerFn).toBe f1
+        expect(a.enterFn).toBe f
+        expect(a.exitFn).toBe f1
         
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()        
-        expect(a.adderFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
+        expect(a.enterFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()        
-        expect(a.removerFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
+        expect(a.exitFn).toHaveBeenCalledWith('hello', [1, 2, 3], { 'foo': 'bar' }, 'world')
         
     it 'is a circle', ->
         a = n3.annotation('circle')
@@ -76,13 +76,13 @@ describe 'annotation', ->
                 .radius(5)
                 .data([1])  # to test chaining
                 
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()        
-        expect(a.adderFn).toHaveBeenCalledWith(5, [15, 45])
+        expect(a.enterFn).toHaveBeenCalledWith(5, [15, 45])
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()        
-        expect(a.removerFn).toHaveBeenCalledWith(5, [15, 45])
+        expect(a.exitFn).toHaveBeenCalledWith(5, [15, 45])
         
     it 'draws a circle', ->
         a = n3.annotation('circle')
@@ -103,13 +103,13 @@ describe 'annotation', ->
                 .center([11, 21])
                 .data([2])  # to test chaining
                 
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()
-        expect(a.adderFn).toHaveBeenCalledWith([3, 7], [11, 21])
+        expect(a.enterFn).toHaveBeenCalledWith([3, 7], [11, 21])
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()
-        expect(a.removerFn).toHaveBeenCalledWith([3, 7], [11, 21])   
+        expect(a.exitFn).toHaveBeenCalledWith([3, 7], [11, 21])   
         
     it 'draws an ellipse', ->
         a = n3.annotation('ellipse')
@@ -131,13 +131,13 @@ describe 'annotation', ->
                 .end([32, 12], false)
                 .data([3])  # to test chaining
                 
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()        
-        expect(a.adderFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
+        expect(a.enterFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()        
-        expect(a.removerFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
+        expect(a.exitFn).toHaveBeenCalledWith([6, 8], true, [32, 12], false)
         
     it 'draws a line', ->
         a = n3.annotation('line')
@@ -159,13 +159,13 @@ describe 'annotation', ->
                 .size([42, 91])
                 .data([4])  # to test chaining
 
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()
-        expect(a.adderFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
+        expect(a.enterFn).toHaveBeenCalledWith([42, 91], [17, 14]) 
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()
-        expect(a.removerFn).toHaveBeenCalledWith([42, 91], [17, 14])
+        expect(a.exitFn).toHaveBeenCalledWith([42, 91], [17, 14])
         
     it 'draws a rectangle', ->
         a = n3.annotation('rectangle')
@@ -188,13 +188,13 @@ describe 'annotation', ->
                 .pos([3, 7])
                 .data([4])  # to test chaining
 
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         a.add()
-        expect(a.adderFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])
+        expect(a.enterFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])
         
-        spyOn(a, 'removerFn')
+        spyOn(a, 'exitFn')
         a.remove()
-        expect(a.removerFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])               
+        expect(a.exitFn).toHaveBeenCalledWith('world', '<p>Hello</p>', [3, 7])               
 
     it 'draws a label', ->
         a = n3.annotation('label')

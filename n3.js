@@ -188,7 +188,7 @@
 
     N3Annotation.types = {
       circle: {
-        adderFn: function(r, _arg) {
+        enterFn: function(r, _arg) {
           var c, cx, cy, selector, stage;
           cx = _arg[0], cy = _arg[1];
           selector = n3.util.getSelector('circle', this.attrs);
@@ -200,7 +200,7 @@
           this.applyStyles(c);
           return true;
         },
-        removerFn: function(r, _arg) {
+        exitFn: function(r, _arg) {
           var cx, cy, selector, stage;
           cx = _arg[0], cy = _arg[1];
           selector = n3.util.getSelector('circle', this.attrs);
@@ -210,7 +210,7 @@
         }
       },
       ellipse: {
-        adderFn: function(_arg, _arg2) {
+        enterFn: function(_arg, _arg2) {
           var cx, cy, e, rx, ry, selector, stage;
           rx = _arg[0], ry = _arg[1];
           cx = _arg2[0], cy = _arg2[1];
@@ -223,7 +223,7 @@
           this.applyStyles(e);
           return true;
         },
-        removerFn: function(_arg, _arg2) {
+        exitFn: function(_arg, _arg2) {
           var cx, cy, rx, ry, selector, stage;
           rx = _arg[0], ry = _arg[1];
           cx = _arg2[0], cy = _arg2[1];
@@ -234,7 +234,7 @@
         }
       },
       line: {
-        adderFn: function(_arg, arrow1, _arg2, arrow2) {
+        enterFn: function(_arg, arrow1, _arg2, arrow2) {
           var l, selector, stage, x1, x2, y1, y2;
           x1 = _arg[0], y1 = _arg[1];
           x2 = _arg2[0], y2 = _arg2[1];
@@ -247,7 +247,7 @@
           this.applyStyles(l);
           return true;
         },
-        removerFn: function(_arg, arrow1, _arg2, arrow2) {
+        exitFn: function(_arg, arrow1, _arg2, arrow2) {
           var selector, stage, x1, x2, y1, y2;
           x1 = _arg[0], y1 = _arg[1];
           x2 = _arg2[0], y2 = _arg2[1];
@@ -258,7 +258,7 @@
         }
       },
       rectangle: {
-        adderFn: function(_arg, _arg2) {
+        enterFn: function(_arg, _arg2) {
           var h, r, selector, stage, w, x, y;
           w = _arg[0], h = _arg[1];
           x = _arg2[0], y = _arg2[1];
@@ -271,7 +271,7 @@
           this.applyStyles(r);
           return true;
         },
-        removerFn: function(_arg, _arg2) {
+        exitFn: function(_arg, _arg2) {
           var h, selector, stage, w, x, y;
           w = _arg[0], h = _arg[1];
           x = _arg2[0], y = _arg2[1];
@@ -282,7 +282,7 @@
         }
       },
       label: {
-        adderFn: function(text, html, _arg) {
+        enterFn: function(text, html, _arg) {
           var d, selector, stage, x, y;
           x = _arg[0], y = _arg[1];
           selector = n3.util.getSelector('div', this.attrs);
@@ -296,7 +296,7 @@
           this.applyStyles(d);
           return true;
         },
-        removerFn: function(text, html, _arg) {
+        exitFn: function(text, html, _arg) {
           var selector, stage, x, y;
           x = _arg[0], y = _arg[1];
           selector = n3.util.getSelector('div', this.attrs);
@@ -310,8 +310,8 @@
     function N3Annotation(type) {
       var _ref, _ref2;
       this.type = type;
-      this.adderFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.adderFn : void 0;
-      this.removerFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.removerFn : void 0;
+      this.enterFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.enterFn : void 0;
+      this.exitFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.exitFn : void 0;
       this.annotId = this.type + "" + new Date().getTime();
       this.autoRemoveFlag = true;
       this.arguments = [];
@@ -320,19 +320,19 @@
       return this;
     }
 
-    N3Annotation.prototype.adder = function(adderFn) {
+    N3Annotation.prototype.enter = function(enterFn) {
       var _base, _name;
-      this.adderFn = adderFn;
+      this.enterFn = enterFn;
       (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
-      N3Annotation.types[this.type].adderFn = adderFn;
+      N3Annotation.types[this.type].enterFn = enterFn;
       return this;
     };
 
-    N3Annotation.prototype.remover = function(removerFn) {
+    N3Annotation.prototype.exit = function(exitFn) {
       var _base, _name;
-      this.removerFn = removerFn;
+      this.exitFn = exitFn;
       (_base = N3Annotation.types)[_name = this.type] || (_base[_name] = {});
-      N3Annotation.types[this.type].removerFn = removerFn;
+      N3Annotation.types[this.type].exitFn = exitFn;
       return this;
     };
 
@@ -365,11 +365,11 @@
     };
 
     N3Annotation.prototype.add = function() {
-      return this.adderFn.apply(this, this.arguments);
+      return this.enterFn.apply(this, this.arguments);
     };
 
     N3Annotation.prototype.remove = function() {
-      return this.removerFn.apply(this, this.arguments);
+      return this.exitFn.apply(this, this.arguments);
     };
 
     N3Annotation.prototype.args = function() {
@@ -874,6 +874,7 @@
         currentScene = currParent.subScenes[this.currSceneId];
       } else {
         this.currParentId = void 0;
+        currParent = void 0;
         this.currSceneId = sceneId;
         currentScene = N3Scene.scenes[this.currSceneId];
       }

@@ -75,11 +75,12 @@ describe "timeline", ->
                                 .end([3, 4]),
                                     n3.trigger(vis)
                                         .where('state_2')
-                                        .is(false))
+                                        .is(true))
                                         
         n3.timeline.switchScene('timelineScene_3')
         expect(vis.state('state_1')).toBe 'values'
         expect(vis.state('state_2')).toBe false
+        vis.state('state_2', true)
         expect(d3.selectAll('circle')[0].length).toBe 1
         expect(d3.selectAll('rect')[0].length).toBe 0
         expect(d3.selectAll('ellipse')[0].length).toBe 0

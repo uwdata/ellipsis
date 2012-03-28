@@ -16,7 +16,7 @@ describe "scene", ->
             console.log('hello')
 
         a = n3.annotation('f')
-                .adder(f)
+                .enter(f)
                     
     it "sets the state", ->
         scene = n3.scene('scene_1')
@@ -64,9 +64,9 @@ describe "scene", ->
         expect(vis.renderFn).toHaveBeenCalledWith()
         expect(vis.renderFn.callCount).toBe 2
         
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         scene.evalMember(3)
-        expect(a.adderFn).toHaveBeenCalledWith()
+        expect(a.enterFn).toHaveBeenCalledWith()
         
         
     it "clones a scene", ->
@@ -107,9 +107,9 @@ describe "scene", ->
         expect(scene2.members[3].visId).toBe vis.visId
         expect(scene2.members[3].member).toBe a
         
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         scene2.evalMember(3)
-        expect(a.adderFn).toHaveBeenCalledWith()
+        expect(a.enterFn).toHaveBeenCalledWith()
         
     it "is a subscene", ->
         scene = n3.scene('scene_6')
@@ -135,6 +135,6 @@ describe "scene", ->
         expect(subScene.members[1].visId).toBe vis.visId
         expect(subScene.members[1].member).toBe a        
         
-        spyOn(a, 'adderFn')
+        spyOn(a, 'enterFn')
         subScene.evalMember(1)
-        expect(a.adderFn).toHaveBeenCalledWith()
+        expect(a.enterFn).toHaveBeenCalledWith()

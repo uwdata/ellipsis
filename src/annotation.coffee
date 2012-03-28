@@ -1,7 +1,7 @@
 class N3Annotation
     @types = 
         circle: 
-            adderFn: (r, [cx, cy]) ->
+            enterFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
 
@@ -24,7 +24,7 @@ class N3Annotation
                 
                 true
                 
-            removerFn: (r, [cx, cy]) ->
+            exitFn: (r, [cx, cy]) ->
                 selector = n3.util.getSelector('circle', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
                 
@@ -33,7 +33,7 @@ class N3Annotation
                 true    
             
         ellipse: 
-            adderFn: ([rx, ry], [cx, cy]) ->
+            enterFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
 
@@ -58,7 +58,7 @@ class N3Annotation
                 
                 true
                 
-            removerFn: ([rx, ry], [cx, cy]) ->
+            exitFn: ([rx, ry], [cx, cy]) ->
                 selector = n3.util.getSelector('ellipse', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
                 
@@ -67,7 +67,7 @@ class N3Annotation
                 true
 
         line: 
-            adderFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            enterFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 # TODO: add arrowheads
                 selector = n3.util.getSelector('line', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3            
@@ -93,7 +93,7 @@ class N3Annotation
             
                 true
             
-            removerFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
+            exitFn: ([x1, y1], arrow1, [x2, y2], arrow2) ->
                 selector = n3.util.getSelector('line', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
                 
@@ -102,7 +102,7 @@ class N3Annotation
                 true
             
         rectangle: 
-            adderFn: ([w, h], [x, y]) ->
+            enterFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3            
             
@@ -127,7 +127,7 @@ class N3Annotation
 
                 true
                 
-            removerFn: ([w, h], [x, y]) ->
+            exitFn: ([w, h], [x, y]) ->
                 selector = n3.util.getSelector('rect', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
                 
@@ -136,7 +136,7 @@ class N3Annotation
                 true
             
         label: 
-            adderFn: (text, html, [x, y]) ->
+            enterFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3            
 
@@ -158,7 +158,7 @@ class N3Annotation
             
                 true       
                 
-            removerFn: (text, html, [x, y]) ->
+            exitFn: (text, html, [x, y]) ->
                 selector = n3.util.getSelector('div', @attrs)   
                 stage = if @vis()? then @vis().stage() else d3
                 
@@ -167,8 +167,8 @@ class N3Annotation
                 true
             
     constructor: (@type) ->
-        @adderFn = N3Annotation.types[@type]?.adderFn
-        @removerFn = N3Annotation.types[@type]?.removerFn
+        @enterFn = N3Annotation.types[@type]?.enterFn
+        @exitFn = N3Annotation.types[@type]?.exitFn
         
         @annotId = @type + "" + new Date().getTime()   
         @autoRemoveFlag = true
@@ -178,15 +178,15 @@ class N3Annotation
         
         return this
         
-    adder: (@adderFn) ->
+    enter: (@enterFn) ->
         N3Annotation.types[@type] or= {}
-        N3Annotation.types[@type].adderFn = adderFn
+        N3Annotation.types[@type].enterFn = enterFn
         
         return this
         
-    remover: (@removerFn) ->
+    exit: (@exitFn) ->
         N3Annotation.types[@type] or= {}
-        N3Annotation.types[@type].removerFn = removerFn
+        N3Annotation.types[@type].exitFn = exitFn
 
         return this
         
@@ -211,10 +211,10 @@ class N3Annotation
             N3Vis.lookup[@visId]
             
     add: ->
-        @adderFn @arguments...
+        @enterFn @arguments...
         
     remove: ->
-        @removerFn @arguments...
+        @exitFn @arguments...
     
     args: (@arguments...) ->
         return this
