@@ -70,6 +70,8 @@ describe "vis", ->
     it "sets/gets the state", ->
         vis.state('state1', ['va1', 'va2'])
             .state('state2', ['foo', 'bar', 'hello', 'world'])
+            .bind('state1', (val) -> console.log("state1 = #{val}"))
+            .bind('state2', (val) -> console.log("state2 = #{val}"))
             .render(->
                 console.log('hello');
             )

@@ -67,6 +67,13 @@ class N3Vis
             # expecting a fn ptr returned. 
             # if typeof constVal == 'function' then constVal.apply(this) else constVal
             
+    bind: (stateId, funcPtr) ->
+        throw "no such state '#{stateId}'" unless @states[stateId]?
+        
+        @states[stateId]?.bind(funcPtr)
+        
+        return this
+            
     render: (@renderFn) ->
         return this
         

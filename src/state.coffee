@@ -1,6 +1,7 @@
 class N3State
     constructor: (@visId, @stateId, @validValues, @continuous) ->
-
+        @bindings = []
+        
     get: ->
         @val
 
@@ -16,6 +17,11 @@ class N3State
         
         @notify()
         
+    bind: (funcPtr) ->
+        @bindings.push funcPtr
+        
     notify: ->
         N3Vis.lookup[@visId]?.renderFn?();
         N3Trigger.notify(N3Trigger.TYPES.VIS, [@visId, @stateId], @val)
+        
+        binding @val for binding in @bindings

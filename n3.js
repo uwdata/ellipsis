@@ -71,6 +71,7 @@
       this.stateId = stateId;
       this.validValues = validValues;
       this.continuous = continuous;
+      this.bindings = [];
     }
 
     N3State.prototype.get = function() {
@@ -88,12 +89,23 @@
       return this.notify();
     };
 
+    N3State.prototype.bind = function(funcPtr) {
+      return this.bindings.push(funcPtr);
+    };
+
     N3State.prototype.notify = function() {
-      var _ref;
+      var binding, _i, _len, _ref, _ref2, _results;
       if ((_ref = N3Vis.lookup[this.visId]) != null) {
         if (typeof _ref.renderFn === "function") _ref.renderFn();
       }
-      return N3Trigger.notify(N3Trigger.TYPES.VIS, [this.visId, this.stateId], this.val);
+      N3Trigger.notify(N3Trigger.TYPES.VIS, [this.visId, this.stateId], this.val);
+      _ref2 = this.bindings;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        binding = _ref2[_i];
+        _results.push(binding(this.val));
+      }
+      return _results;
     };
 
     return N3State;
@@ -178,6 +190,13 @@
       } else {
         return this.consts[constId];
       }
+    };
+
+    N3Vis.prototype.bind = function(stateId, funcPtr) {
+      var _ref;
+      if (this.states[stateId] == null) throw "no such state '" + stateId + "'";
+      if ((_ref = this.states[stateId]) != null) _ref.bind(funcPtr);
+      return this;
     };
 
     N3Vis.prototype.render = function(renderFn) {
