@@ -1,5 +1,5 @@
 n3.annotation.def('highlightedPoint')
-    .adder(function() {
+    .enter(function() {
         var vis = this.vis();
         var sx = vis.const('sx')();
         var sy = vis.const('sy')();
@@ -37,7 +37,7 @@ n3.annotation.def('highlightedPoint')
 
         annotCircle.exit().remove();
     })
-    .remover(function() {
+    .exit(function() {
         var vis = this.vis();
         vis.stage().selectAll('circle.point').remove();
         vis.stage().selectAll('circle.annotation').remove();

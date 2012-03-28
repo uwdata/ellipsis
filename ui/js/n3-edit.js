@@ -621,7 +621,7 @@ function getMouseX(e) {
     var svg = e.target;
     while(svg.nodeName != 'svg')
         svg = svg.parentNode;
-        
+
     return e.pageX - svg.offsetLeft;
 }
 

@@ -39,6 +39,10 @@
 //         n3.trigger.afterPrev(1000 * 2)
 //     );
 
+vis.bind('year', function(val) {
+    $('#slider').slider('value', val);
+})
+
 n3.scene('scene_1')
     .set(vis, 'year', 2010)
     .set(vis, 'plotForecasts', false)

@@ -15,7 +15,7 @@
     },
     "main": "n3.js",
     "dependencies": {
-        "d3": "2.7.x"
+        "d3": "2.8.x"
     },
     "devDependencies": {
         "uglify-js": "1.2.3",
