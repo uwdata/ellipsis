@@ -7,14 +7,19 @@
     <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="../lib/jquery-ui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../n3.js"></script>
-    <link type="text/css" rel="stylesheet" href="choropleth.css"/>
+    <link type="text/css" rel="stylesheet" href="unemployment.css"/>
     <link type="text/css" rel="stylesheet" href="../lib/colorbrewer/colorbrewer.css"/>
 </head>
 <body>
-    <div id="zoom_slider"></div>
-    <div id="chloropleth"></div>
+    <div id="choropleth">
+        <div id="zoom_slider"></div>
+    </div>
+    
+    <div id="annual_rates"></div>
     <script type="text/javascript" src="states-unemployment.js"></script>
     <script type="text/javascript" src="counties-unemployment.js"></script>
     <script type="text/javascript" src="choropleth.js"></script>
+    <script type="text/javascript" src="annualData.js"></script>
+    <script type="text/javascript" src="annualRates.js"></script>
 </body>
 </html>

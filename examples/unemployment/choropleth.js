@@ -4,7 +4,7 @@
     var height = 500;
     
     var vis = n3.vis('choropleth')
-        .stage('#stage', width, height)
+        .stage('#choropleth_stage', width, height)
     
         .state('zoom', zoomExtent, true)
         .bind('zoom', function(val) {
@@ -53,7 +53,7 @@
 		                         width/2, height/2, width/2, height/2, 
 		                         false, false, false, false);
 		
-		document.getElementById('chloropleth_stage').dispatchEvent(evt);
+		document.getElementById('choropleth_stage').dispatchEvent(evt);
     }
     
     // Slightly modified version of D3 Choropleth examples
@@ -61,9 +61,9 @@
     // a certain zoom level.
     var path = d3.geo.path();
     
-    var svg = d3.select("#chloropleth")
+    var svg = d3.select("#choropleth")
         .append("svg")
-            .attr('id', 'chloropleth_stage')
+            .attr('id', 'choropleth_stage')
             .call(d3.behavior.zoom().scaleExtent(zoomExtent)
             .on("zoom", onZoom))
         .append("g");
