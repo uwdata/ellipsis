@@ -35,7 +35,7 @@ describe "timeline", ->
                                             .radius(7)
                                             .center([8, 4])
                                             .attr('id', 'goodbye')
-                                            .autoRemove(false))
+                                            .autoExit(false))
                 
         scene2 = n3.scene('timelineScene_2')
                         .add('visTimelineTest', n3.annotation('rectangle')

@@ -171,7 +171,7 @@ class N3Annotation
         @exitFn = N3Annotation.types[@type]?.exitFn
         
         @annotId = @type + "" + new Date().getTime()   
-        @autoRemoveFlag = true
+        @autoExitFlag = true
         @arguments = []
         @attrs = {}
         @styles = {}
@@ -190,7 +190,7 @@ class N3Annotation
 
         return this
         
-    autoRemove: (@autoRemoveFlag) ->
+    autoExit: (@autoExitFlag) ->
         return this
         
     data: (data) ->

@@ -36,7 +36,7 @@ class N3Timeline
                   continue unless m.member?.annotId?  # check for N3Annotation
                   
                   m.member.vis(m.visId) # just in case
-                  m.member.remove() if m.member.autoRemoveFlag 
+                  m.member.remove() if m.member.autoExitFlag 
         
         # Run any transitions
         if @transitions[@prevSceneId]?[@currSceneId]?      

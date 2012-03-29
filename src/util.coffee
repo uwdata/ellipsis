@@ -28,14 +28,14 @@ n3.util.iterate = (args...) ->
     if arguments.length == 3
         arr   = args[0]
     else if arguments.length == 4
-        arr   = d3.range(args[0], args[1])
+        arr   = d3.range(args[0], args[1], step)    
         
     return (vis, stateId) ->
         currIndex = 0
-        c = ->
-            vis.state(stateId, arr[currIndex++])            
-            return currIndex >= arr.length
-            
-        d3.timer(c, delay)
         
+        callback = ->
+            vis.state(stateId, arr[currIndex++])            
+            window.clearInterval(interval) if currIndex >= arr.length
+
+        interval = window.setInterval(callback, delay)
         false

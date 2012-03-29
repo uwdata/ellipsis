@@ -50,16 +50,16 @@
     if (arguments.length === 3) {
       arr = args[0];
     } else if (arguments.length === 4) {
-      arr = d3.range(args[0], args[1]);
+      arr = d3.range(args[0], args[1], step);
     }
     return function(vis, stateId) {
-      var c, currIndex;
+      var callback, currIndex, interval;
       currIndex = 0;
-      c = function() {
+      callback = function() {
         vis.state(stateId, arr[currIndex++]);
-        return currIndex >= arr.length;
+        if (currIndex >= arr.length) return window.clearInterval(interval);
       };
-      d3.timer(c, delay);
+      interval = window.setInterval(callback, delay);
       return false;
     };
   };
@@ -342,7 +342,7 @@
       this.enterFn = (_ref = N3Annotation.types[this.type]) != null ? _ref.enterFn : void 0;
       this.exitFn = (_ref2 = N3Annotation.types[this.type]) != null ? _ref2.exitFn : void 0;
       this.annotId = this.type + "" + new Date().getTime();
-      this.autoRemoveFlag = true;
+      this.autoExitFlag = true;
       this.arguments = [];
       this.attrs = {};
       this.styles = {};
@@ -365,8 +365,8 @@
       return this;
     };
 
-    N3Annotation.prototype.autoRemove = function(autoRemoveFlag) {
-      this.autoRemoveFlag = autoRemoveFlag;
+    N3Annotation.prototype.autoExit = function(autoExitFlag) {
+      this.autoExitFlag = autoExitFlag;
       return this;
     };
 
@@ -918,7 +918,7 @@
               continue;
             }
             m.member.vis(m.visId);
-            if (m.member.autoRemoveFlag) m.member.remove();
+            if (m.member.autoExitFlag) m.member.remove();
           }
         }
       }
