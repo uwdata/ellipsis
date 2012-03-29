@@ -54,13 +54,66 @@
         .const('sy', sy)
         .const('line', line)
 
-        .render(draw);
+        .render(function() {
+            drawAxes();
+            
+            plotLines();
+        });
 
     var svg = d3.select("#annual_rates")
         .append("svg")
             .attr('id', 'annual_rates_stage')
-
-    function draw() {
+    
+    function drawAxes() {
+        var xAxis = d3.range(minYear, maxYear+1); 
+        var yAxis = d3.range(Math.round(minRate()), 
+                             Math.round(maxRate()));
+        
+        svg.selectAll('line.xAxis')
+             .data(xAxis)
+             .enter().append("svg:line")
+                 .attr("x1", function(d) { return sx(d); })
+                 .attr("y1", function() { return height + 25 })
+                 .attr("x2", function(d) { return sx(d); })
+                 .attr("y2", 0)
+                 .attr("class", "xAxis");
+                 
+        svg.selectAll("line.yAxis")
+             .data(yAxis)
+             .enter().append("svg:line")
+                 .attr("x1", -10)
+                 .attr("y1", function(d) { return sy(d); })
+                 .attr("x2", function(d) { return width + 10 })
+                 .attr("y2", function(d) { return sy(d); })
+                 .attr("class", "yAxis");
+                 
+        svg.selectAll("text.xLbls")
+             .data(xAxis)
+             .enter().append("svg:text")
+                 .text(function(d) { 
+                     return "'" + (d+'').substring(2); 
+                 })
+                 .attr("x", function(d) { return sx(d); })
+                 .attr("dx", 10)
+                 .attr("y", function(d) { return height; })
+                 .attr("dy", 40)
+                 .attr("class", "xLbls")
+                 .attr("text-anchor", "end");
+                 
+        svg.selectAll("text.yAxisLabels")
+             .data(yAxis)
+             .enter().append("svg:text")
+                 .text(function(d) {
+                     return d % 2 == 1 ? d + '%' : '';
+                 })
+                 .attr("x", -15)
+                 .attr("y", function(d) { return sy(d); })
+                 .attr("dy", "4")
+                 .attr("class", "yAxisLabels")
+                 .attr("text-anchor", "end");
+    }    
+    
+    function plotLines() {
         var data = [[], []];
         for(var i = 0; i < annualData.length; i++) {
             var d = annualData[i];

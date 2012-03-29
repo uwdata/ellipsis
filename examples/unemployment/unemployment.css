@@ -7,10 +7,11 @@
 }
 
 #annual_rates svg {
-    background: #fff;
+    background: #eee;
     width: 500px;
     height: 300px;
     border: 1px solid firebrick;
+    padding: 10px 20px 50px 50px;
 }
 
 #counties path {
@@ -30,6 +31,18 @@
 }
 
 path#usa { stroke: steelblue !important; }
+
+#annual_rates line {
+    stroke: #ddd;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+#annual_rates text {
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+    fill: #bbb;
+}
 
 #zoom_slider {
     float: left;
