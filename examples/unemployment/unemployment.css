@@ -1,0 +1,38 @@
+@import url("../lib/jquery-ui/jquery-ui.css");
+
+#choropleth svg {
+  background: #eee;
+  width: 960px;
+  height: 500px;
+}
+
+#annual_rates svg {
+    background: #fff;
+    width: 500px;
+    height: 300px;
+    border: 1px solid firebrick;
+}
+
+#counties path {
+  stroke: #fff;
+  stroke-width: .25px;
+}
+
+#states path {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+#annual_rates path {
+    stroke: forestgreen;
+    stroke-width: 5px;
+    fill: none;
+}
+
+path#usa { stroke: steelblue !important; }
+
+#zoom_slider {
+    float: left;
+    margin-right: 20px;
+    height: 150px;
+}
