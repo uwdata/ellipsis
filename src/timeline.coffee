@@ -119,22 +119,31 @@ class N3Timeline
         
         true
         
-    @notifyTrigger: (trigger) ->
+    @notifyTrigger: (trigger, eval) ->
         if @triggers[trigger.triggerId]?
             t = @triggers[trigger.triggerId]
             
-            scene = if t.parentId? then \
-                                    N3Scene.scenes[t.parentId].subScenes[t.sceneId] else \
-                                                                    N3Scene.scenes[t.sceneId]
+            if t['eval'] == eval    # If the trigger has already been evaluated
+                return;             # to this value, do nothing
             
-            if t.memberIndex?       # Member triggers
-                scene?.evalMember(t.memberIndex)
-            # else                    # Scene triggers
-                # if t.parentId? then @switchScenes(t.parentId + '>' + t.sceneId) else @switchScenes(t.sceneId)
+            scene = if t.parentId? then \
+                         N3Scene.scenes[t.parentId].subScenes[t.sceneId] \ 
+                    else N3Scene.scenes[t.sceneId]
+            
+            if eval == true            
+                if t.memberIndex?       # Member triggers
+                    scene?.evalMember(t.memberIndex)
+                # else                    # Scene triggers
+                    # if t.parentId? then @switchScenes(t.parentId + '>' + t.sceneId) else @switchScenes(t.sceneId)
+            else
+                member = if t.memberIndex? then scene.members[t.memberIndex] else null
+                if member?.member.annotId?
+                    member?.member.remove()
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE
-        
+            
+            @triggers[trigger.triggerId]['eval'] = eval
         true  
         
     @parseTransSyntax: (transQ) ->

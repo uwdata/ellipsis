@@ -62,8 +62,8 @@ class N3Trigger
     @notify = (type, test, value) ->
         if @registered[type]?[test]?
             for triggerId, trigger of @registered[type][test]
-                N3Timeline.notifyTrigger(trigger) \
-                    if trigger.evaluate(test, value)
+                eval = trigger.evaluate(test, value);
+                N3Timeline.notifyTrigger(trigger, eval) 
                         
         true;
 

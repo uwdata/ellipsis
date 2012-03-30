@@ -588,12 +588,13 @@
     };
 
     N3Trigger.notify = function(type, test, value) {
-      var trigger, triggerId, _ref, _ref2;
+      var eval, trigger, triggerId, _ref, _ref2;
       if (((_ref = this.registered[type]) != null ? _ref[test] : void 0) != null) {
         _ref2 = this.registered[type][test];
         for (triggerId in _ref2) {
           trigger = _ref2[triggerId];
-          if (trigger.evaluate(test, value)) N3Timeline.notifyTrigger(trigger);
+          eval = trigger.evaluate(test, value);
+          N3Timeline.notifyTrigger(trigger, eval);
         }
       }
       return true;
@@ -974,17 +975,26 @@
       return true;
     };
 
-    N3Timeline.notifyTrigger = function(trigger) {
-      var scene, t;
+    N3Timeline.notifyTrigger = function(trigger, eval) {
+      var member, scene, t;
       if (this.triggers[trigger.triggerId] != null) {
         t = this.triggers[trigger.triggerId];
+        if (t['eval'] === eval) return;
         scene = t.parentId != null ? N3Scene.scenes[t.parentId].subScenes[t.sceneId] : N3Scene.scenes[t.sceneId];
-        if (t.memberIndex != null) {
-          if (scene != null) scene.evalMember(t.memberIndex);
+        if (eval === true) {
+          if (t.memberIndex != null) {
+            if (scene != null) scene.evalMember(t.memberIndex);
+          }
+        } else {
+          member = t.memberIndex != null ? scene.members[t.memberIndex] : null;
+          if ((member != null ? member.member.annotId : void 0) != null) {
+            if (member != null) member.member.remove();
+          }
         }
         if (trigger.type === N3Trigger.TYPES.TIMELINE) {
           this.deregisterTrigger(trigger);
         }
+        this.triggers[trigger.triggerId]['eval'] = eval;
       }
       return true;
     };
