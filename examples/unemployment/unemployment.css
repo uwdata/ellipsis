@@ -1,5 +1,10 @@
 @import url("../lib/jquery-ui/jquery-ui.css");
 
+body {
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+}
+
 #choropleth svg {
   background: #eee;
   width: 960px;
@@ -7,10 +12,10 @@
 }
 
 #annual_rates svg {
-    background: #eee;
+    background: #fff;
     width: 500px;
     height: 300px;
-    border: 1px solid firebrick;
+    border: 3px solid orange;
     padding: 10px 20px 50px 50px;
 }
 
@@ -24,6 +29,16 @@
   stroke-width: 1.5px;
 }
 
+#choropleth circle { 
+    fill: orange; 
+    cursor: pointer;
+}
+
+#choropleth line.annotation {
+    stroke: orange;
+    stroke-width: 3px;
+}
+
 #annual_rates path {
     stroke: forestgreen;
     stroke-width: 5px;
@@ -32,17 +47,47 @@
 
 path#usa { stroke: steelblue !important; }
 
-#annual_rates line {
-    stroke: #ddd;
+#annual_rates line.xGrid, #annual_rates line.yGrid {
+    stroke: #eee;
     stroke-width: 1px;
     shape-rendering: crispEdges;
 }
 
-#annual_rates text {
-    font-family: Verdana, sans-serif;
-    font-size: 12px;
-    fill: #bbb;
+#annual_rates line.annotation {
+    stroke: black;
+    stroke-width: 1px;
 }
+
+#annual_rates text.xLbls, #annual_rates text.yLbls {
+    fill: #ccc;
+}
+
+#annual_rates div.annotation { 
+    background: #fff; 
+    padding: 7px;
+}
+
+#annual_rates div.annotation a {
+    background: #ddd;
+    padding: 0 3px 3px 3px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000;
+}
+
+#annual_rates div.annotation a:hover { background: #eee; }
+
+#annual_rates_title {
+    position: absolute;
+    top: 5px;
+    left: 60px;
+    width: 225px;
+    background: #fff;
+    font-weight: bold;
+}
+
+#annual_rates_title span.usa { color: steelblue; }
+#annual_rates_title span.location { color: forestgreen; }
 
 #zoom_slider {
     float: left;

@@ -4,7 +4,7 @@
     var height = 500;
     
     var vis = n3.vis('choropleth')
-        .stage('#choropleth_stage', width, height)
+        .stage('#choropleth_stage g', width, height)
     
         .state('zoom', zoomExtent, true)
         .bind('zoom', function(val) {
@@ -76,7 +76,7 @@
         .attr("id", "states")
         .attr("class", "Blues");
               
-    d3.json("us-states.json", function(json) {
+    d3.json("data/us-states.json", function(json) {
         states.selectAll("path")
         .data(json.features)
         .enter().append("path")
@@ -86,7 +86,7 @@
             .attr("d", path);
     });
     
-    d3.json("us-counties.json", function(json) {
+    d3.json("data/us-counties.json", function(json) {
         counties.selectAll("path")
         .data(json.features)
         .enter().append("path")

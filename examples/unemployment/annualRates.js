@@ -3,7 +3,7 @@
     var height = 300;
     
     var minYear = 2004;
-    var maxYear = 2010;
+    var maxYear = 2011;
     
     var minRate = function() {
         var min = Infinity;
@@ -43,7 +43,10 @@
         .state('year', d3.range(minYear, maxYear+1))
         .state('locationId', ['usa', 
                               'LosAngeles-LongBeach-SantaAnaCAMetropolitanStatisticalArea',
-                              'NewYork-NorthernNewJersey-LongIslandNY-NJ-PAMetropolitanStatisticalArea'])
+                              'NewYork-NorthernNewJersey-LongIslandNY-NJ-PAMetropolitanStatisticalArea',
+                              'Chicago-Joliet-NapervilleIL-IN-WIMetropolitanStatisticalArea',
+                              'Dallas-FortWorth-ArlingtonTXMetropolitanStatisticalArea',
+                              'Philadelphia-Camden-WilmingtonPA-NJ-DE-MDMetropolitanStatisticalArea'])
 
         .const('minYear', minYear)
         .const('maxYear', maxYear)
@@ -55,37 +58,44 @@
         .const('line', line)
 
         .render(function() {
-            drawAxes();
+            console.log('hello')
+            drawAxes(this);
             
-            plotLines();
+            plotLines(this);
         });
 
-    var svg = d3.select("#annual_rates")
+    d3.select("#annual_rates")
         .append("svg")
-            .attr('id', 'annual_rates_stage')
+            .attr('id', 'annual_rates_stage');
+            
+    var title = d3.select('#annual_rates')
+        .append('p')
+            .attr('id', 'annual_rates_title');
     
-    function drawAxes() {
+    function drawAxes(vis) {
         var xAxis = d3.range(minYear, maxYear+1); 
         var yAxis = d3.range(Math.round(minRate()), 
                              Math.round(maxRate()));
+                             
+        var svg = vis.stage();
         
-        svg.selectAll('line.xAxis')
+        svg.selectAll('line.xGrid')
              .data(xAxis)
              .enter().append("svg:line")
                  .attr("x1", function(d) { return sx(d); })
                  .attr("y1", function() { return height + 25 })
                  .attr("x2", function(d) { return sx(d); })
                  .attr("y2", 0)
-                 .attr("class", "xAxis");
+                 .attr("class", "xGrid");
                  
-        svg.selectAll("line.yAxis")
+        svg.selectAll("line.yGrid")
              .data(yAxis)
              .enter().append("svg:line")
                  .attr("x1", -10)
                  .attr("y1", function(d) { return sy(d); })
                  .attr("x2", function(d) { return width + 10 })
                  .attr("y2", function(d) { return sy(d); })
-                 .attr("class", "yAxis");
+                 .attr("class", "yGrid");
                  
         svg.selectAll("text.xLbls")
              .data(xAxis)
@@ -100,7 +110,7 @@
                  .attr("class", "xLbls")
                  .attr("text-anchor", "end");
                  
-        svg.selectAll("text.yAxisLabels")
+        svg.selectAll("text.yLbls")
              .data(yAxis)
              .enter().append("svg:text")
                  .text(function(d) {
@@ -109,11 +119,12 @@
                  .attr("x", -15)
                  .attr("y", function(d) { return sy(d); })
                  .attr("dy", "4")
-                 .attr("class", "yAxisLabels")
+                 .attr("class", "yLbls")
                  .attr("text-anchor", "end");
     }    
     
-    function plotLines() {
+    function plotLines(vis) {
+        var svg = vis.stage();
         var data = [[], []];
         for(var i = 0; i < annualData.length; i++) {
             var d = annualData[i];
@@ -136,5 +147,9 @@
             .attr('d', line);
         
         p.exit().remove();
+        
+        if(data[1].length > 0)
+            title.html('<span class="usa">National</span> Unemployment Rates vs ' + 
+                       '<span class="location">' + data[1][0]['name'] + '</span>');
     }
 }).call(this);
