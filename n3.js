@@ -699,7 +699,7 @@
     };
 
     N3Trigger.prototype.fireDelay = function() {
-      N3Timeline.notifyTrigger(this);
+      N3Timeline.notifyTrigger(this, true);
       return true;
     };
 

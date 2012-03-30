@@ -147,7 +147,7 @@ class N3Trigger
     # Delay triggers always evaluate as false but a d3.timer registers that calls
     # this function to manually notify the timeline.     
     fireDelay: () ->             
-        N3Timeline.notifyTrigger(this)        
+        N3Timeline.notifyTrigger(this, true)        
         return true
         
     evaluate: (notifiedTest, notifiedVal) ->
