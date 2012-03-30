@@ -2,8 +2,10 @@
     var zoomExtent = [1, 15];
     var width = 960;
     var height = 500;
+    var path = d3.geo.path();
     
     var vis = n3.vis('choropleth')
+        .data({})
         .stage('#choropleth_stage g', width, height)
     
         .state('zoom', zoomExtent, true)
@@ -58,9 +60,7 @@
     
     // Slightly modified version of D3 Choropleth examples
     // Capped the zoom extents and have counties appear at
-    // a certain zoom level.
-    var path = d3.geo.path();
-    
+    // a certain zoom level.    
     var svg = d3.select("#choropleth")
         .append("svg")
             .attr('id', 'choropleth_stage')
@@ -77,6 +77,9 @@
         .attr("class", "Blues");
               
     d3.json("data/us-states.json", function(json) {
+        var visData = vis.data();
+        visData['states'] = json;
+        
         states.selectAll("path")
         .data(json.features)
         .enter().append("path")
@@ -87,6 +90,9 @@
     });
     
     d3.json("data/us-counties.json", function(json) {
+        var visData = vis.data();
+        visData['counties'] = json;
+        
         counties.selectAll("path")
         .data(json.features)
         .enter().append("path")
@@ -113,7 +119,7 @@
                               (vis.state('translateY') || 0) + ")" +
                               "scale(" + vis.state('zoom') + ")");
         
-        // If we're at zoom level > 3, show counties by making states 
+        // If we're at zoom level > 2, show counties by making states 
         // transparent
         states.selectAll('path')
                 .style('fill', vis.state('zoom') >= 2 ? 'none' : null);

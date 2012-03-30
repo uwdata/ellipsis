@@ -1,7 +1,7 @@
 var ch = n3.vis('choropleth');
 var ar = n3.vis('annualRates');
 
-var metro = 13;
+var metroSize = 13;
 
 function showAnnual(id, pt, pos) {  
     pt = d3.select(pt);
@@ -21,45 +21,60 @@ n3.scene('startMap')
     .add(ch, 
          n3.annotation('circle')
              .attr('id', 'la')
-             .radius(metro)
+             .radius(metroSize)
              .center([165, 265])
              .autoExit(false)
-             .attr('onclick', "n3.timeline.switchScene('la-1');"))
+             .attr('onclick', "n3.timeline.switchScene('la-1');"),
+         n3.trigger(ch)
+            .where('zoom')
+            .lt(2))
              
      .add(ch, 
           n3.annotation('circle')
               .attr('id', 'ny')
-              .radius(metro)
+              .radius(metroSize)
               .center([790, 150])
               .autoExit(false)
-              .attr('onclick', "n3.timeline.switchScene('ny-1');"))
+              .attr('onclick', "n3.timeline.switchScene('ny-1');"),
+           n3.trigger(ch)
+              .where('zoom')
+              .lt(2))
               
       .add(ch, 
            n3.annotation('circle')
                .attr('id', 'chi')
-               .radius(metro)
+               .radius(metroSize)
                .center([620, 170])
                .autoExit(false)
-               .attr('onclick', "n3.timeline.switchScene('chi-1');"))
+               .attr('onclick', "n3.timeline.switchScene('chi-1');"),
+            n3.trigger(ch)
+               .where('zoom')
+               .lt(2))
                
        .add(ch, 
             n3.annotation('circle')
                 .attr('id', 'dallas')
-                .radius(metro)
+                .radius(metroSize)
                 .center([500, 350])
                 .autoExit(false)
-                .attr('onclick', "n3.timeline.switchScene('dallas-1');"))
+                .attr('onclick', "n3.timeline.switchScene('dallas-1');"),
+             n3.trigger(ch)
+                .where('zoom')
+                .lt(2))
                 
         .add(ch, 
              n3.annotation('circle')
                  .attr('id', 'philly')
-                 .radius(metro)
+                 .radius(metroSize)
                  .center([770, 190])
                  .autoExit(false)
-                 .attr('onclick', "n3.timeline.switchScene('philly-1');"))
-               
-n3.timeline.switchScene('startMap');
-                               
+                 .attr('onclick', "n3.timeline.switchScene('philly-1');"),
+              n3.trigger(ch)
+                 .where('zoom')
+                 .lt(2));
+                 
+n3.timeline.switchScene('startMap'); 
+                                              
 ////////////
 // LA src: http://articles.latimes.com/2012/mar/28/business/la-fi-california-economy-ucla-20120328
 ////////////
@@ -414,7 +429,7 @@ n3.scene('dallas')
 
 ////////////
 // PHILLY src: http://www.bizjournals.com/philadelphia/news/2011/12/20/philadelphia-unemployment-rate-dips.html
-               http://articles.philly.com/2011-12-03/news/30471971_1_jobless-rate-unemployment-rate-government-job-cuts
+//             http://articles.philly.com/2011-12-03/news/30471971_1_jobless-rate-unemployment-rate-government-job-cuts
 ////////////
 
 n3.scene('philly')
@@ -501,3 +516,61 @@ n3.scene('philly')
                 .attr('id', 'label_1333055943386')
                 .attr('class', 'annotation'),
             n3.trigger.afterPrev(1500))
+            
+////////////
+// Counties
+////////////
+
+// Because county data is JSON loaded, check periodically to see if we can 
+// county circles. 
+var interval = window.setInterval(function() {
+    var svg = ch.stage();
+    var counties = svg.select('g#counties');
+    var countySize = 0.75;
+    var path = ch.const('path');
+    
+    if(counties.selectAll('path').empty())
+        return;
+    else
+        window.clearInterval(interval);
+    
+    counties.selectAll('path').each(function(d, i){
+        var centroid = path.centroid(d),
+            x = centroid[0],
+            y = centroid[1];
+        
+        // For each county, first add a point to the choropleth.     
+        n3.scene('startMap')
+            .set(ar, 'locationId', d.id)
+            .add(ch, 
+                 n3.annotation('circle')
+                     .attr('id', 'county_' + d.id)
+                     .radius(countySize)
+                     .center([x, y])
+                     .autoExit(false)
+                     .attr('onclick', "n3.timeline.switchScene('scene_'" + d.id + ");"),
+                  n3.trigger(ch)
+                     .where('zoom')
+                     .gte(2));
+        
+         // Then add a scene for the country.           
+         n3.scene('scene_' + d.id)
+             .add(ar,
+                  n3.annotation('label')
+                     .html('<a href="#" onclick="n3.timeline.switchScene(\'startMap\')">[close]</a>')
+                     .pos([3, 3])
+                     .attr('id', 'close')
+                     .attr('class', 'annotation')
+                     .style('padding', '0'))
+             .add(ar, function() {
+                 $('#annual_rates')
+                     .css('position', 'absolute')
+                     .css('left', '200px')
+                     .css('top', '0px')
+                     .show();
+             })
+            .set(ch, 'year', n3.util.iterate(2005, 2012, 1, 500));
+    });   
+    
+    n3.timeline.switchScene('startMap'); 
+}, 1000);

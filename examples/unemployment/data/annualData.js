@@ -1,3 +1,10 @@
+var validAnnualValues = ['usa', 
+'LosAngeles-LongBeach-SantaAnaCAMetropolitanStatisticalArea',
+'NewYork-NorthernNewJersey-LongIslandNY-NJ-PAMetropolitanStatisticalArea',
+'Chicago-Joliet-NapervilleIL-IN-WIMetropolitanStatisticalArea',
+'Dallas-FortWorth-ArlingtonTXMetropolitanStatisticalArea',
+'Philadelphia-Camden-WilmingtonPA-NJ-DE-MDMetropolitanStatisticalArea'];
+
 var annualData = [
 	{
 		"id": "usa",

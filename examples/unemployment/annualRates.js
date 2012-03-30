@@ -34,19 +34,14 @@
     var line = d3.svg.line()
           .x(function(d, i){ return sx(d.year); })
           .y(function(d, i){ return sy(d.rate); });
-    
+          
     var vis = n3.vis('annualRates') 
         .data(annualData)
 
         .stage('#annual_rates_stage', width, height)
 
         .state('year', d3.range(minYear, maxYear+1))
-        .state('locationId', ['usa', 
-                              'LosAngeles-LongBeach-SantaAnaCAMetropolitanStatisticalArea',
-                              'NewYork-NorthernNewJersey-LongIslandNY-NJ-PAMetropolitanStatisticalArea',
-                              'Chicago-Joliet-NapervilleIL-IN-WIMetropolitanStatisticalArea',
-                              'Dallas-FortWorth-ArlingtonTXMetropolitanStatisticalArea',
-                              'Philadelphia-Camden-WilmingtonPA-NJ-DE-MDMetropolitanStatisticalArea'])
+        .state('locationId', validAnnualValues)
 
         .const('minYear', minYear)
         .const('maxYear', maxYear)
@@ -58,11 +53,17 @@
         .const('line', line)
 
         .render(function() {
-            console.log('hello')
             drawAxes(this);
             
             plotLines(this);
         });
+        
+    // d3.json("data/annualCountyData.json", function(json) {           
+    //     for(var i in json)
+    //         annualData.push(json[i]);
+    // 
+    //     vis.data(annualData);
+    // });
 
     d3.select("#annual_rates")
         .append("svg")
