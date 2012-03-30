@@ -3,16 +3,8 @@ var ar = n3.vis('annualRates');
 
 var metroSize = 13;
 
-function showAnnual(id, pt, pos) {  
-    pt = d3.select(pt);
-    var cx = pt.attr('cx'), cy = pt.attr('cy');
-    var px = pos[0], py = pos[1];
-
-   
-}
-
 n3.scene('startMap')
-    .set(ch, 'zoom', 1)
+    .set(ch, 'zoom', function() { return (ch.state('zoom') || 1) })
     .set(ar, 'year', 2004)
     .add(ar, function() {
         $('#annual_rates').hide();
@@ -541,20 +533,20 @@ var interval = window.setInterval(function() {
         
         // For each county, first add a point to the choropleth.     
         n3.scene('startMap')
-            .set(ar, 'locationId', d.id)
             .add(ch, 
                  n3.annotation('circle')
                      .attr('id', 'county_' + d.id)
                      .radius(countySize)
                      .center([x, y])
                      .autoExit(false)
-                     .attr('onclick', "n3.timeline.switchScene('scene_'" + d.id + ");"),
+                     .attr('onclick', "n3.timeline.switchScene('scene_" + d.id + "');"),
                   n3.trigger(ch)
                      .where('zoom')
                      .gte(2));
         
          // Then add a scene for the country.           
          n3.scene('scene_' + d.id)
+             .set(ar, 'locationId', d.id)
              .add(ar,
                   n3.annotation('label')
                      .html('<a href="#" onclick="n3.timeline.switchScene(\'startMap\')">[close]</a>')
@@ -569,7 +561,7 @@ var interval = window.setInterval(function() {
                      .css('top', '0px')
                      .show();
              })
-            .set(ch, 'year', n3.util.iterate(2005, 2012, 1, 500));
+            .set(ar, 'year', n3.util.iterate(2005, 2012, 1, 500));
     });   
     
     n3.timeline.switchScene('startMap'); 

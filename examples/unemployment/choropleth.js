@@ -4,6 +4,8 @@
     var height = 500;
     var path = d3.geo.path();
     
+    var statesUnemployment, countiesUnemployment; // Loaded async
+    
     var vis = n3.vis('choropleth')
         .data({})
         .stage('#choropleth_stage g', width, height)
@@ -75,6 +77,10 @@
     var states = svg.append("g")
         .attr("id", "states")
         .attr("class", "Blues");
+        
+    d3.json("data/states-unemployment.json", function(json) {
+        statesUnemployment = json;
+    })
               
     d3.json("data/us-states.json", function(json) {
         var visData = vis.data();
@@ -88,6 +94,10 @@
             })    
             .attr("d", path);
     });
+    
+    d3.json("data/counties-unemployment.json", function(json) {
+        countiesUnemployment = json;
+    })
     
     d3.json("data/us-counties.json", function(json) {
         var visData = vis.data();

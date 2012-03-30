@@ -1,5 +1,4 @@
-// 2011 figures
-var statesUnemployment = {
+{
     "01": 9.0,
     "02": 7.6,
     "04": 9.5,
