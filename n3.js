@@ -319,7 +319,7 @@
           this.styles['position'] = 'absolute';
           this.styles['left'] = (stage.property('offsetLeft') + x) + 'px';
           this.styles['top'] = (stage.property('offsetTop') + y) + 'px';
-          d = d3.select('body').selectAll(selector).data(this.data() != null ? this.data() : [0]);
+          d = d3.select(stage[0][0].parentNode).selectAll(selector).data(this.data() != null ? this.data() : [0]);
           d.enter().append('div').text(text).html(html);
           this.applyAttrs(d);
           this.applyStyles(d);

@@ -144,8 +144,8 @@ class N3Annotation
                 @styles['position'] = 'absolute'
                 @styles['left'] = (stage.property('offsetLeft') + x) + 'px'
                 @styles['top'] = (stage.property('offsetTop') + y) + 'px'
-            
-                d = d3.select('body').selectAll(selector)
+                
+                d = d3.select(stage[0][0].parentNode).selectAll(selector)
                         .data(if @data()? then @data() else [0])
             
                 d.enter()
