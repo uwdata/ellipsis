@@ -29,15 +29,23 @@ class N3Timeline
             unless prevScene.parent? and currentScene.parent? and \
                         prevScene.parent.sceneId == currentScene.parent.sceneId
                         
-              for m in prevScene.members
-                  @deregisterTrigger m.trigger
+                members = []
+                        
+                members.push m for m in prevScene.members
+                if prevScene.parent?
+                    for subSceneId, subScene of prevScene.parent.subScenes
+                        continue unless subScene.members?
+                        members.push m for m in subScene.members                
+                
+                for m in members
+                    @deregisterTrigger m.trigger
                   
-                  continue if m.state?                  
-                  continue unless m.member?.annotId?  # check for N3Annotation
+                    continue if m.state?                  
+                    continue unless m.member?.annotId?  # check for N3Annotation
                   
-                  m.member.vis(m.visId) # just in case
-                  m.member.remove() if m.member.autoExitFlag 
-        
+                    m.member.vis(m.visId) # just in case
+                    m.member.remove() if m.member.autoExitFlag 
+                  
         # Run any transitions
         if @transitions[@prevSceneId]?[@currSceneId]?      
             for transFunc in @transitions[@prevSceneId][@currSceneId]
@@ -136,9 +144,10 @@ class N3Timeline
                 # else                    # Scene triggers
                     # if t.parentId? then @switchScenes(t.parentId + '>' + t.sceneId) else @switchScenes(t.sceneId)
             else
-                member = if t.memberIndex? then scene.members[t.memberIndex] else null
-                if member?.member.annotId?
-                    member?.member.remove()
+                m = if t.memberIndex? then scene.members[t.memberIndex] else null
+                if m?.member.annotId?
+                    m.member.vis(m.visId) # just in case
+                    m?.member.remove()
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE

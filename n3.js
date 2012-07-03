@@ -893,7 +893,7 @@
     N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
-      var currParent, currentScene, evaluateMembers, i, m, prevScene, transFunc, _i, _j, _len, _len2, _len3, _len4, _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var currParent, currentScene, evaluateMembers, i, m, members, prevScene, subScene, subSceneId, transFunc, _i, _j, _k, _l, _len, _len2, _len3, _len4, _len5, _len6, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       this.prevSceneId = this.currSceneId;
       this.prevParentId = this.currParentId;
       prevScene = this.prevParentId != null ? N3Scene.scenes[this.prevParentId].subScenes[this.prevSceneId] : N3Scene.scenes[this.prevSceneId];
@@ -910,12 +910,29 @@
       }
       if (prevScene != null) {
         if (!((prevScene.parent != null) && (currentScene.parent != null) && prevScene.parent.sceneId === currentScene.parent.sceneId)) {
+          members = [];
           _ref = prevScene.members;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             m = _ref[_i];
+            members.push(m);
+          }
+          if (prevScene.parent != null) {
+            _ref2 = prevScene.parent.subScenes;
+            for (subSceneId in _ref2) {
+              subScene = _ref2[subSceneId];
+              if (subScene.members == null) continue;
+              _ref3 = subScene.members;
+              for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+                m = _ref3[_j];
+                members.push(m);
+              }
+            }
+          }
+          for (_k = 0, _len3 = members.length; _k < _len3; _k++) {
+            m = members[_k];
             this.deregisterTrigger(m.trigger);
             if (m.state != null) continue;
-            if (((_ref2 = m.member) != null ? _ref2.annotId : void 0) == null) {
+            if (((_ref4 = m.member) != null ? _ref4.annotId : void 0) == null) {
               continue;
             }
             m.member.vis(m.visId);
@@ -923,19 +940,19 @@
           }
         }
       }
-      if (((_ref3 = this.transitions[this.prevSceneId]) != null ? _ref3[this.currSceneId] : void 0) != null) {
-        _ref4 = this.transitions[this.prevSceneId][this.currSceneId];
-        for (_j = 0, _len2 = _ref4.length; _j < _len2; _j++) {
-          transFunc = _ref4[_j];
+      if (((_ref5 = this.transitions[this.prevSceneId]) != null ? _ref5[this.currSceneId] : void 0) != null) {
+        _ref6 = this.transitions[this.prevSceneId][this.currSceneId];
+        for (_l = 0, _len4 = _ref6.length; _l < _len4; _l++) {
+          transFunc = _ref6[_l];
           transFunc(prevScene, currentScene);
         }
       }
       this.start(true);
       evaluateMembers = [];
       if (currentScene != null) {
-        _ref5 = currentScene.members;
-        for (i = 0, _len3 = _ref5.length; i < _len3; i++) {
-          m = _ref5[i];
+        _ref7 = currentScene.members;
+        for (i = 0, _len5 = _ref7.length; i < _len5; i++) {
+          m = _ref7[i];
           evaluateMembers[i] = false;
           if (m.trigger != null) {
             if (m.trigger.type === N3Trigger.TYPES.DELAY) {
@@ -946,9 +963,9 @@
           }
           evaluateMembers[i] = true;
         }
-        _ref6 = currentScene.members;
-        for (i = 0, _len4 = _ref6.length; i < _len4; i++) {
-          m = _ref6[i];
+        _ref8 = currentScene.members;
+        for (i = 0, _len6 = _ref8.length; i < _len6; i++) {
+          m = _ref8[i];
           if (evaluateMembers[i]) currentScene.evalMember(i);
         }
       }
@@ -976,7 +993,7 @@
     };
 
     N3Timeline.notifyTrigger = function(trigger, eval) {
-      var member, scene, t;
+      var m, scene, t;
       if (this.triggers[trigger.triggerId] != null) {
         t = this.triggers[trigger.triggerId];
         if (t['eval'] === eval) return;
@@ -986,9 +1003,10 @@
             if (scene != null) scene.evalMember(t.memberIndex);
           }
         } else {
-          member = t.memberIndex != null ? scene.members[t.memberIndex] : null;
-          if ((member != null ? member.member.annotId : void 0) != null) {
-            if (member != null) member.member.remove();
+          m = t.memberIndex != null ? scene.members[t.memberIndex] : null;
+          if ((m != null ? m.member.annotId : void 0) != null) {
+            m.member.vis(m.visId);
+            if (m != null) m.member.remove();
           }
         }
         if (trigger.type === N3Trigger.TYPES.TIMELINE) {
