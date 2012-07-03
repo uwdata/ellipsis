@@ -166,6 +166,8 @@ body {
     display: inline-block;
     float: left;
     width: 160px;
+    height: 30px;
+    overflow: hidden;
     padding-left: 4px;
 }
 

@@ -635,7 +635,7 @@ function getMouseY(e) {
 
 function startDrawing(shapeType) {
     $('svg').parent().addClass('draw');
-    
+
     switch(shapeType) {
         case SHAPES.CIRCLE:
             $('svg').bind('mousedown.n3_edit', startCircle);
@@ -666,6 +666,7 @@ function endDrawing(e) {
         // When a shape is finished drawing, we want to still
         // allow users to continue to draw more of the selected annotation.
         $('svg').unbind('mousemove.n3_edit');
+        $('svg').unbind('mouseup.n3_edit');
         var m = {
             visId: e.data.visId.replace('n3-vis_', ''),
             annotation: {
@@ -719,7 +720,7 @@ function drawCircle(e) {
 
 function startEllipse(e) {
     var id = 'ellipse_' + Date.now();
-    
+
     d3.select(e.target)
         .append('svg:ellipse')
         .attr('id', id)
