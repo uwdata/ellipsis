@@ -1,44 +1,3 @@
-// n3.scene('tutorial')
-//     .set(vis, 'year', 2010)
-//     .set(vis, 'plotForecast', true)
-//     
-//     .add(function() {
-//         d3.select('#scene-list')
-//             .append('div')
-//                 .html('<p>Use these controls to navigate through the slideshow.</p>')
-//                 .id('timeline-explanation')
-//                 .style('position', 'absolute')
-//                 .style('top', '100px')
-//                 .style('left', '100px')
-//     })
-//     
-//     .add(function() {
-//         d3.select('#timeline-explanation')
-//             .transition()
-//                 .duration(100)
-//                     .style('display', 'none');
-//                     
-//         d3.select('#slider')
-//             .append('div')
-//                 .id('slider-explanation')
-//                 .html('<p>Use the slider to isolate a single year\'s forecast</p>')
-//     }, 
-//         n3.trigger.afterPrev(1000 * 5)
-//     )
-//     
-//     .set(vis, 'year', n3.util.iterate(1980, 1990, 1, 100))
-//     
-//     .add(function() {
-//         d3.select('#slider-explanation')
-//             .transition()
-//                 .duration(100)
-//                     .style('display', 'none');
-//         
-//         n3.timeline.switchScene('scene_1');
-//     },
-//         n3.trigger.afterPrev(1000 * 2)
-//     );
-
 vis.bind('year', function(val) {
     $('#slider').slider('value', val);
 })
@@ -60,35 +19,35 @@ n3.scene('scene_1')
         $('#slider').hide();
     })
     
-    .add(vis, n3.annotation('highlightedPoint')
-                    .data(function() {
-                        var fullData = vis.data();
-                        var data = [];
-                        var dataTransform = vis.const('dataTransform');
-                
-                        for(var i in fullData) {
-                            if(fullData[i].year != 2010)
-                                continue;
-
-                            data[data.length] = dataTransform(2010, fullData[i][2010]);
-                            data[data.length] = dataTransform(2011, fullData[i][2011]);
-                        }
-
-                        return data;  
-                    })
-    )
     .add(vis, 
-        n3.annotation('label')
-            .attr('id', 'lbl_2010')
-            .html('<p>2010 estimate:<br /><span class="annotation">-$1.56 trillion</span></p>')
-            .pos([540, 341])
-    )
+         n3.annotation('highlightedPoint')
+              .data(function() {
+                  var fullData = vis.data();
+                  var data = [];
+                  var dataTransform = vis.const('dataTransform');
+        
+                  for(var i in fullData) {
+                      if(fullData[i].year != 2010)
+                          continue;
+                  
+                      data[data.length] = dataTransform(2010, fullData[i][2010]);
+                      data[data.length] = dataTransform(2011, fullData[i][2011]);
+                  }
+                  
+                  return data;  
+              }))
+              
+    .add(vis, 
+         n3.annotation('label')
+             .attr('id', 'lbl_2010')
+             .html('<p>2010 estimate:<br /><span class="annotation">-$1.56 trillion</span></p>')
+             .pos([540, 341]))
+            
     .add(vis,
-        n3.annotation('label')
-            .attr('id', 'lbl_2011')
-            .html('<p>2011 proposal:<br /><span class="annotation">-$1.27 trillion</span></p>')
-            .pos([560, 280])
-    );
+         n3.annotation('label')
+             .attr('id', 'lbl_2011')
+             .html('<p>2011 proposal:<br /><span class="annotation">-$1.27 trillion</span></p>')
+             .pos([560, 280]));
 
 n3.scene('scene_2')
     .set(vis, 'year', 2010)
@@ -130,30 +89,33 @@ n3.scene('scene_2')
 
         forecast.exit().remove();
     })
-    .add(vis, n3.annotation('line')
-                    .attr('id', 'lastLine')
-                    .start([600, 180])
-                    .end([600, 160])
-                    .style('stroke-width', 1)
-                    .style('stroke', 'grey')
-    )
-    .add(vis, n3.annotation('label')
-                    .attr('id', 'lastYearLbl')
-                    .html('<p>Last year\'s forecast</p>')
-                    .pos([560, 125])
-    )
-    .add(vis, n3.annotation('line')
-                    .attr('id', 'latestLine')
-                    .start([600, 210])
-                    .end([600, 230])
-                    .style('stroke-width', 1)
-                    .style('stroke', 'grey')
-    )
-    .add(vis, n3.annotation('label')
-                    .attr('id', 'latestLbl')
-                    .html('<p>Latest forecast</p>')
-                    .pos([565, 225])
-    )   
+    .add(vis, 
+         n3.annotation('line')
+              .attr('id', 'lastLine')
+              .start([600, 180])
+              .end([600, 160])
+              .style('stroke-width', 1)
+              .style('stroke', 'grey'))
+              
+    .add(vis, 
+         n3.annotation('label')
+              .attr('id', 'lastYearLbl')
+              .html('<p>Last year\'s forecast</p>')
+              .pos([560, 125]))
+              
+    .add(vis, 
+         n3.annotation('line')
+              .attr('id', 'latestLine')
+              .start([600, 210])
+              .end([600, 230])
+              .style('stroke-width', 1)
+              .style('stroke', 'grey'))
+              
+    .add(vis, 
+         n3.annotation('label')
+              .attr('id', 'latestLbl')
+              .html('<p>Latest forecast</p>')
+              .pos([565, 225]))   
     
 n3.scene('scene_3')
     .subScene('scene_3a')
@@ -161,38 +123,34 @@ n3.scene('scene_3')
         .set(vis, 'plotForecasts', true)
         .set(vis, 'year', n3.util.iterate(1980, 1996, 1, 150))
     
-        .add(vis, n3.annotation('highlightedPoint')
-                        .data(scene34data),            
-            n3.trigger(vis)
-                .where('year')
-                .gte(1995)
-        )
+        .add(vis, 
+             n3.annotation('highlightedPoint')
+                  .data(scene34data),            
+             n3.trigger(vis)
+                 .where('year')
+                 .gte(1995))
         
-        .add(vis, n3.annotation('line')
-                        .attr('id', 'line1995')
-                        .start([332.5, 145])
-                        .end([332.5, 195])
-                        .style('stroke-width', 1)
-                        .style('stroke', 'grey'),
-            
-                n3.trigger(vis)
-                    .where('year')
-                    .gte(1995)
-        )  
+        .add(vis, 
+             n3.annotation('line')
+                  .attr('id', 'line1995')
+                  .start([332.5, 145])
+                  .end([332.5, 195])
+                  .style('stroke-width', 1)
+                  .style('stroke', 'grey'),
+             n3.trigger(vis)
+                 .where('year')
+                 .gte(1995))  
         
         .add(vis, n3.annotation('label')
                         .attr('id', 'lbl1995')
                         .html('<p>The 1995 forecast for 1999<br />did not predict a surplus...</p>')
                         .pos([280, 195]),
-            
                 n3.trigger(vis)
                     .where('year')
-                    .gte(1995)
-        )
+                    .gte(1995))
         
 n3.scene('scene_3')
     .subScene('scene_3b')
-        .set(vis, 'year', 1995)
         .set(vis, 'plotForecasts', true)
         .set(vis, 'year', n3.util.iterate(1995, 2009, 1, 150))
         
@@ -262,6 +220,5 @@ function scene34data() {
         if(d.year == 2008) 
             data[data.length] = dataTransform(2012, d[2012]);
     }
-
     return data;
 }

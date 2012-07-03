@@ -6,7 +6,7 @@ n3.annotation.def('highlightedPoint')
 
         
         var point = vis.stage().selectAll('circle.point')
-                            .data(this.data());
+                            .data(this.data(), function(d) { return d.year; });
 
         point.enter()
                 .append('svg:circle')
