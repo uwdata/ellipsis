@@ -10,6 +10,8 @@ var SHAPE_LABELS = ['circle', 'ellipse', 'line', 'arrow', 'rectangle', 'label'];
 var visIds = [];
 var scenes = {};
 var sceneId;
+var drawShape;
+var dragElement;
 
 $(function() {
     $(document).ready(function() {
@@ -113,6 +115,9 @@ function saveVis() {
         }
     }
     
+    $('#n3-ui_stage').bind('mousedown', startDrawOrDrag);
+    $('#n3-ui_stage').bind('mouseup', endDrawOrDrag);
+    
     if(closeDialog)
         $('#n3-ui_visDialog').dialog('close')
 }
@@ -177,7 +182,7 @@ function editScene(editSceneId) {
 }
 
 function endScene() {
-    endDrawing();
+    endDrawOrDrag();
     $('#n3-ui_palette a').removeClass('selected');
     
     $('.state_settings').hide();
@@ -608,86 +613,153 @@ function playStory() {
 // Get coordinates of mouse within the svgply
 function toggleShape(elem, shapeType) {
     var selected = $(elem).hasClass('selected');
-    endDrawing();
+    endDrawOrDrag();
     $('#n3-ui_palette a').removeClass('selected');
 
     if(!selected) {
         $(elem).addClass('selected');
-        startDrawing(shapeType);
+        drawShape = shapeType;
+        $('svg').parent().addClass('draw');
     }
 }
 
 function getMouseX(e) {
-    var svg = e.target;
-    while(svg.nodeName != 'svg')
-        svg = svg.parentNode;
+    var el = e.target;
+    while(el != null && el.nodeName.toUpperCase() != 'SVG')
+        el = el.parentNode;
 
-    return e.pageX - svg.offsetLeft;
+    return el != null ? e.pageX - el.offsetLeft : e.pageX;
 }
 
 function getMouseY(e) {
-    var svg = e.target;
-    while(svg.nodeName != 'svg')
-        svg = svg.parentNode;
+    var el = e.target;
+    while(el != null && el.nodeName.toUpperCase() != 'SVG')
+        el = el.parentNode;
     
-    return e.pageY - svg.offsetTop;
+    return el != null ? e.pageY - el.offsetTop : e.pageY;
 }
 
-function startDrawing(shapeType) {
-    $('svg').parent().addClass('draw');
+function startDrawOrDrag(e) {
+    // If clicked on an svg, this is a draw event
+    if(e.target.tagName.toUpperCase() == 'SVG') {
+        switch(drawShape) {
+            case SHAPES.CIRCLE:
+                startCircle(e);
+            break;
 
-    switch(shapeType) {
-        case SHAPES.CIRCLE:
-            $('svg').bind('mousedown.n3_edit', startCircle);
-        break;
-        
-        case SHAPES.ELLIPSE:
-            $('svg').bind('mousedown.n3_edit', startEllipse);
-        break;
-        
-        case SHAPES.LINE:
-            $('svg').bind('mousedown.n3_edit', startLine);
-        break;
-        
-        case SHAPES.RECTANGLE:
-            $('svg').bind('mousedown.n3_edit', startRect);
-        break;
-        
-        case SHAPES.LABEL:
-            $('svg').bind('click.n3_edit', startLabel);
-        break;
-        
+            case SHAPES.ELLIPSE:
+                startEllipse(e);
+            break;
+
+            case SHAPES.LINE:
+                startLine(e);
+            break;
+
+            case SHAPES.RECTANGLE:
+                startRect(e);
+            break;
+
+            case SHAPES.LABEL:
+                startLabel(e);
+            break;
+
+        }        
+    } else { // Otherwise, it's a move event
+        var el = d3.select(e.target);
+
+        if(el.classed('draggable')) {
+            el.attr('startX', getMouseX(e))
+              .attr('startY', getMouseY(e));
+
+            dragElement = e.target;            
+            $('#n3-ui_stage').bind('mousemove.n3_move', dragAnnotation);
+        }
     }
+
+    // if(e.target.tagName.toUpperCase() != 'P') {
+    //     // cancel out any text selections
+    //     document.body.focus();
+    //     // prevent text selection in IE
+    //     document.onselectstart = function () { return false; };
+    //     // prevent IE from trying to drag an image
+    //     e.target.ondragstart = function() { return false; };        
+    // }
 }
 
 // Called with an arg when finished drawing an individual annotation.
-function endDrawing(e) {
+function endDrawOrDrag(e) {
+    dragElement = null;
+    $('#n3-ui_stage').unbind('mousemove.n3_move');
+    $('svg').unbind('mousemove.n3_draw');
+    $('svg').unbind('mouseup.n3_draw');
+    
     if(e) {
-        // When a shape is finished drawing, we want to still
-        // allow users to continue to draw more of the selected annotation.
-        $('svg').unbind('mousemove.n3_edit');
-        $('svg').unbind('mouseup.n3_edit');
-        var m = {
-            visId: e.data.visId.replace('n3-vis_', ''),
-            annotation: {
-                type: e.data.type,
-                id: e.data.id
-            }
-        };
-        
-        populateMember(m)
+        if(e.data) {
+            // When a shape is finished drawing, we want to still
+            // allow users to continue to draw more of the selected annotation.
+            var m = {
+                visId: e.data.visId.replace('n3-vis_', ''),
+                annotation: {
+                    type: e.data.type,
+                    id: e.data.id
+                }
+            };
+
+            populateMember(m);           
+        }
+        // 
+        // if(e.target != null && e.target.tagName.toUpperCase() != 'P') {
+        //     // cancel out any text selections
+        //     document.body.focus();
+        //     // prevent text selection in IE
+        //     document.onselectstart = function () { return false; };
+        //     // prevent IE from trying to drag an image
+        //     e.target.ondragstart = function() { return false; };        
+        // }
     } else {    // End drawing current shape annotation.
+        drawShape = -1;
         $('svg').parent().removeClass('draw');
-        $('svg').unbind('mousedown.n3_edit');
-        $('svg').unbind('mousemove.n3_edit');
-        $('svg').unbind('mouseup.n3_edit');
     }
 }
 
-function blockEvents(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
+function dragAnnotation(e) {
+    var el = d3.select(dragElement);
+    
+    switch(dragElement.tagName.toUpperCase()) {
+        case 'ELLIPSE':
+            el.attr('cx', getMouseX(e))
+              .attr('cy', getMouseY(e))
+        break;
+        
+        case 'RECT':
+            var x  = parseInt(el.attr('x')) + (getMouseX(e) - el.attr('startX'));
+            var y  = parseInt(el.attr('y')) + (getMouseY(e) - el.attr('startY'));
+                    
+            el.attr('x', x)
+              .attr('y', y)
+              .attr('startX', getMouseX(e))
+              .attr('startY', getMouseY(e))
+        break;
+        
+        case 'LINE':
+            var x1  = parseInt(el.attr('x1')) + (getMouseX(e) - el.attr('startX'));
+            var x2  = parseInt(el.attr('x2')) + (getMouseX(e) - el.attr('startX'));
+            var y1  = parseInt(el.attr('y1')) + (getMouseY(e) - el.attr('startY'));
+            var y2  = parseInt(el.attr('y2')) + (getMouseY(e) - el.attr('startY'));
+                 
+            el.attr('x1', x1)
+              .attr('y1', y1)
+              .attr('x2', x2)
+              .attr('y2', y2)
+              .attr('startX', getMouseX(e))
+              .attr('startY', getMouseY(e))
+        break;
+        
+        case 'P':
+            el.style('left', e.pageX + 'px')
+              .style('top', e.pageY + 'px');
+        break;
+    }
 }
 
 function startCircle(e) {
@@ -696,7 +768,7 @@ function startCircle(e) {
     d3.select(e.target)
         .append('svg:circle')
         .attr('id', id)
-        .attr('class', 'n3-ui_scene' + sceneId)
+        .attr('class', 'draggable n3-ui_scene' + sceneId)
         .attr('cx', getMouseX(e))
         .attr('cy', getMouseY(e))
         .attr('r', 1)
@@ -704,18 +776,14 @@ function startCircle(e) {
         .attr('stroke', 'black')
         .attr('stroke-width', 1);
         
-    $(e.target).bind('mousemove.n3_edit', { id: id }, drawCircle);
-    $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.CIRCLE }, endDrawing);
-    
-    blockEvents(e);
+    $(e.target).bind('mousemove.n3_draw', { id: id }, drawCircle);
+    $(e.target).bind('mouseup.n3_draw', { id: id, visId: e.target.parentNode.id, type: SHAPES.CIRCLE }, endDrawOrDrag);
 }
 
 function drawCircle(e) {
     var s = d3.select('#' + e.data.id);    
     var r = Math.sqrt(Math.pow(getMouseX(e) - s.attr('cx'), 2) + Math.pow(getMouseY(e) - s.attr('cy'), 2))
     s.attr('r', r);
-    
-    blockEvents(e);
 }
 
 function startEllipse(e) {
@@ -724,27 +792,24 @@ function startEllipse(e) {
     d3.select(e.target)
         .append('svg:ellipse')
         .attr('id', id)
-        .attr('class', 'n3-ui_scene' + sceneId)
+        .attr('class', 'draggable n3-ui_scene' + sceneId)
         .attr('cx', getMouseX(e))
         .attr('cy', getMouseY(e))
         .attr('rx', 1)
         .attr('ry', 1)
         .attr('fill-opacity', 0)
         .attr('stroke', 'black')
-        .attr('stroke-width', 1);
-        
-    $(e.target).bind('mousemove.n3_edit', { id: id }, drawEllipse);
-    $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.ELLIPSE }, endDrawing);
-    
-    blockEvents(e);
+        .attr('stroke-width', 1)
+        .style('cursor', 'move');
+   
+    $(e.target).bind('mousemove.n3_draw', { id: id }, drawEllipse);
+    $(e.target).bind('mouseup.n3_draw', { id: id, visId: e.target.parentNode.id, type: SHAPES.ELLIPSE }, endDrawOrDrag);
 }
 
 function drawEllipse(e) {
     var s = d3.select('#' + e.data.id);    
     s.attr('rx', Math.abs(getMouseX(e) - s.attr('cx')))
      .attr('ry', Math.abs(getMouseY(e) - s.attr('cy')));
-     
-    blockEvents(e);
 }
 
 function startLine(e) {
@@ -753,26 +818,23 @@ function startLine(e) {
     d3.select(e.target)
         .append('svg:line')
         .attr('id', id)
-        .attr('class', 'n3-ui_scene' + sceneId)
+        .attr('class', 'draggable n3-ui_scene' + sceneId)
         .attr('x1', getMouseX(e))
         .attr('y1', getMouseY(e))
         .attr('x2', getMouseX(e))
         .attr('y2', getMouseY(e))
         .attr('stroke', 'black')
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 1)
+        .style('cursor', 'move');
         
-    $(e.target).bind('mousemove.n3_edit', { id: id }, drawLine);
-    $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.LINE }, endDrawing);
-    
-    blockEvents(e);
+    $(e.target).bind('mousemove.n3_draw', { id: id }, drawLine);
+    $(e.target).bind('mouseup.n3_draw', { id: id, visId: e.target.parentNode.id, type: SHAPES.LINE }, endDrawOrDrag);
 }
 
 function drawLine(e) {
     var s = d3.select('#' + e.data.id);    
     s.attr('x2', getMouseX(e))
      .attr('y2', getMouseY(e));
-     
-    blockEvents(e);
 }
 
 function startRect(e) {
@@ -784,19 +846,18 @@ function startRect(e) {
     d3.select(e.target)
         .append('svg:rect')
         .attr('id', id)
-        .attr('class', 'n3-ui_scene' + sceneId)
+        .attr('class', 'draggable n3-ui_scene' + sceneId)
         .attr('x', x)
         .attr('y', y)
         .attr('width', 1)
         .attr('height', 1)
         .attr('fill-opacity', 0)
         .attr('stroke', 'black')
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 1)
+        .style('cursor', 'move');
         
-    $(e.target).bind('mousemove.n3_edit', { id: id, startX: x, startY: y }, drawRect);   
-    $(e.target).bind('mouseup.n3_edit', { id: id, visId: e.target.parentNode.id, type: SHAPES.RECTANGLE }, endDrawing); 
-    
-    blockEvents(e);
+    $(e.target).bind('mousemove.n3_draw', { id: id, startX: x, startY: y }, drawRect);   
+    $(e.target).bind('mouseup.n3_draw', { id: id, visId: e.target.parentNode.id, type: SHAPES.RECTANGLE }, endDrawOrDrag); 
 }
 
 function drawRect(e) {
@@ -816,8 +877,6 @@ function drawRect(e) {
     
     s.attr('width', Math.abs(mouseX - startX))
      .attr('height', Math.abs(mouseY - startY));
-     
-    blockEvents(e);
 }
 
 function startLabel(e) {
@@ -826,19 +885,20 @@ function startLabel(e) {
     var x = getMouseX(e);
     var y = getMouseY(e);
 
-    d3.select('body')
+    d3.select('#n3-ui_stage')
         .append('p')
         .html('Label text')
         .attr('id', id)
-        .attr('class', 'editable n3-ui_scene' + sceneId)
+        .attr('class', 'draggable editable n3-ui_scene' + sceneId)
         .attr('contenteditable', 'true')
+        .style('cursor', 'move')
         .style('position', 'absolute')
         .style('left', e.pageX + 'px')
         .style('top', e.pageY + 'px')
         .style('margin', '0');
 
     // Labels shouldn't work like normal shapes. You don't add them repetitively because you edit. 
-    endDrawing({ data: { id: id, visId: e.target.parentNode.id, type: SHAPES.LABEL }});
+    endDrawOrDrag({ data: { id: id, visId: e.target.parentNode.id, type: SHAPES.LABEL }});
     toggleShape($('#n3-ui_palette a.text')[0], SHAPES.LABEL);
     $('svg').unbind('click.n3_edit');
     

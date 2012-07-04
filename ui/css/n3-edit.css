@@ -27,6 +27,8 @@ body {
     stroke-width: 3;
 }
 
+p.hover { outline: 2px solid firebrick; }
+
 #n3-ui_stage .infobar {
     clear: both;
     display: block;

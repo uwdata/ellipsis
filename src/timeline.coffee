@@ -30,7 +30,6 @@ class N3Timeline
                         prevScene.parent.sceneId == currentScene.parent.sceneId
                         
                 members = []
-                        
                 members.push m for m in prevScene.members
                 if prevScene.parent?
                     for subSceneId, subScene of prevScene.parent.subScenes
