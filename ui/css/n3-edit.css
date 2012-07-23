@@ -37,7 +37,11 @@ p.hover { outline: 2px solid firebrick; }
     padding: 5px 10px;
 }
 
-#n3-ui_stage .infobar p { margin: 5px 0; }
+#n3-ui_stage .infobar p { 
+    float: left;
+    margin: 5px 20px 5px 0; 
+    background: #333;
+}
 
 #n3-ui_bottom_panel {
     position: fixed;

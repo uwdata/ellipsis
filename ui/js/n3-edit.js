@@ -74,7 +74,7 @@ function saveVis() {
         }
         
         $('#n3-ui_stage')           // Need to replace this for other selector types
-            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage"><div class="infobar"><p>Visualization: ' + visId + '</p></div>' + 
+            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage"><div class="infobar"><p>Visualization: ' + visId + '</p><br clear="all" /></div>' + 
                         '<svg id="' + vis.stageSelector.replace('#', '') + '" width="' + vis.width() + 
                             '" height="' + vis.height() + '"></svg></div>');
         
@@ -89,6 +89,8 @@ function saveVis() {
             
             stateSettings += '</select>';
         }                    
+        
+        stateSettings += '<p id="n3-vis_' + visId + '-saveState" style="display: none;"><input type="button" value="Save" onclick="saveState(\'' + visId + '\')" /></p><br clear="all" />';
         stateSettings += '</div>';
         $('#n3-vis_' + visId)
             .append(stateSettings)
@@ -200,16 +202,24 @@ function endScene() {
 
 function setState(visId, stateId, value) {
     n3.vis(visId).state(stateId, value);
+    $('#' + visId).show();
+    $('#n3-vis_' + visId + '-saveState').effect("highlight", {}, 2000);
+}
+
+function saveState(visId) {
+    for(var stateId in n3.vis(visId).states) {
+        var m = {
+            visId: visId,
+            state: {
+                id: stateId,
+                value: n3.vis(visId).state(stateId)
+            }
+        };
+
+        populateMember(m);      
+    }
     
-    var m = {
-        visId: visId,
-        state: {
-            id: stateId,
-            value: value
-        }
-    };
-    
-    populateMember(m)
+    $('#n3-vis_' + visId + '-saveState').hide();
 }
 
 function populateMember(m, memberIndex) {
