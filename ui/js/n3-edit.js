@@ -26,7 +26,7 @@ $(function() {
         $('#n3-ui_triggerDialog').dialog({
             modal: true,
             autoOpen: false,
-            width: 400,
+            width: 800,
             buttons: {
                 "Save": saveTriggers
             }
@@ -98,20 +98,20 @@ function saveVis() {
         $('#n3-vis_' + visId + ' .infobar:last').hide();
         
         // Populate state settings into triggers dialog
-        var tmpl = $('#triggerTemplate');
+        var tmpl = $('#n3-ui_triggerTemplate');
         for(var stateId in vis.states) {
             var className = visId + '_' + stateId;
             var s = vis.states[stateId];
             
-            tmpl.find('p.state:first')
+            tmpl.find('span.state:first')
                     .find('select.where:first')
                         .append('<option value="' + className + '">' + visId + ': ' + stateId + '</option>');
                         
-            tmpl.find('p.state:first')
+            tmpl.find('span.state:first')
                     .append('<select class="value ' + className + '" style="display:none;"><option value="">Select value...</option></select>');
          
             for(var i in s.validValues)
-                tmpl.find('p.state:first')
+                tmpl.find('span.state:first')
                         .find('select.value.' + className)
                             .append('<option>' + s.validValues[i] + '</option>');
         }
@@ -139,31 +139,31 @@ function editScene(editSceneId) {
 
         $('#n3-ui_scene' + sceneId)
             .addClass('ui-widget ui-widget-content ui-helper-clearfix ui-corner-all')
-        	.find('.scene-header')
-        		.addClass('ui-widget-header ui-corner-all')
-        		.prepend('<span class="ui-icon ui-icon-toggle ui-icon-minusthick"></span><span class="ui-icon ui-icon-edit"></span>')
-        		.end()
-        	.find('.scene-content');
+            .find('.scene-header')
+                .addClass('ui-widget-header ui-corner-all')
+                .prepend('<span class="ui-icon ui-icon-toggle ui-icon-minusthick"></span><span class="ui-icon ui-icon-edit"></span>')
+                .end()
+            .find('.scene-content');
 
         $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon-toggle').click(function() {
             $(this).toggleClass('ui-icon-minusthick').toggleClass('ui-icon-plusthick');
-        	$(this).parents('.scene:first').find('.scene-content').toggle();
+            $(this).parents('.scene:first').find('.scene-content').toggle();
 
-        	var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
-        	if($(this).hasClass('ui-icon-minusthick'))
-        	    $('.n3-ui_scene' + mySceneId).show();
-        	else
-        	    $('.n3-ui_scene' + mySceneId).hide();
-    	});
-    	
-    	$('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon-edit').click(function() { 
-    	    var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
-    	    return editScene(mySceneId); 
-    	});
+            var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
+            if($(this).hasClass('ui-icon-minusthick'))
+                $('.n3-ui_scene' + mySceneId).show();
+            else
+                $('.n3-ui_scene' + mySceneId).hide();
+        });
+        
+        $('#n3-ui_scene' + sceneId).find('.scene-header .ui-icon-edit').click(function() { 
+            var mySceneId = $(this).parents('.scene:first').attr('id').replace('n3-ui_scene', '');
+            return editScene(mySceneId); 
+        });
 
-    	$('#n3-ui_scene' + sceneId + ' .members').sortable({
-    	    stop: reorderMembers
-    	});      
+        $('#n3-ui_scene' + sceneId + ' .members').sortable({
+            stop: reorderMembers
+        });      
     } else {        
         sceneId = editSceneId;
         
@@ -179,8 +179,8 @@ function editScene(editSceneId) {
     $('#n3-ui_startScene').hide();
     $('#n3-ui_endScene').show();
     $('#n3-ui_palette').show();
-	
-	$('body').css('backgroundColor', '#ddd');
+    
+    $('body').css('backgroundColor', '#ddd');
 }
 
 function endScene() {
@@ -321,106 +321,89 @@ function reorderMembers(event, ui) {
 }
 
 function editTriggers(memberIndex) {
+    var member  = scenes[sceneId].members[memberIndex]; 
+    var trigger = member.trigger;
+    
     $('#n3-ui_triggerDialog').dialog('option', 'memberIndex', memberIndex);
     $('#n3-ui_triggerDialog').dialog('open');
+    $('#n3-ui_triggerTemplate').nextAll('p.trigger').remove();
     
-    $('#triggerTemplate').nextAll('*').remove();
-    $('#triggerTemplate').parent().append('<li>' + $('#triggerTemplate').html() + '</li>');
     
-    var trigger = scenes[sceneId].members[memberIndex].trigger;
-    
-    if(trigger != null)
-        recursivePopulateTriggers(trigger, $('#triggerTemplate').next('li'));
-        
-}
-
-function recursivePopulateTriggers(trigger, li) {
-    if(typeof trigger != "object")
-        return;
-
-    li.html($('#triggerTemplate').html());
-    
-    li.find('p:first select.trigger_type').val(trigger.type);
-    
-    if(trigger.type == 'or' || trigger.type == 'and') {
-        for(var i in trigger.triggers) {
-            var subTrigger = trigger.triggers[i];
-            
-            li.append('<ul><li>' + $('#triggerTemplate').html() + '</li></ul>');
-            
-            recursivePopulateTriggers(subTrigger, li.find('ul:eq(' + i + ') li'));
-        }
+    if(!trigger) {
+        $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
     } else {
-        var typeOpts = li.find('p.' + trigger.type + ':first');
-        typeOpts.find('.where').val(trigger.where);
-        typeOpts.find('.condition').val(trigger.condition);
-        typeOpts.find('.value' + (trigger.type == 'state' ? '.' + trigger.where : '')).val(trigger.value);
-        typeOpts.find('.value').hide();
-        typeOpts.find('.value' + (trigger.type == 'state' ? '.' + trigger.where : '')).show();
-        typeOpts.show();
+        $('#n3-ui_triggerParent').val(trigger.type);
+        
+        for(var i in trigger.triggers) {
+            var t = trigger.triggers[i];
+            
+            $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
+            var p = $('#n3-ui_triggerTemplate').nextAll('p:eq(' + i + ')');
+            
+            p.find('select.trigger_type').val(t.type);
+            var typeOpts = p.find('span.' + t.type + ':first');
+            typeOpts.find('.where').val(t.where);
+            typeOpts.find('.condition').val(t.condition);
+            typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val(t.value);
+            typeOpts.find('.value').hide();
+            typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).show();
+            typeOpts.show();
+            
+        }
     }
+    
+    var then = (member.annotation) ? 
+                'then show annotation ' + SHAPE_LABELS[member.annotation.type] : 
+                'then set state ' + member.state.id + ' to ' + member.state.value;
+        
+    $('#n3-ui_triggerThen').html(then + '.');
 }
 
 function chooseTrigger(trigger) {
     var type = $(trigger).val();
-    $(trigger).parent().nextAll('p').hide();
-    $(trigger).parent().find('a.add_sub_trigger').hide();
-    
-    if(type != 'or' && type != 'and') {
-        $(trigger).parent().parent().children('ul').remove();
-        
-        if(type != '')
-            $(trigger).parent().nextAll('p.' + type).show();    
-    }   
-    
-    if(type == 'or' || type == 'and')    
-        addSubTrigger(trigger);
+    $(trigger).parent().parent().find('span.trigger_type').hide();
+    $(trigger).parent().parent().find('span.' + type).show();
 }
 
-function addSubTrigger(trigger) {
-    $(trigger).parent().find('a.add_sub_trigger').show();
-    $(trigger).parent().parent().append('<ul><li>' + $('#triggerTemplate').html() + '</li></ul>');
+function addSubTrigger() {
+    $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
 }
 
 function saveTriggers() {
     var memberIndex = $('#n3-ui_triggerDialog').dialog('option', 'memberIndex');
-    var memberDomId = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';
+    var triggerIcon = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';
     
-    var triggers = recursiveSaveTriggers($('#triggerTemplate').next('li'));
+    var triggers = [];
+    $('#n3-ui_triggerTemplate').nextAll('p.trigger').each(function(i, p) {
+        var t = {};
+        
+        p = $(p);
+        t.type  = p.find('select.trigger_type').val();
+
+        if(t.type != '') {
+            var typeOpts = p.find('span.' + t.type + ':first');
+            t.where     = typeOpts.find('.where').val();
+            t.condition = typeOpts.find('.condition').val();
+            t.value     = typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val();
+        
+            triggers.push(t);
+            
+        }       
+    })
     
-    scenes[sceneId].members[memberIndex].trigger = triggers;
+    scenes[sceneId].members[memberIndex].trigger = {
+        type:       $('#n3-ui_triggerParent').val(),
+        triggers:   triggers
+    };
     
     if(triggers == null)
-        $(memberDomId).addClass('ui-icon-trigger-empty');
+        $(triggerIcon).addClass('ui-icon-trigger-empty');
     else
-        $(memberDomId).removeClass('ui-icon-trigger-empty');
+        $(triggerIcon).removeClass('ui-icon-trigger-empty');
         
     $('#n3-ui_triggerDialog').dialog('close');
 }
 
-function recursiveSaveTriggers(li) {
-    var t = {};
-    t.type  = li.find('p:first select.trigger_type').val();
-
-    if(t.type == '')
-        return null;
-        
-    if(t.type == 'and' || t.type == 'or') {
-        t.triggers = [];
-        li.children('ul').each(function(i, ul) {
-            $(ul).children('li').each(function(i, subLi) {
-                t.triggers.push(recursiveSaveTriggers($(subLi)));
-            });
-        });
-    }
-    
-    var typeOpts = li.find('p.' + t.type + ':first');
-    t.where     = typeOpts.find('.where').val();
-    t.condition = typeOpts.find('.condition').val();
-    t.value     = typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val();
-    
-    return t;
-}
 
 function showStyles(shapeId, shapeType) {
     var s = d3.select('#' + shapeId);
@@ -440,7 +423,7 @@ function showStyles(shapeId, shapeType) {
     $('#fill_color').parent().parent().attr('shapeId', shapeId);
     
     $('#fill_color').ColorPicker({
-    	color: '#000000',
+        color: '#000000',
         onBeforeShow: function () {
             $('#fill_color').ColorPickerSetColor($('#fill_color').css('backgroundColor'));
         },
@@ -448,10 +431,10 @@ function showStyles(shapeId, shapeType) {
         //  $(colpkr).fadeOut(500);
         //  return false;
         // },
-    	onChange: function (hsb, hex, rgb) {
-    	    d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('fill', '#' + hex);
-    		$('#fill_color').css('backgroundColor', '#' + hex);
-    	}
+        onChange: function (hsb, hex, rgb) {
+            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('fill', '#' + hex);
+            $('#fill_color').css('backgroundColor', '#' + hex);
+        }
     });
     
     $('#fill_color').css('backgroundColor', (s.attr('fill') || '#000000'));
@@ -469,7 +452,7 @@ function showStyles(shapeId, shapeType) {
     $('#stroke_color').css('backgroundColor', (s.attr('stroke') || '#000000'));
     
     $('#stroke_color').ColorPicker({
-    	color: '#000000',
+        color: '#000000',
         onBeforeShow: function () {
             $('#stroke_color').ColorPickerSetColor($('#stroke_color').css('backgroundColor'));
         },
@@ -477,10 +460,10 @@ function showStyles(shapeId, shapeType) {
         //  $(colpkr).fadeOut(500);
         //  return false;
         // },
-    	onChange: function (hsb, hex, rgb) {
-    	    d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('stroke', '#' + hex);
-    		$('#stroke_color').css('backgroundColor', '#' + hex);
-    	}
+        onChange: function (hsb, hex, rgb) {
+            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('stroke', '#' + hex);
+            $('#stroke_color').css('backgroundColor', '#' + hex);
+        }
     });
     
     $('#n3-ui_stylesDialog').dialog('open')
@@ -557,6 +540,8 @@ function exportStory() {
     $('#n3-ui_exportDialog').dialog('open');
 }
 
+// We don't really need something this complex now that we've simplified the trigger UI
+// but keep it around just in case!
 function recursiveExportTrigger(trigger) {
     var indent = "                    ";
     var story = indent;

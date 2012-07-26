@@ -195,6 +195,7 @@ p.hover { outline: 2px solid firebrick; }
 #n3-ui_triggerDialog .add_sub_trigger {
     text-indent: -999em;
     display: inline-block;
+	margin-left: 20px;
     width: 16px;
     height: 16px;
     background: url(../imgs/add.png) no-repeat;

@@ -9,6 +9,7 @@
     <script type="text/javascript" src="js/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery.json-2.3.min.js"></script>
     <script type="text/javascript" src="js/colorpicker.js"></script>
+    <script type="text/javascript" src="js/jquery.getPath.js"></script>
     <script type="text/javascript" src="js/d3.min.js"></script>
     <script type="text/javascript" src="js/n3.js"></script>
     <script type="text/javascript" src="js/n3-edit.js"></script>
@@ -1723,62 +1724,69 @@
     </div>
     
     <div id="n3-ui_triggerDialog" title="Triggers">
-        <ul>
-            <li id="triggerTemplate" style="display: none;">
-                <p>Trigger type: 
+        <p class="header">If <select id="n3-ui_triggerParent"><option value="or">any</option><option value="and">all</option></select> of the following conditions are met:</p>
+        
+        <p id="n3-ui_triggerTemplate" style="display: none;">
+            <span id="trigger_type">
                 <select class="trigger_type" onchange="chooseTrigger(this);">
                     <option value="">Select...</option>
                     <option value="state">State</option>
-                    <!-- <option value="dom">Page Element</option> -->
-                    <option value="timeline">Timeline</option>
-                    <option value="delay">After previous delay</option>
-                    <option value="or">Or</option>
-                    <option value="and">And</option>
+                    <option value="timeline">Time elapsed from start of scene</option>
+                    <option value="delay">Time elapsed since previous</option>
+                    <!-- <option value="dom_click">On Click</option>
+                    <option value="dom_dblclick">On Double Click</option>
+                    <option value="dom_mousedown">On Mouse Down</option>
+                    <option value="dom_mouseup">On Mouse Up</option>
+                    <option value="dom_mouseover">On Hover</option>
+                    <option value="dom_mousemove">On Mouse Move</option> -->
+                </select>
+            </span>
+            
+            <span class="state trigger_type" style="display: none;">
+                <select class="where" onchange="$(this).nextAll('select.value').hide(); if($(this).val() != '') $(this).nextAll('select.value.' + $(this).val() + ':first').show();">
+                    <option value="">Select state...</option>
                 </select>
                 
-                <a href="#" onclick="addSubTrigger(this);" class="add_sub_trigger" style="display: none;">Add</a>
-                </p>
+                <select class="condition">
+                    <option value="is">is</option>
+                    <option value="not">not</option>
+                    <option value="gt">&gt;</option>
+                    <option value="gte">&gt;=</option>
+                    <option value="lt">&lt;</option>
+                    <option value="lte">&lt;=</option>
+                </select>
                 
-                <p class="state" style="display: none;">
-                    <select class="where" onchange="$(this).nextAll('select.value').hide(); if($(this).val() != '') $(this).nextAll('select.value.' + $(this).val() + ':first').show();">
-                        <option value="">Select state...</option>
-                    </select>
-                    
-                    <select class="condition">
-                        <option value="is">is</option>
-                        <option value="not">not</option>
-                        <option value="gt">&gt;</option>
-                        <option value="gte">&gt;=</option>
-                        <option value="lt">&lt;</option>
-                        <option value="lte">&lt;=</option>
-                    </select>
-                    
-                    <select class="value">
-                        <option value="">Select value...</option>
-                    </select>
-                </p>
+                <select class="value">
+                    <option value="">Select value...</option>
+                </select>
+            </span>
+            
+            <span class="dom trigger_type" style="display: none;">
+                <input type="button" class="on" value="Select element" />
+            </span>
+            
+            <span class="timeline trigger_type" style="display: none;">
+                <input type="hidden" class="where" value="elapsed" />
+                <select class="condition">
+                    <option value="is">=</option>
+                    <option value="gt">&gt;</option>
+                    <option value="gte">&gt;=</option>
+                    <option value="lt">&lt;</option>
+                    <option value="lte">&lt;=</option>
+                </select>
                 
-                <p class="dom" style="display: none;"><input type="button" class="on" value="Select element" /></p>
-                
-                <p class="timeline" style="display: none;">Elapsed time
-                    <input type="hidden" class="where" value="elapsed" />
-                    <select class="condition">
-                        <option value="is">is</option>
-                        <option value="not">not</option>
-                        <option value="gt">&gt;</option>
-                        <option value="gte">&gt;=</option>
-                        <option value="lt">&lt;</option>
-                        <option value="lte">&lt;=</option>
-                    </select>
-                    
-                    <input type="text" class="value" value="" size="2" />ms
-                </p>
-                
-                <p class="delay" style="display: none;"><input type="hidden" class="where" value="delay" /><input type="text" class="value" value="" size="2" />ms</p>
-            </li>
-    	<!-- <p>Please enter triggers for this member using n3 syntax.</p>
-    	       <p><textarea name="triggers" id="triggers"></textarea></p>
-    	       <p><input type="button" name="n3-ui_visSave" value="Save" id="n3-ui_visSave" onclick="saveTriggers();" /></p> -->
+                <input type="text" class="value" value="" size="2" /> seconds
+            </span>
+            
+            <span class="delay trigger_type" style="display: none;">
+                <input type="hidden" class="where" value="delay" />
+                <input type="text" class="value" value="" size="2" /> seconds
+            </span>
+			
+			<a href="#" onclick="addSubTrigger();" class="add_sub_trigger">Add</a>
+        </p>
+		
+        <p id="n3-ui_triggerThen">&nbsp;</p>
     </div>
     
     <div id="n3-ui_stylesDialog" title="Styles">
