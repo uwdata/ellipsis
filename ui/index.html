@@ -1733,12 +1733,12 @@
                     <option value="state">State</option>
                     <option value="timeline">Time elapsed from start of scene</option>
                     <option value="delay">Time elapsed since previous</option>
-                    <!-- <option value="dom_click">On Click</option>
+                    <option value="dom_click">On Click</option>
                     <option value="dom_dblclick">On Double Click</option>
                     <option value="dom_mousedown">On Mouse Down</option>
                     <option value="dom_mouseup">On Mouse Up</option>
                     <option value="dom_mouseover">On Hover</option>
-                    <option value="dom_mousemove">On Mouse Move</option> -->
+                    <option value="dom_mousemove">On Mouse Move</option>
                 </select>
             </span>
             
@@ -1761,8 +1761,10 @@
                 </select>
             </span>
             
-            <span class="dom trigger_type" style="display: none;">
-                <input type="button" class="on" value="Select element" />
+            <span class="dom_click dom_dblclick dom_mousedown dom_mouseup dom_mouseover dom_mousemove trigger_type" style="display: none;">
+                <input type="button" class="on" value="Select element" onclick="startDomTrigger(this);" />
+				
+				<input type="text" class="value" name="dom_selector" readonly="1" value="" />
             </span>
             
             <span class="timeline trigger_type" style="display: none;">

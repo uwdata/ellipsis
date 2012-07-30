@@ -328,7 +328,6 @@ function editTriggers(memberIndex) {
     $('#n3-ui_triggerDialog').dialog('open');
     $('#n3-ui_triggerTemplate').nextAll('p.trigger').remove();
     
-    
     if(!trigger) {
         $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
     } else {
@@ -404,6 +403,21 @@ function saveTriggers() {
     $('#n3-ui_triggerDialog').dialog('close');
 }
 
+function startDomTrigger(button) {
+    $('#n3-ui_stage *').bind('mouseenter.dom_trigger', function(e) { $(e.target).addClass('hover') }); 
+    $('#n3-ui_stage *').bind('mouseleave.dom_trigger', function(e) { $(e.target).removeClass('hover') });
+									
+	$('#n3-ui_stage').bind('click.dom_trigger', function(e) {
+		$(button).next('input[name=dom_selector]').val($(e.target).getPath());
+		
+		$('#n3-ui_stage *').unbind('mouseenter.dom_trigger mouseleave.dom_trigger');
+		$('#n3-ui_stage').unbind('click.dom_trigger');
+		
+		$('#n3-ui_triggerDialog').dialog('open');
+	});
+	
+	$('#n3-ui_triggerDialog').dialog('close');	
+}
 
 function showStyles(shapeId, shapeType) {
     var s = d3.select('#' + shapeId);
@@ -575,6 +589,15 @@ function recursiveExportTrigger(trigger) {
                      indent + ".where('elapsed')\n" +
                      indent + "." + trigger.condition + "(" + trigger.value + ")";
         break;
+		
+		case 'dom_click':
+		case 'dom_dblclick':
+		case 'dom_mousedown':
+		case 'dom_mouseup':
+		case 'dom_mouseover':
+		case 'dom_mousemove':
+			story += "n3.trigger('" + trigger.value + "').on('" + trigger.type.split(/dom_/)[1] + "')";
+		break;
     }
     
     return story;
