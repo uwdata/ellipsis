@@ -554,8 +554,8 @@
     N3Trigger.registered = {};
 
     N3Trigger.register = function(trigger) {
-      var t, _base, _base2, _base3, _base4, _i, _len, _name, _name2, _name3, _name4, _ref,
-        _this = this;
+      var success, t, _base, _base2, _base3, _base4, _i, _len, _name, _name2, _name3, _name4, _ref;
+      success = true;
       (_base = this.registered)[_name = trigger.type] || (_base[_name] = {});
       (_base2 = this.registered[trigger.type])[_name2 = trigger.test] || (_base2[_name2] = {});
       this.registered[trigger.type][trigger.test][trigger.triggerId] = trigger;
@@ -564,18 +564,15 @@
           _ref = trigger.triggers;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             t = _ref[_i];
-            (_base3 = this.registered)[_name3 = trigger.type] || (_base3[_name3] = {});
+            (_base3 = this.registered)[_name3 = t.type] || (_base3[_name3] = {});
             (_base4 = this.registered[t.type])[_name4 = t.test] || (_base4[_name4] = {});
             this.registered[t.type][t.test][t.triggerId] = trigger;
+            if (t.type === this.TYPES.DOM) success = this.bindDomTrigger(t);
           }
         }
       }
-      if (trigger.type === this.TYPES.DOM) {
-        d3.select(trigger.test).on(trigger.value, function() {
-          return n3.trigger.notify(_this.TYPES.DOM, trigger.test, trigger.value);
-        });
-      }
-      return true;
+      if (trigger.type === this.TYPES.DOM) success = this.bindDomTrigger(trigger);
+      return success;
     };
 
     N3Trigger.deregister = function(trigger) {
@@ -584,6 +581,17 @@
       trigger = (_ref2 = this.registered[type][test]) != null ? _ref2[triggerId] : void 0;
       if (type === this.TYPES.DOM) d3.select(trigger.test).on(trigger.value, null);
       if ((_ref3 = this.registered[type][test]) != null) delete _ref3[triggerId];
+      return true;
+    };
+
+    N3Trigger.bindDomTrigger = function(trigger) {
+      var elems,
+        _this = this;
+      elems = d3.select(trigger.test);
+      if (elems[0][0] == null) return false;
+      d3.select(trigger.test).on(trigger.value, function() {
+        return n3.trigger.notify(_this.TYPES.DOM, trigger.test, trigger.value);
+      });
       return true;
     };
 
@@ -884,6 +892,8 @@
 
     N3Timeline.triggers = {};
 
+    N3Timeline.deferredTriggers = {};
+
     N3Timeline.transitions = {};
 
     N3Timeline.startTime = 0;
@@ -893,7 +903,7 @@
     N3Timeline.paused = false;
 
     N3Timeline.switchScene = function(sceneId) {
-      var currParent, currentScene, evaluateMembers, i, m, members, prevScene, subScene, subSceneId, transFunc, _i, _j, _k, _l, _len, _len2, _len3, _len4, _len5, _len6, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      var currParent, currentScene, evaluateMembers, i, id, m, members, prevScene, subScene, subSceneId, t, transFunc, _i, _j, _k, _l, _len, _len2, _len3, _len4, _len5, _len6, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       this.prevSceneId = this.currSceneId;
       this.prevParentId = this.currParentId;
       prevScene = this.prevParentId != null ? N3Scene.scenes[this.prevParentId].subScenes[this.prevSceneId] : N3Scene.scenes[this.prevSceneId];
@@ -968,18 +978,32 @@
           m = _ref8[i];
           if (evaluateMembers[i]) currentScene.evalMember(i);
         }
+        _ref9 = this.deferredTriggers;
+        for (id in _ref9) {
+          t = _ref9[id];
+          this.registerTrigger(t.trigger, t.memberIndex);
+        }
       }
       return true;
     };
 
     N3Timeline.registerTrigger = function(trigger, memberIndex) {
+      var success;
       if (trigger == null) return true;
       this.triggers[trigger.triggerId] = {
         sceneId: this.currSceneId,
         parentId: this.currParentId,
         memberIndex: memberIndex
       };
-      N3Trigger.register(trigger);
+      success = N3Trigger.register(trigger);
+      if (success) {
+        delete this.deferredTriggers[trigger.triggerId];
+      } else {
+        this.deferredTriggers[trigger.triggerId] = {
+          trigger: trigger,
+          memberIndex: memberIndex
+        };
+      }
       return true;
     };
 
@@ -988,12 +1012,13 @@
         return true;
       }
       delete this.triggers[trigger.triggerId];
+      delete this.deferredTriggers[trigger.triggerId];
       N3Trigger.deregister(trigger);
       return true;
     };
 
     N3Timeline.notifyTrigger = function(trigger, eval) {
-      var m, scene, t;
+      var id, m, scene, t, _ref;
       if (this.triggers[trigger.triggerId] != null) {
         t = this.triggers[trigger.triggerId];
         if (t['eval'] === eval) return;
@@ -1008,6 +1033,11 @@
             m.member.vis(m.visId);
             if (m != null) m.member.remove();
           }
+        }
+        _ref = this.deferredTriggers;
+        for (id in _ref) {
+          t = _ref[id];
+          this.registerTrigger(t.trigger, t.memberIndex);
         }
         if (trigger.type === N3Trigger.TYPES.TIMELINE) {
           this.deregisterTrigger(trigger);

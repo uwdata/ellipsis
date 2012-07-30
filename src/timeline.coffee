@@ -1,5 +1,6 @@
 class N3Timeline
     @triggers = {}
+    @deferredTriggers = {}
     @transitions = {}  
     @startTime = 0
     @elapsedTime = 0  
@@ -103,6 +104,11 @@ class N3Timeline
                 
             for m, i in currentScene.members
                 currentScene.evalMember(i) if evaluateMembers[i]
+                
+            # Now that all members have been added, see if we can register
+            # some of our defered triggers.
+            for id, t of @deferredTriggers
+                @registerTrigger(t.trigger, t.memberIndex)
                                     
         true
         
@@ -114,7 +120,13 @@ class N3Timeline
             parentId: @currParentId
             memberIndex: memberIndex
             
-        N3Trigger.register(trigger)
+        success = N3Trigger.register(trigger)
+        if success
+            delete @deferredTriggers[trigger.triggerId]
+        else
+            @deferredTriggers[trigger.triggerId] = 
+                trigger: trigger
+                memberIndex: memberIndex
         
         true
         
@@ -122,6 +134,7 @@ class N3Timeline
         return true unless @triggers[trigger?.triggerId]?
         
         delete @triggers[trigger.triggerId]
+        delete @deferredTriggers[trigger.triggerId]
         N3Trigger.deregister(trigger)
         
         true
@@ -147,6 +160,11 @@ class N3Timeline
                 if m?.member.annotId?
                     m.member.vis(m.visId) # just in case
                     m?.member.remove()
+                    
+            # See if this trigger has caused some member to be added such that
+            # we can now register some of our defered triggers.
+            for id, t of @deferredTriggers
+                @registerTrigger(t.trigger, t.memberIndex)
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
             @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE

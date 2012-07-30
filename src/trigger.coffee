@@ -22,6 +22,8 @@ class N3Trigger
     @registered = {}
     
     @register = (trigger) ->
+        success = true
+        
         @registered[trigger.type] or= {}
         @registered[trigger.type][trigger.test] or= {}
         @registered[trigger.type][trigger.test][trigger.triggerId] = trigger
@@ -31,19 +33,19 @@ class N3Trigger
         if trigger.type == @TYPES.OR or trigger.type == @TYPES.AND
             if trigger.triggers?
                 for t in trigger.triggers
-                    @registered[trigger.type] or= {}
+                    @registered[t.type] or= {}
                     @registered[t.type][t.test] or= {}
                     @registered[t.type][t.test][t.triggerId] = trigger
+                    
+                    if t.type == @TYPES.DOM
+                        success = @bindDomTrigger(t)
         
         # If we're listening for a DOM event, use d3 to add an event listener
         # to the DOM node
         if trigger.type == @TYPES.DOM
-            d3.select(trigger.test)
-                .on(trigger.value, =>
-                    return n3.trigger.notify(@TYPES.DOM, trigger.test, trigger.value)
-                )
+            success = @bindDomTrigger(trigger)
                 
-        true
+        return success
         
     @deregister = (trigger) ->
         [type, test, triggerId] = [trigger.type, trigger.test, trigger.triggerId]
@@ -57,6 +59,17 @@ class N3Trigger
         
         delete @registered[type][test]?[triggerId]
             
+        true
+        
+    @bindDomTrigger = (trigger) ->
+        elems = d3.select(trigger.test)
+        return false unless elems[0][0]?   # If elem doesn't exist, defer registration
+          
+        d3.select(trigger.test)
+            .on(trigger.value, =>
+                return n3.trigger.notify(@TYPES.DOM, trigger.test, trigger.value)
+            )
+        
         true
         
     @notify = (type, test, value) ->
