@@ -591,6 +591,15 @@ function exportStory() {
             
             story += ")\n"
         }
+        
+        // Treat scene transitions like members too but they're functions
+        // and when triggered, they cause a scene change!
+        for(var i in scenes[id].transitions) {
+            var t = scenes[id].transitions[i];
+            
+            story += ".add(function() { n3.timeline.switchScene('" + t.then + "') },\n";
+            story += recursiveExportTrigger(t);
+        }
     }  
     
     $('#export').val(story);  
