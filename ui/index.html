@@ -1792,8 +1792,9 @@
             <p class="then">
                 <span class="member" style="display:none;"></span>
                 <span class="transition" style="display:none;">then, go to scene 
-                    <select name="scene">
+                    <select name="scene" onchange="newSceneFromTrigger(this);">
                         <option value="">Select scene...</option>
+                        <option value="new">New Scene</option>
                     </select>
                 </span>
             </p>

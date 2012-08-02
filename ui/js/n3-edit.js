@@ -169,7 +169,7 @@ function editScene(editSceneId) {
         });  
         
         $('<p class="transitions"><span class="member-text">Scene Transitions</span> <a href="#" title="Edit Scene Transitions" class="ui-icon ui-icon-trigger ui-icon-trigger-empty" onclick="editTriggers(-1);"></a></p>').insertAfter('#n3-ui_scene' + sceneId + ' .members')
-        $('#n3-ui_actionsTmpl').find('.then select[name=scene]').append('<option>' + sceneId + '</option>');
+        $('#n3-ui_actionsTmpl').find('.then select[name=scene] option[value=new]').before('<option>' + sceneId + '</option>');
     } else {        
         sceneId = editSceneId;
         
@@ -364,6 +364,7 @@ function editTriggers(memberIndex) {
     
     $('#n3-ui_triggerDialog').children('div').each(function(i, div) {
         div = $(div);
+        --i;
         
         var then = memberIndex == SCENE_TRANSITION ? (triggers[i] ? triggers[i].then : '') : (member.annotation) ? 
                     'then show annotation ' + SHAPE_LABELS[member.annotation.type] : 
@@ -395,6 +396,17 @@ function addSubTrigger(type, elem) {
     }
     else
         $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertAfter($(elem).parent());
+}
+
+function newSceneFromTrigger(select) {
+    var currentScene = sceneId; 
+    
+    if($(select).val() == 'new') {
+        editScene(); 
+        $(select).children('option[value=new]').before('<option>' + sceneId + '</option>');
+        $(select).val(sceneId);
+        editScene(currentScene);
+    }
 }
 
 function saveTriggers() {
