@@ -100,7 +100,7 @@ p.hover { outline: 2px solid firebrick; }
     overflow: auto;
 }
 
-.scene { 
+#n3-ui_side_panel .scene { 
     margin-bottom: 10px; 
     background-color: #ddd;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#bbb)); 
@@ -113,7 +113,8 @@ p.hover { outline: 2px solid firebrick; }
     color:#333;
     border-radius: 0px !important;
 }
-.scene-header { 
+
+#n3-ui_side_panel .scene-header { 
     background-image: none !important;
     padding: 5px; 
     cursor: move; 
@@ -126,9 +127,9 @@ p.hover { outline: 2px solid firebrick; }
     margin: 0 auto 5px auto;
 }
 .member-header, .member-content { padding: 5px; }*/
-.members { padding-left: 0px !important; }
+#n3-ui_side_panel .members { padding-left: 0px !important; }
 
-.member {
+#n3-ui_side_panel .member {
     list-style-type: none !important;
     background: none !important;
     color: #333 !important;
@@ -138,7 +139,7 @@ p.hover { outline: 2px solid firebrick; }
     padding: 5px !important;
 }
 
-.members .hover { background: #ddd !important; }
+#n3-ui_side_panel .members .hover { background: #ddd !important; }
 
 .ui-icon-edit, .ui-icon-plusthick, .ui-icon-minusthick { 
     float: right;
@@ -168,7 +169,7 @@ p.hover { outline: 2px solid firebrick; }
 /*.state .member-text { background: url(../imgs/state.png) no-repeat 0px 10px !important; }*/
 .state .ui-icon-style { background-image: none !important; }
 
-.member-text {
+#n3-ui_side_panel .member-text {
     display: inline-block;
     float: left;
     width: 160px;
@@ -176,6 +177,13 @@ p.hover { outline: 2px solid firebrick; }
     overflow: hidden;
     padding-left: 4px;
 }
+
+#n3-ui_side_panel .transitions {
+    border-top: 1px dashed #666;
+    padding: 10px 0 0 40px;
+}
+
+#n3-ui_side_panel .transitions .member-text { margin-top: 5px; }
 
 #n3-ui_triggerDialog { overflow: auto; }
 
@@ -199,6 +207,17 @@ p.hover { outline: 2px solid firebrick; }
     width: 16px;
     height: 16px;
     background: url(../imgs/add.png) no-repeat;
+}
+
+#n3-ui_triggerDialog .action { border-bottom: 1px solid #666; }
+
+#n3-ui_newTransition { margin-top: 30px }
+#n3-ui_newTransition a {
+    margin-top: 10px;
+    padding: 5px 5px 5px 20px;
+    border: 1px solid #666;
+    background: url('../imgs/add.png') 0px 4px no-repeat #333;
+    text-decoration: none;
 }
 
 #n3-ui_stylesDialog p { margin-bottom: 20px; }

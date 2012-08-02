@@ -1724,71 +1724,82 @@
     </div>
     
     <div id="n3-ui_triggerDialog" title="Triggers">
-        <p class="header">If <select id="n3-ui_triggerParent"><option value="or">any</option><option value="and">all</option></select> of the following conditions are met:</p>
+        <div id="n3-ui_actionsTmpl" style="display: none;">
+            <p class="header">If <select class="parent"><option value="or">any</option><option value="and">all</option></select> of the following conditions are met:</p>
+
+            <p id="n3-ui_triggerTemplate" style="display: none;">
+                <span id="trigger_type">
+                    <select class="trigger_type" onchange="chooseTrigger(this);">
+                        <option value="">Select...</option>
+                        <option value="state">State</option>
+                        <option value="timeline">Time elapsed from start of scene</option>
+                        <option value="delay">Time elapsed since previous</option>
+                        <option value="dom_click">On Click</option>
+                        <option value="dom_dblclick">On Double Click</option>
+                        <option value="dom_mousedown">On Mouse Down</option>
+                        <option value="dom_mouseup">On Mouse Up</option>
+                        <option value="dom_mouseover">On Hover</option>
+                        <option value="dom_mousemove">On Mouse Move</option>
+                    </select>
+                </span>
+
+                <span class="state trigger_type" style="display: none;">
+                    <select class="where" onchange="$(this).nextAll('select.value').hide(); if($(this).val() != '') $(this).nextAll('select.value.' + $(this).val() + ':first').show();">
+                        <option value="">Select state...</option>
+                    </select>
+
+                    <select class="condition">
+                        <option value="is">is</option>
+                        <option value="not">not</option>
+                        <option value="gt">&gt;</option>
+                        <option value="gte">&gt;=</option>
+                        <option value="lt">&lt;</option>
+                        <option value="lte">&lt;=</option>
+                    </select>
+
+                    <select class="value">
+                        <option value="">Select value...</option>
+                    </select>
+                </span>
+
+                <span class="dom_click dom_dblclick dom_mousedown dom_mouseup dom_mouseover dom_mousemove trigger_type" style="display: none;">
+                    <input type="button" class="on" value="Select element" onclick="startDomTrigger(this);" />
+
+    				<input type="text" class="value" name="dom_selector" readonly="1" value="" />
+                </span>
+
+                <span class="timeline trigger_type" style="display: none;">
+                    <input type="hidden" class="where" value="elapsed" />
+                    <select class="condition">
+                        <option value="is">=</option>
+                        <option value="gt">&gt;</option>
+                        <option value="gte">&gt;=</option>
+                        <option value="lt">&lt;</option>
+                        <option value="lte">&lt;=</option>
+                    </select>
+
+                    <input type="text" class="value" value="" size="2" /> seconds
+                </span>
+
+                <span class="delay trigger_type" style="display: none;">
+                    <input type="hidden" class="where" value="delay" />
+                    <input type="text" class="value" value="" size="2" /> seconds
+                </span>
+
+    			<a href="#" onclick="addSubTrigger(0, this);" class="add_sub_trigger">Add</a>
+            </p>
+
+            <p class="then">
+                <span class="member" style="display:none;"></span>
+                <span class="transition" style="display:none;">then, go to scene 
+                    <select name="scene">
+                        <option value="">Select scene...</option>
+                    </select>
+                </span>
+            </p>
+        </div>
         
-        <p id="n3-ui_triggerTemplate" style="display: none;">
-            <span id="trigger_type">
-                <select class="trigger_type" onchange="chooseTrigger(this);">
-                    <option value="">Select...</option>
-                    <option value="state">State</option>
-                    <option value="timeline">Time elapsed from start of scene</option>
-                    <option value="delay">Time elapsed since previous</option>
-                    <option value="dom_click">On Click</option>
-                    <option value="dom_dblclick">On Double Click</option>
-                    <option value="dom_mousedown">On Mouse Down</option>
-                    <option value="dom_mouseup">On Mouse Up</option>
-                    <option value="dom_mouseover">On Hover</option>
-                    <option value="dom_mousemove">On Mouse Move</option>
-                </select>
-            </span>
-            
-            <span class="state trigger_type" style="display: none;">
-                <select class="where" onchange="$(this).nextAll('select.value').hide(); if($(this).val() != '') $(this).nextAll('select.value.' + $(this).val() + ':first').show();">
-                    <option value="">Select state...</option>
-                </select>
-                
-                <select class="condition">
-                    <option value="is">is</option>
-                    <option value="not">not</option>
-                    <option value="gt">&gt;</option>
-                    <option value="gte">&gt;=</option>
-                    <option value="lt">&lt;</option>
-                    <option value="lte">&lt;=</option>
-                </select>
-                
-                <select class="value">
-                    <option value="">Select value...</option>
-                </select>
-            </span>
-            
-            <span class="dom_click dom_dblclick dom_mousedown dom_mouseup dom_mouseover dom_mousemove trigger_type" style="display: none;">
-                <input type="button" class="on" value="Select element" onclick="startDomTrigger(this);" />
-				
-				<input type="text" class="value" name="dom_selector" readonly="1" value="" />
-            </span>
-            
-            <span class="timeline trigger_type" style="display: none;">
-                <input type="hidden" class="where" value="elapsed" />
-                <select class="condition">
-                    <option value="is">=</option>
-                    <option value="gt">&gt;</option>
-                    <option value="gte">&gt;=</option>
-                    <option value="lt">&lt;</option>
-                    <option value="lte">&lt;=</option>
-                </select>
-                
-                <input type="text" class="value" value="" size="2" /> seconds
-            </span>
-            
-            <span class="delay trigger_type" style="display: none;">
-                <input type="hidden" class="where" value="delay" />
-                <input type="text" class="value" value="" size="2" /> seconds
-            </span>
-			
-			<a href="#" onclick="addSubTrigger();" class="add_sub_trigger">Add</a>
-        </p>
-		
-        <p id="n3-ui_triggerThen">&nbsp;</p>
+        <p id="n3-ui_newTransition"><a href="#" onclick="addSubTrigger(-1, this);">Add new scene transition</a></p>
     </div>
     
     <div id="n3-ui_stylesDialog" title="Styles">

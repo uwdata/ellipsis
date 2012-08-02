@@ -7,6 +7,7 @@ var SHAPES = {
     LABEL: 5
 };
 var SHAPE_LABELS = ['circle', 'ellipse', 'line', 'arrow', 'rectangle', 'label'];
+var SCENE_TRANSITION = -1;
 var visIds = [];
 var scenes = {};
 var sceneId;
@@ -27,6 +28,7 @@ $(function() {
             modal: true,
             autoOpen: false,
             width: 800,
+            // height: 400,
             buttons: {
                 "Save": saveTriggers
             }
@@ -131,7 +133,8 @@ function editScene(editSceneId) {
     if(!editSceneId) {
         sceneId = prompt("Enter a scene ID: ");
         sceneId = sceneId.replace(/[^a-zA-Z0-9]/g, '');
-        scenes[sceneId] = { id: sceneId };  
+        scenes[sceneId] = { id: sceneId, transitions: [] };  
+        scenes[sceneId].members = (scenes[sceneId].members == undefined) ? [] : scenes[sceneId].members;
         
         $('#n3-ui_side_panel')
             .append('<div class="scene" id="n3-ui_scene' + sceneId 
@@ -164,6 +167,9 @@ function editScene(editSceneId) {
         $('#n3-ui_scene' + sceneId + ' .members').sortable({
             stop: reorderMembers
         });  
+        
+        $('<p class="transitions"><span class="member-text">Scene Transitions</span> <a href="#" title="Edit Scene Transitions" class="ui-icon ui-icon-trigger ui-icon-trigger-empty" onclick="editTriggers(-1);"></a></p>').insertAfter('#n3-ui_scene' + sceneId + ' .members')
+        $('#n3-ui_actionsTmpl').find('.then select[name=scene]').append('<option>' + sceneId + '</option>');
     } else {        
         sceneId = editSceneId;
         
@@ -223,8 +229,6 @@ function saveState(visId) {
 }
 
 function populateMember(m, memberIndex) {
-    scenes[sceneId].members = (scenes[sceneId].members == undefined) ? [] : scenes[sceneId].members;
-    
     // Give each member an ID if it doesn't point it doesn't already have one
     m.memberId = (m.annotation != null) ? m.annotation.id : 'state_' + uniqueId();
     
@@ -322,40 +326,59 @@ function reorderMembers(event, ui) {
 
 function editTriggers(memberIndex) {
     var member  = scenes[sceneId].members[memberIndex]; 
-    var trigger = member.trigger;
+    var triggers = member ? [member.trigger] : scenes[sceneId].transitions;
     
     $('#n3-ui_triggerDialog').dialog('option', 'memberIndex', memberIndex);
     $('#n3-ui_triggerDialog').dialog('open');
-    $('#n3-ui_triggerTemplate').nextAll('p.trigger').remove();
+    $('#n3-ui_actionsTmpl').nextAll('div').remove();
     
-    if(!trigger) {
-        $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
+    if(!triggers[0] || triggers[0].triggers.length == 0) {
+        $('<div class="action">' + $('#n3-ui_actionsTmpl').html() + '</div>').insertBefore('#n3-ui_newTransition');
+        $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('div.action:last .then');
     } else {
-        $('#n3-ui_triggerParent').val(trigger.type);
-        
-        for(var i in trigger.triggers) {
-            var t = trigger.triggers[i];
+        for(var j in triggers) {
+            var trigger = triggers[j];
             
-            $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
-            var p = $('#n3-ui_triggerTemplate').nextAll('p:eq(' + i + ')');
+            $('<div class="action">' + $('#n3-ui_actionsTmpl').html() + '</div>').insertBefore('#n3-ui_newTransition');
+            var action = $('div.action:last');
             
-            p.find('select.trigger_type').val(t.type);
-            var typeOpts = p.find('span.' + t.type + ':first');
-            typeOpts.find('.where').val(t.where);
-            typeOpts.find('.condition').val(t.condition);
-            typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val(t.value);
-            typeOpts.find('.value').hide();
-            typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).show();
-            typeOpts.show();
-            
-        }
+            action.children('.parent').val(trigger.type);
+            for(var i in trigger.triggers) {
+                var t = trigger.triggers[i];
+
+                $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('div.action:last .then');
+                var p = action.children('p.trigger:eq(' + i + ')');
+
+                p.find('select.trigger_type').val(t.type);
+                var typeOpts = p.find('span.' + t.type + ':first');
+                typeOpts.find('.where').val(t.where);
+                typeOpts.find('.condition').val(t.condition);
+                typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val(t.value);
+                typeOpts.find('.value').hide();
+                typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).show();
+                typeOpts.show();
+
+            }    
+        }        
     }
     
-    var then = (member.annotation) ? 
-                'then show annotation ' + SHAPE_LABELS[member.annotation.type] : 
-                'then set state ' + member.state.id + ' to ' + member.state.value;
+    $('#n3-ui_triggerDialog').children('div').each(function(i, div) {
+        div = $(div);
         
-    $('#n3-ui_triggerThen').html(then + '.');
+        var then = memberIndex == SCENE_TRANSITION ? (triggers[i] ? triggers[i].then : '') : (member.annotation) ? 
+                    'then show annotation ' + SHAPE_LABELS[member.annotation.type] : 
+                    'then set state ' + member.state.id + ' to ' + member.state.value;
+
+        div.find('.then .member').html(then + '.');        
+        div.find('.then select[name=scene]').val(then);
+        
+        div.find('.then span').hide();
+        if(memberIndex == SCENE_TRANSITION) div.find('.then .transition').show();
+        else div.find('.then .member').show();
+    });
+    
+    if(memberIndex == SCENE_TRANSITION) $('#n3-ui_newTransition').show();
+    else $('#n3-ui_newTransition').hide();
 }
 
 function chooseTrigger(trigger) {
@@ -364,38 +387,58 @@ function chooseTrigger(trigger) {
     $(trigger).parent().parent().find('span.' + type).show();
 }
 
-function addSubTrigger() {
-    $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertBefore('#n3-ui_triggerThen');
+function addSubTrigger(type, elem) {
+    if(type == SCENE_TRANSITION) {
+        $('<div class="action">' + $('#n3-ui_actionsTmpl').html() + '</div>').insertBefore('#n3-ui_newTransition');
+        $('#n3-ui_triggerDialog div:last #n3-ui_triggerTemplate').attr('id', '').addClass('trigger').show();
+        $('#n3-ui_triggerDialog div:last').find('.then .transition').show();
+    }
+    else
+        $('<p class="trigger">' + $('#n3-ui_triggerTemplate').html() + '</p>').insertAfter($(elem).parent());
 }
 
 function saveTriggers() {
     var memberIndex = $('#n3-ui_triggerDialog').dialog('option', 'memberIndex');
-    var triggerIcon = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';
+    var triggerIcon;
+    var actions = [];
     
-    var triggers = [];
-    $('#n3-ui_triggerTemplate').nextAll('p.trigger').each(function(i, p) {
-        var t = {};
+    $('#n3-ui_actionsTmpl').nextAll('div.action').each(function(i, div) {
+        var triggers = [];
+        div = $(div);
         
-        p = $(p);
-        t.type  = p.find('select.trigger_type').val();
+        div.children('p.trigger').each(function(i, p) {
+            var t = {};
 
-        if(t.type != '') {
-            var typeOpts = p.find('span.' + t.type + ':first');
-            t.where     = typeOpts.find('.where').val();
-            t.condition = typeOpts.find('.condition').val();
-            t.value     = typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val();
+            p = $(p);
+            t.type  = p.find('select.trigger_type').val();
+
+            if(t.type != '') {
+                var typeOpts = p.find('span.' + t.type + ':first');
+                t.where     = typeOpts.find('.where').val();
+                t.condition = typeOpts.find('.condition').val();
+                t.value     = typeOpts.find('.value' + (t.type == 'state' ? '.' + t.where : '')).val();
+
+                triggers.push(t);
+
+            }       
+        });
         
-            triggers.push(t);
-            
-        }       
+        actions.push({ 
+            type: div.find('.parent').val(), 
+            triggers: triggers,
+            then: ((memberIndex == SCENE_TRANSITION) ? div.find('.then select[name=scene]').val() : undefined)
+        });
     })
     
-    scenes[sceneId].members[memberIndex].trigger = {
-        type:       $('#n3-ui_triggerParent').val(),
-        triggers:   triggers
-    };
+    if(memberIndex == SCENE_TRANSITION) {
+        scenes[sceneId].transitions = actions;
+        triggerIcon = '#n3-ui_scene' + sceneId + ' .transitions .ui-icon-trigger';   
+    } else {
+        scenes[sceneId].members[memberIndex].trigger = actions[0];     
+        triggerIcon = '#n3-ui_' + scenes[sceneId].members[memberIndex].memberId + ' .ui-icon-trigger';   
+    }
     
-    if(triggers == null)
+    if(actions[0].triggers.length == 0)
         $(triggerIcon).addClass('ui-icon-trigger-empty');
     else
         $(triggerIcon).removeClass('ui-icon-trigger-empty');
@@ -924,5 +967,5 @@ function startLabel(e) {
 }
 
 function uniqueId() {
-    return sceneId.substring(0, 5) + '_' + scenes[sceneId].members.length;
+    return sceneId.substring(0, 5) + '_' + (scenes[sceneId].members.length + 1);
 }
