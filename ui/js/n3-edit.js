@@ -163,7 +163,7 @@ function editScene(editSceneId) {
 
         $('#n3-ui_scene' + sceneId + ' .members').sortable({
             stop: reorderMembers
-        });      
+        });  
     } else {        
         sceneId = editSceneId;
         
@@ -226,7 +226,7 @@ function populateMember(m, memberIndex) {
     scenes[sceneId].members = (scenes[sceneId].members == undefined) ? [] : scenes[sceneId].members;
     
     // Give each member an ID if it doesn't point it doesn't already have one
-    m.memberId = (m.annotation != null) ? m.annotation.id : 'state_' + Date.now();
+    m.memberId = (m.annotation != null) ? m.annotation.id : 'state_' + uniqueId();
     
     if(arguments.length == 1) 
         memberIndex = scenes[sceneId].members.length;
@@ -241,7 +241,7 @@ function populateMember(m, memberIndex) {
                             m.state.id + '<br />&rarr; &nbsp;' + m.state.value + '</span>';
     else
         content = '<li id="n3-ui_' + m.memberId + '"  class="ui-state-default member annotation"><span class="ui-icon ui-icon-draggable"></span><span class="member-text">' + 
-                            'annotation<br />&rarr; &nbsp;' + SHAPE_LABELS[m.annotation.type] + '</span>';
+                            'annotation<br />&rarr; &nbsp;#' + m.memberId + '</span>';
     
     content += '<a href="#" title="' + ((m.trigger == null) ? 'Add Triggers' : 'Edit Triggers') + '" class="ui-icon ui-icon-trigger" onclick="editTriggers(' + memberIndex + ');"></a>' + 
                '<a href="#" title="Edit Styles" class="ui-icon ui-icon-style"' + ((!isState) ? ' onclick="showStyles(\'' + m.annotation.id + '\', \'' + m.annotation.type + '\')"' : '') + '></a>' +
@@ -781,7 +781,7 @@ function dragAnnotation(e) {
 }
 
 function startCircle(e) {
-    var id = 'circle_' + Date.now();
+    var id = 'circle_' + uniqueId();
     
     d3.select(e.target)
         .append('svg:circle')
@@ -805,7 +805,7 @@ function drawCircle(e) {
 }
 
 function startEllipse(e) {
-    var id = 'ellipse_' + Date.now();
+    var id = 'ellipse_' + uniqueId();
 
     d3.select(e.target)
         .append('svg:ellipse')
@@ -831,7 +831,7 @@ function drawEllipse(e) {
 }
 
 function startLine(e) {
-    var id = 'line_' + Date.now();
+    var id = 'line_' + uniqueId();
 
     d3.select(e.target)
         .append('svg:line')
@@ -856,7 +856,7 @@ function drawLine(e) {
 }
 
 function startRect(e) {
-    var id = 'rect_' + Date.now();
+    var id = 'rect_' + uniqueId();
     
     var x = getMouseX(e);
     var y = getMouseY(e);
@@ -898,7 +898,7 @@ function drawRect(e) {
 }
 
 function startLabel(e) {
-    var id = 'label_' + Date.now();
+    var id = 'label_' + uniqueId();
     
     var x = getMouseX(e);
     var y = getMouseY(e);
@@ -921,4 +921,8 @@ function startLabel(e) {
     $('svg').unbind('click.n3_edit');
     
     $('#' + id).focus(function() { $(this).select(); });
+}
+
+function uniqueId() {
+    return sceneId.substring(0, 5) + '_' + scenes[sceneId].members.length;
 }
