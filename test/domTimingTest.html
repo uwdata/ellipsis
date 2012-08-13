@@ -122,24 +122,24 @@ n3.scene('scene_2')
     .add(vis, n3.annotation('circle')
                     .radius(10)
                     .center([625, 30])
-                    .style('fill', 'firebrick'))
+                    .style('fill', 'firebrick'), n3.trigger.afterPrev(1000))
                     
     .add(vis, n3.annotation('line')
                     .start([600, 30])
                     .end([150, 150])
                     .style('stroke-width', 2)
-                    .style('stroke', 'firebrick'))
+                    .style('stroke', 'firebrick'), n3.trigger.afterPrev(500))
                     
     .add(vis, n3.annotation('label')
                     .attr('id', 'circleLabel')
                     .html('<p align="center">Whoa, that circle is<br /> up high!</p>')
-                    .pos([75, 150]))   
+                    .pos([75, 150]), n3.trigger.afterPrev(500))   
                                    
     .set(vis, 'numberRange', 'nineteen', n3.trigger('#knight').on('click'))  
     
     .add(vis, function() {
         d3.selectAll('rect').transition().duration(500).style('fill', 'forestgreen')
-    }, n3.trigger.afterPrev(2000)) 
+    }, n3.trigger.or(n3.trigger.afterPrev(5000))) 
     
 n3.scene('scene_3')
     .set(vis, 'numberRange', 'seventeen', n3.trigger(n3.timeline)

@@ -163,18 +163,18 @@ class N3Trigger
         N3Timeline.notifyTrigger(this, true)        
         return true
         
-    evaluate: (notifiedTest, notifiedVal) ->
+    evaluate: (notifiedTest, notifiedVal, parent) ->
         if @type == N3Trigger.TYPES.DOM
             return true
         else if @type == N3Trigger.TYPES.OR
             for trigger in @triggers
-                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal) else false
+                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal, this) else false
                 return true if result == true   # If at least one is true, then return
                             # If we've made it through all triggers without
             return false    # returning, then none of them were true
         else if @type == N3Trigger.TYPES.AND
             for trigger in @triggers
-                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal) else false
+                result = if (trigger.test + "") == (notifiedTest + "") then trigger.evaluate(notifiedTest, notifiedVal, this) else false
 
                 # In AND triggers, we want to check the ambient value of states
                 # because they may have been triggered previously
@@ -185,7 +185,7 @@ class N3Trigger
                             # If we've made it through all triggers without
             return true     # returning, then none of them were false
         else if @type == N3Trigger.TYPES.DELAY  # If it's a delay, register a timer
-            c = => return @fireDelay()
+            c = => return if parent? then parent.fireDelay() else @fireDelay()
             d3.timer(c, @value)        # and evaluate this trigger as false
             return false
         else

@@ -74,12 +74,7 @@ class N3Timeline
             for m, i in currentScene.members            
                 evaluateMembers[i] = false;
                 
-                if m.trigger?
-                    # If it's a delay trigger, automatically bind it to the prev
-                    # member's index
-                    if m.trigger.type == N3Trigger.TYPES.DELAY
-                        m.trigger.where(N3Trigger.WHERE.DELAY + (i - 1))
-                    
+                if m.trigger?                    
                     # If we see a trigger, feed it ambient values, to see
                     # if the trigger conditions have already been met. If it has,
                     # evaluate the member. If not, register the trigger and skip
@@ -101,6 +96,9 @@ class N3Timeline
                     continue
                 
                 evaluateMembers[i] = true;
+
+            # In case the first member has a delay trigger
+            N3Trigger.notify(N3Trigger.TYPES.DELAY, N3Trigger.WHERE.DELAY + '-1', 1)
                 
             for m, i in currentScene.members
                 currentScene.evalMember(i) if evaluateMembers[i]
@@ -114,7 +112,21 @@ class N3Timeline
         
     @registerTrigger: (trigger, memberIndex) ->
         return true unless trigger?
-        
+
+        bindDelay = (trigger) ->
+            # If it's a delay trigger, automatically bind it to the prev
+            # member's index
+            if trigger.type == N3Trigger.TYPES.DELAY
+                trigger.where(N3Trigger.WHERE.DELAY + (memberIndex - 1))
+
+            # For OR or AND triggers, recursively apply this. 
+            if trigger.triggers?
+                trigger.triggers = (bindDelay(t) for t in trigger.triggers)
+
+            return trigger
+
+        trigger = bindDelay(trigger);
+
         @triggers[trigger.triggerId] = 
             sceneId: @currSceneId
             parentId: @currParentId
