@@ -746,7 +746,11 @@ function startDrawOrDrag(e) {
                 startLabel(e);
             break;
 
-        }        
+        }    
+
+        e.preventDefault();
+        e.stopPropagation();    
+        return false;    
     } else { // Otherwise, it's a move event
         var el = d3.select(e.target);
 
