@@ -609,8 +609,9 @@ function exportStory() {
         for(var i in scenes[id].transitions) {
             var t = scenes[id].transitions[i];
             
-            story += ".add(function() { n3.timeline.switchScene('" + t.then + "') },\n";
+            story += ".add('" + member.visId + "', function() { n3.timeline.switchScene('" + t.then + "') },\n";
             story += recursiveExportTrigger(t);
+            story += ")";
         }
     }  
     
@@ -637,7 +638,7 @@ function recursiveExportTrigger(trigger) {
         break;
         
         case 'delay':
-            story += 'n3.trigger.afterPrev(' + trigger.value + ')';
+            story += 'n3.trigger.afterPrev(' + (trigger.value*1000) + ')';
         break;
         
         case 'state':
