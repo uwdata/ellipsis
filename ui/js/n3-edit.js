@@ -657,7 +657,7 @@ function recursiveExportTrigger(trigger) {
         case 'timeline':
             story += "n3.trigger(n3.timeline)\n" +
                      indent + ".where('elapsed')\n" +
-                     indent + "." + trigger.condition + "(" + trigger.value + ")";
+                     indent + "." + trigger.condition + "(" + (trigger.value*1000) + ")";
         break;
 		
 		case 'dom_click':
