@@ -206,14 +206,16 @@ function endScene() {
                                 .addClass('ui-icon-plusthick');
 }
 
-function setState(visId, stateId, value) {
-    n3.vis(visId).state(stateId, value);
+function setState(visId, stateId, value) {   
+    var numVal = parseFloat(value);
+    n3.vis(visId).state(stateId, numVal ? numVal : value);
     $('#' + visId).show();
     $('#n3-vis_' + visId + '-saveState').effect("highlight", {}, 2000);
 }
 
 function saveState(visId) {
     for(var stateId in n3.vis(visId).states) {
+        
         var m = {
             visId: visId,
             state: {
@@ -550,7 +552,10 @@ function exportStory() {
             story += "    ";
             
             if(member.state != null) {
-                story += ".set('" + member.visId + "', '" + member.state.id + "', '" + member.state.value + "'";
+                var val = member.state.value;
+                val = typeof(val) == "string" ? "'" + val + "'" : val;
+
+                story += ".set('" + member.visId + "', '" + member.state.id + "', " + val;
             } else {
                 var elem = d3.select('#' + member.annotation.id);
                 
