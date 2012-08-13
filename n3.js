@@ -1039,32 +1039,32 @@
       return true;
     };
 
-    N3Timeline.notifyTrigger = function(trigger, eval) {
-      var id, m, scene, t, _ref;
+    N3Timeline.notifyTrigger = function(trigger, evaluated) {
+      var id, m, scene, t, _ref, _ref2;
       if (this.triggers[trigger.triggerId] != null) {
         t = this.triggers[trigger.triggerId];
-        if (t['eval'] === eval) return;
+        if (t['eval'] === evaluated) return;
         scene = t.parentId != null ? N3Scene.scenes[t.parentId].subScenes[t.sceneId] : N3Scene.scenes[t.sceneId];
-        if (eval === true) {
+        if (evaluated === true) {
           if (t.memberIndex != null) {
             if (scene != null) scene.evalMember(t.memberIndex);
           }
         } else {
           m = t.memberIndex != null ? scene.members[t.memberIndex] : null;
-          if ((m != null ? m.member.annotId : void 0) != null) {
+          if ((m != null ? (_ref = m.member) != null ? _ref.annotId : void 0 : void 0) != null) {
             m.member.vis(m.visId);
             if (m != null) m.member.remove();
           }
         }
-        _ref = this.deferredTriggers;
-        for (id in _ref) {
-          t = _ref[id];
+        _ref2 = this.deferredTriggers;
+        for (id in _ref2) {
+          t = _ref2[id];
           this.registerTrigger(t.trigger, t.memberIndex);
         }
-        if (trigger.type === N3Trigger.TYPES.TIMELINE) {
+        this.triggers[trigger.triggerId]['eval'] = evaluated;
+        if (trigger.type === N3Trigger.TYPES.TIMELINE && evaluated !== false) {
           this.deregisterTrigger(trigger);
         }
-        this.triggers[trigger.triggerId]['eval'] = eval;
       }
       return true;
     };

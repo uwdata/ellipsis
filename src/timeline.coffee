@@ -151,25 +151,25 @@ class N3Timeline
         
         true
         
-    @notifyTrigger: (trigger, eval) ->
+    @notifyTrigger: (trigger, evaluated) ->
         if @triggers[trigger.triggerId]?
             t = @triggers[trigger.triggerId]
             
-            if t['eval'] == eval    # If the trigger has already been evaluated
-                return;             # to this value, do nothing
+            if t['eval'] == evaluated    # If the trigger has already been evaluated
+                return;                  # to this value, do nothing
             
             scene = if t.parentId? then \
                          N3Scene.scenes[t.parentId].subScenes[t.sceneId] \ 
                     else N3Scene.scenes[t.sceneId]
             
-            if eval == true            
+            if evaluated == true            
                 if t.memberIndex?       # Member triggers
                     scene?.evalMember(t.memberIndex)
                 # else                    # Scene triggers
                     # if t.parentId? then @switchScenes(t.parentId + '>' + t.sceneId) else @switchScenes(t.sceneId)
             else
                 m = if t.memberIndex? then scene.members[t.memberIndex] else null
-                if m?.member.annotId?
+                if m?.member?.annotId?
                     m.member.vis(m.visId) # just in case
                     m?.member.remove()
                     
@@ -177,11 +177,11 @@ class N3Timeline
             # we can now register some of our defered triggers.
             for id, t of @deferredTriggers
                 @registerTrigger(t.trigger, t.memberIndex)
+
+            @triggers[trigger.triggerId]['eval'] = evaluated    
             
             # Deregister a timeline trigger once it has fired because we can't go back in time
-            @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE
-            
-            @triggers[trigger.triggerId]['eval'] = eval
+            @deregisterTrigger trigger if trigger.type == N3Trigger.TYPES.TIMELINE && evaluated != false
         true  
         
     @parseTransSyntax: (transQ) ->

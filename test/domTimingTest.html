@@ -142,9 +142,9 @@ n3.scene('scene_2')
     }, n3.trigger.or(n3.trigger.afterPrev(5000))) 
     
 n3.scene('scene_3')
-    .set(vis, 'numberRange', 'seventeen', n3.trigger(n3.timeline)
+    .set(vis, 'numberRange', 'seventeen', n3.trigger.or(n3.trigger(n3.timeline)
                                                 .where('elapsed')
-                                                .gt(2000))
+                                                .gt(2000)))
 
 n3.timeline.transition('*', '*', function(fromScene, toScene) {
     d3.selectAll('#' + fromScene.sceneId).style('display', 'none')
