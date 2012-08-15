@@ -302,7 +302,7 @@ function reorderMembers(event, ui) {
     // Probably a better way to register them initially...
     
     var memberOrder = scene.find('li.member');
-    $('#n3-ui_scene' + sceneId + ' .members').html('');
+    // $('#n3-ui_scene' + sceneId + ' .members').html('');
     
     memberOrder.each(function(i, e) {
         var memberId = $(e).attr('id').replace('n3-ui_', '');
@@ -316,7 +316,8 @@ function reorderMembers(event, ui) {
         }
         
         if(member != null)
-            populateMember(member)
+            scenes[sceneId].members.push(member);
+            // populateMember(member)
             
         // Reorder annotations on svg stage
         if(member.annotation != null) {
@@ -550,7 +551,7 @@ function exportStory() {
     $('#n3-ui_stage').scrollTop(0)
     
     for(var id in scenes) {
-        story += "\nn3.scene('" + id + "')\n";
+        story += "\nn3.scene(" + JSON.stringify(id) + ")\n";
         
         for(var i in scenes[id].members) {
             var member = scenes[id].members[i];
@@ -558,13 +559,13 @@ function exportStory() {
             
             if(member.state != null) {
                 var val = member.state.value;
-                val = typeof(val) == "string" ? "'" + val + "'" : val;
+                val = typeof(val) == "string" ? JSON.stringify(val) : val;
 
-                story += ".set('" + member.visId + "', '" + member.state.id + "', " + val;
+                story += ".set(" + JSON.stringify(member.visId) + ", " + JSON.stringify(member.state.id) + ", " + val;
             } else {
                 var elem = d3.select('#' + member.annotation.id);
                 
-                var annotation = "    n3.annotation('" + SHAPE_LABELS[member.annotation.type] + "')\n";
+                var annotation = "    n3.annotation(" + JSON.stringify(SHAPE_LABELS[member.annotation.type]) + ")\n";
                 switch(member.annotation.type) {
                     case SHAPES.CIRCLE:
                         annotation += indent + ".radius(" + elem.attr('r') + ")\n" +
@@ -591,20 +592,20 @@ function exportStory() {
                         var x = parseFloat(elem.style('left')) - svg.offset().left;
                         var y = parseFloat(elem.style('top')) - svg.offset().top;
                     
-                        annotation += indent + ".html(\"" + elem.html() + "\")\n" + 
+                        annotation += indent + ".html(" + JSON.stringify(elem.html()) + ")\n" + 
                                       indent + ".pos([" + x + ", " + y + "])\n" + 
-                                      indent + ".style(\"color\", \"" + elem.style('color') + "\")" + 
-                                      indent + ".style(\"opacity\", \"" + elem.style('opacity') + "\")";;
+                                      indent + ".style('color', " + JSON.stringify(elem.style('color')) + ")" + 
+                                      indent + ".style('opacity', " + elem.style('opacity') + ")";;
                     break;
                 }
                  
-                annotation += indent + ".attr('id', '" + member.annotation.id + "')\n";    
-                annotation += indent + ".style('fill', '" + (elem.attr('fill') || '#000000') + "')\n";
+                annotation += indent + ".attr('id', " + JSON.stringify(member.annotation.id) + ")\n";    
+                annotation += indent + ".style('fill', " + JSON.stringify(elem.attr('fill') || '#000000') + ")\n";
                 annotation += indent + ".style('fill-opacity', '" + (elem.attr('fill-opacity') || '1') + "')\n";
                 annotation += indent + ".style('stroke-width', '" + (elem.attr('stroke-width') || '1') + "')\n";
-                annotation += indent + ".style('stroke', '" + (elem.attr('stroke') || '#000000') + "')";
+                annotation += indent + ".style('stroke', " + JSON.stringify(elem.attr('stroke') || '#000000') + ")";
                 
-                story += ".add('" + member.visId + "',\n" + annotation;
+                story += ".add(" + JSON.stringify(member.visId) + ",\n" + annotation;
             }
             
             if(member.trigger != null) {
@@ -621,7 +622,7 @@ function exportStory() {
         for(var i in scenes[id].transitions) {
             var t = scenes[id].transitions[i];
             
-            story += ".add('" + member.visId + "', function() { n3.timeline.switchScene('" + t.then + "') },\n";
+            story += ".add(" + JSON.stringify(member.visId) + ", function() { n3.timeline.switchScene(" + JSON.stringify(t.then) + ") },\n";
             story += recursiveExportTrigger(t);
             story += ")";
         }
@@ -656,9 +657,9 @@ function recursiveExportTrigger(trigger) {
         case 'state':
             var test = trigger.where.split('_');
         
-            story += "n3.trigger('" + test[0] + "')\n" + 
-                     indent + ".where('" + test[1] + "')\n" +
-                     indent + "." + trigger.condition + "('" + trigger.value + "')"; // Eeks, what about numbers??
+            story += "n3.trigger(" + JSON.stringify(test[0]) + ")\n" + 
+                     indent + ".where(" + JSON.stringify(test[1]) + ")\n" +
+                     indent + "." + trigger.condition + "(" + JSON.stringify(trigger.value) + ")"; // Eeks, what about numbers??
         break;
         
         case 'timeline':
@@ -673,7 +674,7 @@ function recursiveExportTrigger(trigger) {
 		case 'dom_mouseup':
 		case 'dom_mouseover':
 		case 'dom_mousemove':
-			story += "n3.trigger('" + trigger.value + "').on('" + trigger.type.split(/dom_/)[1] + "')";
+			story += "n3.trigger(" + JSON.stringify(trigger.value) + ").on(" + JSON.stringify(trigger.type.split(/dom_/)[1]) + ")";
 		break;
     }
     

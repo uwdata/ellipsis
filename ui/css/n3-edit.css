@@ -104,7 +104,7 @@ p.hover { outline: 2px solid firebrick; }
     position: fixed;
     top: 15px;
     right: 15px;
-    width: 300px;
+    width: 350px;
     height: 90%;
     overflow: scroll;
 }
