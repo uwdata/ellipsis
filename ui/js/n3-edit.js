@@ -543,6 +543,9 @@ function showStyles(shapeId, shapeType) {
 function exportStory() {
     var story = $('#vis').val() + "\n";
     var indent = "        ";
+
+    // Scroll to the top for correct label annotation offsets
+    $('#n3-ui_stage').scrollTop(0)
     
     for(var id in scenes) {
         story += "\nn3.scene('" + id + "')\n";
@@ -582,9 +585,9 @@ function exportStory() {
                     break;
                     
                     case SHAPES.LABEL:
-                        var svg = d3.select('#n3-vis_' + member.visId + ' svg');
-                        var x = parseFloat(elem.style('left')) - svg.property('offsetLeft');
-                        var y = parseFloat(elem.style('top')) - svg.property('offsetTop');
+                        var svg = $('#n3-vis_' + member.visId + ' svg');
+                        var x = parseFloat(elem.style('left')) - svg.offset().left;
+                        var y = parseFloat(elem.style('top')) - svg.offset().top;
                     
                         annotation += indent + ".html(\"" + elem.html() + "\")\n" + 
                                       indent + ".pos([" + x + ", " + y + "])\n";
@@ -848,8 +851,8 @@ function dragAnnotation(e) {
         break;
         
         case 'P':
-            el.style('left', e.pageX + 'px')
-              .style('top', e.pageY + 'px');
+            el.style('left', e.pageX + $('#n3-ui_stage').scrollLeft() + 'px')
+              .style('top', e.pageY + $('#n3-ui_stage').scrollTop() + 'px');
         break;
     }
 }
@@ -973,20 +976,23 @@ function drawRect(e) {
 
 function startLabel(e) {
     var id = 'label_' + uniqueId();
+    var parent = $(e.target).parent();
+    var svg = parent.find('svg');
     
-    var x = getMouseX(e);
-    var y = getMouseY(e);
+    var x = e.pageX + $('#n3-ui_stage').scrollLeft();
+    var y = e.pageY + $('#n3-ui_stage').scrollTop();
 
-    d3.select('#n3-ui_stage')
+    d3.select('#' + parent.attr('id'))
         .append('p')
         .html('Label text')
         .attr('id', id)
         .attr('class', 'draggable editable n3-ui_scene' + sceneId)
         .attr('contenteditable', 'true')
         .style('cursor', 'move')
+        .style('color', '#fff')
         .style('position', 'absolute')
-        .style('left', e.pageX + 'px')
-        .style('top', e.pageY + 'px')
+        .style('left', x + 'px')
+        .style('top', y + 'px')
         .style('margin', '0');
 
     // Labels shouldn't work like normal shapes. You don't add them repetitively because you edit. 
