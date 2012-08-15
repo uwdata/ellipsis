@@ -74,6 +74,10 @@
       this.bindings = [];
     }
 
+    N3State.prototype.vis = function() {
+      return N3Vis.lookup[this.visId];
+    };
+
     N3State.prototype.get = function() {
       return this.val;
     };
@@ -95,7 +99,7 @@
 
     N3State.prototype.notify = function() {
       var binding, _i, _len, _ref, _ref2, _results;
-      if ((_ref = N3Vis.lookup[this.visId]) != null) {
+      if ((_ref = this.vis()) != null) {
         if (typeof _ref.renderFn === "function") _ref.renderFn();
       }
       N3Trigger.notify(N3Trigger.TYPES.VIS, [this.visId, this.stateId], this.val);
@@ -103,7 +107,7 @@
       _results = [];
       for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
         binding = _ref2[_i];
-        _results.push(binding(this.val));
+        _results.push(binding.call(this.vis(), this.val));
       }
       return _results;
     };
