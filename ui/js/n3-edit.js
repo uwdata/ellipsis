@@ -486,6 +486,7 @@ function showStyles(shapeId, shapeType) {
         step: 0.1,
         slide: function(e, ui) {
             s.attr('fill-opacity', ui.value);
+            s.style('opacity', ui.value);
         }
     });
     
@@ -504,6 +505,7 @@ function showStyles(shapeId, shapeType) {
         // },
         onChange: function (hsb, hex, rgb) {
             d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('fill', '#' + hex);
+            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).style('color', '#' + hex);
             $('#fill_color').css('backgroundColor', '#' + hex);
         }
     });
@@ -590,7 +592,9 @@ function exportStory() {
                         var y = parseFloat(elem.style('top')) - svg.offset().top;
                     
                         annotation += indent + ".html(\"" + elem.html() + "\")\n" + 
-                                      indent + ".pos([" + x + ", " + y + "])\n";
+                                      indent + ".pos([" + x + ", " + y + "])\n" + 
+                                      indent + ".style(\"color\", \"" + elem.style('color') + "\")" + 
+                                      indent + ".style(\"opacity\", \"" + elem.style('opacity') + "\")";;
                     break;
                 }
                  
