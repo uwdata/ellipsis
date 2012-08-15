@@ -716,7 +716,7 @@ function getMouseX(e) {
     while(el != null && el.nodeName.toUpperCase() != 'SVG')
         el = el.parentNode;
 
-    return el != null ? e.pageX - el.offsetLeft : e.pageX;
+    return el != null ? e.clientX - $(el).offset().left : e.pageX;
 }
 
 function getMouseY(e) {
@@ -724,7 +724,7 @@ function getMouseY(e) {
     while(el != null && el.nodeName.toUpperCase() != 'SVG')
         el = el.parentNode;
     
-    return el != null ? e.pageY - el.offsetTop : e.pageY;
+    return el != null ? e.clientY - $(el).offset().top : e.pageY;
 }
 
 function startDrawOrDrag(e) {
