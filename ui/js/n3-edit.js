@@ -76,7 +76,7 @@ function saveVis() {
         }
         
         $('#n3-ui_stage')           // Need to replace this for other selector types
-            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage"><div class="infobar"><p>Visualization: ' + visId + '</p><br clear="all" /></div>' + 
+            .append('<div id="n3-vis_' + visId + '" class="n3-vis_stage" style="width: ' + (vis.width() + 20) + 'px"><div class="infobar"><p>Visualization: ' + visId + '</p><br clear="all" /></div>' + 
                         '<svg id="' + vis.stageSelector.replace('#', '') + '" width="' + vis.width() + 
                             '" height="' + vis.height() + '"></svg></div>');
         
@@ -118,7 +118,7 @@ function saveVis() {
                             .append('<option>' + s.validValues[i] + '</option>');
         }
     }
-    
+    // $('#n3-ui_stage').append('<br clear="all" />')
     $('#n3-ui_stage').bind('mousedown', startDrawOrDrag);
     $('#n3-ui_stage').bind('mouseup', endDrawOrDrag);
     

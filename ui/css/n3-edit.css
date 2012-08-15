@@ -12,8 +12,17 @@ body {
 .n3-vis_stage {
     float: left; 
     margin-right: 20px; 
+    margin-bottom: 20px;
     background: #fff;
     border: 1px solid #ccc;
+}
+
+#n3-ui_stage {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    height: 90%;
+    overflow: scroll;
 }
 
 #n3-ui_stage div.hover { outline: 3px solid firebrick; }
@@ -94,10 +103,11 @@ p.hover { outline: 2px solid firebrick; }
 
 #n3-ui_side_panel {
     position: fixed;
+    top: 15px;
     right: 15px;
     width: 300px;
     height: 90%;
-    overflow: auto;
+    overflow: scroll;
 }
 
 #n3-ui_side_panel .scene { 
