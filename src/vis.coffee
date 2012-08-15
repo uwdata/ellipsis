@@ -6,6 +6,9 @@ class N3Vis
         @consts = {}     # lookup table     constId -> constVal
         
         return this
+
+    id: ->
+        @visId
         
     stage: (sel, w, h) ->
         if arguments.length == 3

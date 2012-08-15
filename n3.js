@@ -127,6 +127,10 @@
       return this;
     }
 
+    N3Vis.prototype.id = function() {
+      return this.visId;
+    };
+
     N3Vis.prototype.stage = function(sel, w, h) {
       if (arguments.length === 3) {
         this.stageSelector = sel;
