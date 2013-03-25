@@ -8,8 +8,9 @@ var SHAPES = {
 };
 var SHAPE_LABELS = ['circle', 'ellipse', 'line', 'arrow', 'rectangle', 'label'];
 var SCENE_TRANSITION = -1;
-var visIds = [];
-var scenes = {};
+var visIds  = [];
+var scenes  = {};
+var widgets = [];
 var sceneId;
 var drawShape;
 var dragElement;
@@ -37,6 +38,15 @@ $(function() {
         $('#n3-ui_stylesDialog').dialog({
             autoOpen: false,
             width: 400
+        });
+
+        $('#n3-ui_widgetDialog').dialog({
+            modal: true,
+            width: 350,
+            autoOpen: false,
+            buttons: {
+                "Save": addWidget
+            }
         });
         
         $('#n3-ui_exportDialog').dialog({
@@ -101,6 +111,7 @@ function saveVis() {
         
         // Populate state settings into triggers dialog
         var tmpl = $('#n3-ui_triggerTemplate');
+        var widget = $('#n3-ui_widgetDialog');
         for(var stateId in vis.states) {
             var className = visId + '_' + stateId;
             var s = vis.states[stateId];
@@ -108,6 +119,9 @@ function saveVis() {
             tmpl.find('span.state:first')
                     .find('select.where:first')
                         .append('<option value="' + className + '">' + visId + ': ' + stateId + '</option>');
+
+            widget.find('select[name=state]')
+                .append('<option value="' + className + '">' + visId + ': ' + stateId + '</option>');
                         
             tmpl.find('span.state:first')
                     .append('<select class="value ' + className + '" style="display:none;"><option value="">Select value...</option></select>');
@@ -207,8 +221,7 @@ function endScene() {
 }
 
 function setState(visId, stateId, value) {   
-    var numVal = parseFloat(value);
-    n3.vis(visId).state(stateId, numVal ? numVal : value);
+    n3.vis(visId).state(stateId, value);
     $('#' + visId).show();
     $('#n3-vis_' + visId + '-saveState').effect("highlight", {}, 2000);
 }
@@ -628,7 +641,8 @@ function exportStory() {
         }
     }  
     
-    $('#export').val(story);  
+    $('#export_js').val(story);  
+    $('#export_html').val(exportWidgets());
     $('#n3-ui_exportDialog').dialog('open');
 }
 
@@ -681,6 +695,45 @@ function recursiveExportTrigger(trigger) {
     return story;
 }
 
+function exportWidgets() {
+    var html = '';
+
+    widgets.forEach(function(w) {
+        var bound = w.state.split('_');
+        var values = n3.vis(bound[0]).states[bound[1]].validValues;
+
+        html += '<p><label>' + bound[1] + ': ';
+
+        if(w.type == 'checkbox')
+            html += '<input type="checkbox" onclick="n3.vis(\''+bound[0]+'\').state(\''+bound[1]+'\', this.checked + \'\');" />';
+        else if(w.type == 'radio' || w.type == 'select') {
+            if(w.type == 'select')
+                html += '<select onchange="n3.vis(\''+bound[0]+'\').state(\''+bound[1]+'\', this.value);">';
+
+            values.forEach(function(v) {
+                if(w.type == 'radio')
+                    html += '</label><label>'+v+': <input name="'+w.state+'" type="radio" value="'+String(v).replace(/\"/g, '\\"')+'" onclick="n3.vis(\''+bound[0]+'\').state(\''+bound[1]+'\', this.value);" />';
+                else if(w.type == 'select')
+                    html += '<option>' + v + '</option>';
+            });
+
+            if(w.type == 'select')
+                html += '</select>';
+        }
+        else if(w.type == 'slider') {
+            var min = Math.min.apply(Math, values);
+            var max = Math.max.apply(Math, values);
+            var step = $('#n3-ui_widgetDialog .slider input[type=number]').val();
+
+            html += '<input type="range" min="'+min+'" max="'+max+'" step="'+step+'" onchange="n3.vis(\''+bound[0]+'\').state(\''+bound[1]+'\', this.value);" />';
+        }
+
+        html += '</label></p>\n\n';
+    });
+
+    return html;
+}
+
 function playStory() {
     // Easy way to grab the n3 js
     exportStory();
@@ -696,7 +749,8 @@ function playStory() {
     var json = {
         visIds: visIds,
         sceneOrder: sceneOrder,
-        n3Js: $('#export').val()
+        n3Js: $('#export_js').val(),
+        n3Html: $('#export_html').val()
     };
     
     var playWin = window.open('play.html', 'playWin', 'width=1024,height=768,status=yes,menubar=yes,titlebar=yes,toolbar=yes,location=yes,scrollbar=yes');
@@ -704,6 +758,19 @@ function playStory() {
         playWin.postMessage($.toJSON(json), 'http://' + window.location.host); 
         clearInterval(wait);
     }, 1000);
+}
+
+function addWidget() {
+    var dialog = $('#n3-ui_widgetDialog');
+    widgets.push({
+        type: dialog.find('select[name=type]').val(),
+        state: dialog.find('select[name=state]').val()
+    });
+
+    $('#n3-ui_widget_panel .widgets').html(exportWidgets());
+    $('#n3-ui_widget_panel .widgets').find('input, select').attr('disabled', 'true');
+
+    dialog.dialog('close');
 }
 
 // Get coordinates of mouse within the svgply
@@ -994,7 +1061,7 @@ function startLabel(e) {
         .attr('class', 'draggable editable n3-ui_scene' + sceneId)
         .attr('contenteditable', 'true')
         .style('cursor', 'move')
-        .style('color', '#fff')
+        .style('color', '#000')
         .style('position', 'absolute')
         .style('left', x + 'px')
         .style('top', y + 'px')

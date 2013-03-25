@@ -18,7 +18,6 @@
         float: left;
         width: 700px;
         height: 400px;
-        border: 1px solid grey;
         background: #edf1f7;
     }
     
@@ -1448,7 +1447,7 @@
 
                 .stage('#stage', 700, 400)
 
-                .state('year', d3.range(1980, 2011))
+                .state('year', ['1980','1981','1982','1983','1984','1985','1986','1987','1988','1989','1990','1991','1992','1993','1994','1995','1996','1997','1998','1999','2000','2001','2002','2003','2004','2005','2006','2007','2008','2009','2010' ])
                 .state('plotForecasts', ['true', 'false'])
 
                 .const('minYear', 1980)
@@ -1717,6 +1716,14 @@
         <input type="button" class="play button" name="n3-ui_play" value="Play Story" id="n3-ui_play" onclick="playStory();" />
         
         <input type="button" class="export button" name="n3-ui_export" value="Export Story" id="n3-ui_export" onclick="exportStory();" />
+
+        <input type="button" class="widget button" name="n3-ui_widget" value="Add Widget" id="n3-ui_widget" onclick="$('#n3-ui_widgetDialog').dialog('open');" />
+    </div>
+
+    <div id="n3-ui_widget_panel">
+        <div class="header">Widgets</div>
+
+        <div class="widgets"></div>
     </div>
     
     <div id="n3-ui_side_panel">
@@ -1804,9 +1811,30 @@
     	
     	<p><span class="style_desc">Border width and color:</span> <span id="stroke_width"></span> <span id="stroke_color"></span></p>
     </div>
+
+    <div id="n3-ui_widgetDialog" title="Add Control Widget">
+        <p>Widget Type: 
+            <select name="type" onchange="var step = $('#n3-ui_widgetDialog .slider'); if(this.value=='slider') {step.show();} else {step.hide();}">
+                <option value="checkbox">Checkbox</option>
+                <option value="radio">Radio Buttons</option>
+                <option value="select">Drop-down Menu</option>
+                <option value="slider">Slider</option>
+            </select>
+
+            <span class="slider" style="display: none;">Step: <input type="number" value="1" style="width: 50px"></span>
+        </p>
+
+        <p>Bound To: 
+            <select name="state">
+                <option value="">Select state...</option>
+            </select>
+        </p>
+    </div>
     
     <div id="n3-ui_exportDialog" title="Export">
-    	<p><textarea name="export" id="export"></textarea></p>
+    	<p>Javascript:<br /><textarea name="export" id="export_js"></textarea></p>
+
+        <p>HTML: <br /><textarea name="export" id="export_html"></textarea></p>
     </div>
 </body>
 </html>

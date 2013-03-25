@@ -1,11 +1,13 @@
 var visIds = [];
 var sceneOrder = [];
 
-window.addEventListener('message',function(event) {
+window.addEventListener('message', function(event) {
     var json = $.evalJSON(event.data);
     visIds = json.visIds;
     sceneOrder = json.sceneOrder;
     eval(json.n3Js);    
+
+    $('#n3-ui_widgets').html(json.n3Html);
     
     createVisStages();
     populatePlayBar();    

@@ -21,6 +21,13 @@ body {
 
 #n3-ui_stage svg { padding: 0px 10px; }
 
+#n3-ui_widgets {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 200px;
+}
+
 #n3-ui_playbar {
     position: fixed;
     bottom: 0;

@@ -13,7 +13,7 @@ body {
     float: left; 
     margin: 15px;
     background: #fff;
-    border: 1px solid #ccc;
+    border: 1px solid #333;
 }
 
 #n3-ui_stage {
@@ -21,7 +21,7 @@ body {
     top: 0px;
     left: 0;
     height: 90%;
-    overflow: scroll;
+    overflow: auto;
 }
 
 #n3-ui_stage div.hover { outline: 3px solid firebrick; }
@@ -37,7 +37,7 @@ body {
 
 p.hover { outline: 2px solid firebrick; }
 
-#n3-ui_stage .infobar {
+#n3-ui_stage .infobar, #n3-ui_widget_panel .header {
     clear: both;
     display: block;
     background: #333;
@@ -80,6 +80,7 @@ p.hover { outline: 2px solid firebrick; }
 #n3-ui_bottom_panel .end { background-image: url(../imgs/accept.png);}
 #n3-ui_bottom_panel .play { background-image: url(../imgs/play.png); }
 #n3-ui_bottom_panel .export { background-image: url(../imgs/export.png); }
+#n3-ui_bottom_panel .widget { background-image: url(../imgs/widget.png); }
 
 #n3-ui_palette a { 
     float: left; 
@@ -100,16 +101,31 @@ p.hover { outline: 2px solid firebrick; }
 #n3-ui_palette a.line { background-image: url(../imgs/draw-line.png); }
 #n3-ui_palette a.text { background-image: url(../imgs/draw-text.png); }
 
+#n3-ui_widget_panel {
+    position: fixed;
+    top: 15px;
+    right: 380px;
+    width: 200px;
+    height: 90%;
+    overflow: auto;
+}
+
+#n3-ui_widget_panel .widgets {
+    border: 1px solid #333;
+    padding: 5px;
+    font-weight: normal !important;
+}
+
 #n3-ui_side_panel {
     position: fixed;
     top: 15px;
     right: 15px;
     width: 350px;
     height: 90%;
-    overflow: scroll;
+    overflow: auto;
 }
 
-#n3-ui_side_panel .scene { 
+#n3-ui_side_panel .scene, #n3-ui_widget_panel .widgets { 
     margin-bottom: 10px; 
     background-color: #ddd;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#bbb)); 
