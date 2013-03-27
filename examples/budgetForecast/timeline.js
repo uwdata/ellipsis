@@ -21,21 +21,7 @@ n3.scene('scene_1')
     
     .add(vis, 
          n3.annotation('highlightedPoint')
-              .data(function() {
-                  var fullData = vis.data();
-                  var data = [];
-                  var dataTransform = vis.const('dataTransform');
-        
-                  for(var i in fullData) {
-                      if(fullData[i].year != 2010)
-                          continue;
-                  
-                      data[data.length] = dataTransform(2010, fullData[i][2010]);
-                      data[data.length] = dataTransform(2011, fullData[i][2011]);
-                  }
-                  
-                  return data;  
-              }))
+            .data([fullData[219], fullData[220]]))
               
     .add(vis, 
          n3.annotation('label')
@@ -60,27 +46,17 @@ n3.scene('scene_2')
         var data = [];
         var fullData = vis.data();
 
-        for(var i in fullData) {    // fullData is already so=rted by year
+        for(var i in fullData) {
             var d = fullData[i];
-            if(d.year != year)
+            if(d.budgetYear != year)
                 continue;
 
-            var forecastData = [];
-            var forecastYears = d3.keys(d);
-            for (j in forecastYears) {
-                var fy = forecastYears[j];
-                if(fy == 'year' || d[fy] == 0)
-                    continue;
-
-                forecastData[forecastData.length] = dataTransform(fy, d[fy]);                
-            }
-
-            data[data.length] = forecastData;
+            data[data.length] = d;
         }
 
         var forecast = vis.stage()
-                            .selectAll('path.forecast')
-                                .data(data);
+            .selectAll('path.forecast')
+                .data([data]);
 
         forecast.enter()
                     .append('svg:path')
@@ -125,7 +101,7 @@ n3.scene('scene_3')
     
         .add(vis, 
              n3.annotation('highlightedPoint')
-                  .data(scene34data),            
+                  .data([fullData[98]]),            
              n3.trigger(vis)
                  .where('year')
                  .gte(1995))
@@ -155,7 +131,7 @@ n3.scene('scene_3')
         .set(vis, 'year', n3.util.iterate(1995, 2009, 1, 150))
         
         .add(vis, n3.annotation('highlightedPoint')
-                        .data(scene34data),            
+                        .data([fullData[98], fullData[204]]),            
             n3.trigger(vis)
                 .where('year')
                 .gte(2008)
@@ -203,22 +179,3 @@ n3.timeline.transition(['scene_3a', 'scene_3b', 'scene_3c', 'scene_4'],
     function(fromScene, toScene) { $('#slider').hide(); })
 
 n3.timeline.switchScene('scene_1');
-
-function scene34data() {
-    var fullData = vis.data();
-    var dataTransform = vis.const('dataTransform');
-    var year = vis.state('year');
-    var data = [];
-    for (var i in fullData) {
-        var d = fullData[i];
-        if(d.year > year)
-            break;
-
-        if(d.year == 1995) 
-            data[data.length] = dataTransform(1999, d[1999]);
-        
-        if(d.year == 2008) 
-            data[data.length] = dataTransform(2012, d[2012]);
-    }
-    return data;
-}
