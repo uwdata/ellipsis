@@ -26,12 +26,8 @@ var vis = n3.vis('budgetForecast')
     
     .const('drawLineGraph', function() {
         return d3.svg.line()
-                            .x(function(d, i){ return vis.const('sx')()(d.year); })
-                            .y(function(d, i){ return vis.const('sy')()(d.val); });
-    })
-    
-    .const('dataTransform', function(year, val) {
-        return {'year': year, 'val': val};
+                            .x(function(d, i){ return vis.const('sx')()(d.forecastYear); })
+                            .y(function(d, i){ return vis.const('sy')()(d.value); });
     })
     
     .render(function() {
@@ -135,7 +131,7 @@ function drawAxes(vis) {
             
     var zeroData = [];
     for(var i = vis.const('minYear'); i <= vis.const('maxYearForecast'); i++)
-        zeroData[zeroData.length] = vis.const('dataTransform')(i, 0);
+        zeroData[zeroData.length] = {'budgetYear': i, 'forecastYear': i, 'value': 0};
 
     var path = vis.stage().selectAll('path#zero')
                         .data([zeroData]);
@@ -158,20 +154,10 @@ function drawForecasts(vis) {
     if(plot == true) {
         for(var i in fullData) {    // fullData is already sorted by year
             var d = fullData[i];
-            if(d.year > year)
+            if(d.budgetYear > year)
                 break;
         
-            var forecastData = [];
-            var forecastYears = d3.keys(d);
-            for (j in forecastYears) {
-                var fy = forecastYears[j];
-                if(fy == 'year' || d[fy] == 0)
-                    continue;
-        
-                forecastData[forecastData.length] = dataTransform(fy, d[fy]);                
-            }
-        
-            data[data.length] = forecastData;
+            data[data.length] = d;
         }        
     }
 
@@ -198,14 +184,15 @@ function drawActual(vis) {
     
     var data = [];
     
-    for (i in fullData) {
+    for(var i = 0; i < fullData.length; i++) {
         var d = fullData[i];
-        if(d.year > year)
+        if(d.budgetYear > year)
             continue;
         
-        var prevYear = d.year - 1;
+        if(d.forecastYear != d.budgetYear - 1)
+            continue;
     
-        data[data.length] = dataTransform(prevYear, (d[prevYear] || 0));
+        data[data.length] = d;
     }
 
     var actual = vis.stage().selectAll('path#actual')
@@ -223,17 +210,13 @@ function drawActual(vis) {
     // 2010 projection
     var projectedData = [];    
     if(year >= 2010) {
-        var d2010 = fullData[fullData.length - 1];
-        var years = d3.keys(d2010);
-        
-        for (i in years) {
-            var y = years[i];
-        
-            if(y == 'year' || d2010[y] == 0)
+        for(var i = 0; i < fullData.length; i++) {
+            var d = fullData[i];
+            if(d.budgetYear != 2010)
                 continue;
-        
-            projectedData[projectedData.length] = dataTransform(y, d2010[y]);                
-        }   
+
+            projectedData[projectedData.length] = d;
+        }
     }
     
     var projected = vis.stage()
