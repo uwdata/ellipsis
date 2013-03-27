@@ -104,8 +104,8 @@ p.hover { outline: 2px solid firebrick; }
 #n3-ui_widget_panel {
     position: fixed;
     top: 15px;
-    right: 380px;
-    width: 200px;
+    right: 330px;
+    width: 250px;
     height: 90%;
     overflow: auto;
 }
@@ -120,7 +120,7 @@ p.hover { outline: 2px solid firebrick; }
     position: fixed;
     top: 15px;
     right: 15px;
-    width: 350px;
+    width: 300px;
     height: 90%;
     overflow: auto;
 }
@@ -268,3 +268,51 @@ p.hover { outline: 2px solid firebrick; }
 }
 
 p.editable:hover { outline: 1px dotted #CCC; }
+
+#n3-ui_stylesDialog table, #n3-ui_stylesDialog th, #n3-ui_stylesDialog td {
+    border: 1px solid #444;
+    border-collapse: collapse;
+}
+
+#n3-ui_stylesDialog th {
+    padding: 5px;
+    background: #444;
+    border: 1px solid #666;
+    color: #fff;
+}
+
+#n3-ui_stylesDialog td { padding: 5px; }
+
+#n3-ui_stylesDialog .data_tbl {
+    max-width: 470px;
+    max-height: 200px;
+    overflow: auto;
+}
+
+#n3-ui_stylesDialog .data_tbl tr:nth-child(odd)  { background-color: #222; }
+#n3-ui_stylesDialog .data_tbl tr:nth-child(even) { background-color: #000; }
+#n3-ui_stylesDialog .data_tbl tr.selected { background-color: #a77214; }
+
+#n3-ui_stylesDialog input[type=number] { width: 50px; }
+#n3-ui_stylesDialog input[type=range] { 
+    -webkit-appearance:none; 
+    -moz-apperance:none; 
+    height:4px; 
+    border-radius: 10px;
+}
+
+#n3-ui_stylesDialog a.bind {
+    text-indent: -999em;
+    background: url(../imgs/bind_data.png) no-repeat;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    opacity: 0.4;
+}
+
+#n3-ui_stylesDialog a.bound { opacity: 1; }
+
+.prop_label {
+    display: inline-block;
+    width: 75px;
+}

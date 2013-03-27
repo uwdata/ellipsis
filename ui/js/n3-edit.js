@@ -7,6 +7,12 @@ var SHAPES = {
     LABEL: 5
 };
 var SHAPE_LABELS = ['circle', 'ellipse', 'line', 'arrow', 'rectangle', 'label'];
+var SHAPE_PROPS = {
+    ellipse: ['cx', 'cy', 'rx', 'ry', 'fill', 'fill-opacity', 'stroke', 'stroke-width'],
+    rectangle: ['x', 'y', 'width', 'height', 'fill', 'fill-opacity', 'stroke', 'stroke-width'],
+    line: ['x1', 'x2', 'y1', 'y2', 'stroke', 'stroke-width'],
+    label: []
+};
 var SCENE_TRANSITION = -1;
 var visIds  = [];
 var scenes  = {};
@@ -37,7 +43,10 @@ $(function() {
         
         $('#n3-ui_stylesDialog').dialog({
             autoOpen: false,
-            width: 400
+            width: 400,
+            buttons: {
+                "Save": saveAnnotation
+            }
         });
 
         $('#n3-ui_widgetDialog').dialog({
@@ -249,6 +258,13 @@ function populateMember(m, memberIndex) {
     
     if(arguments.length == 1) 
         memberIndex = scenes[sceneId].members.length;
+
+    if(m.annotation != null) {
+        var props = SHAPE_PROPS[SHAPE_LABELS[m.annotation.type]];
+        props.forEach(function(p) {
+            m.annotation[p] = {value: d3.select('#' + m.annotation.id).attr(p) }
+        });
+    }
     
     scenes[sceneId].members[memberIndex] = m;
     
@@ -490,70 +506,145 @@ function startDomTrigger(button) {
 	$('#n3-ui_triggerDialog').dialog('close');	
 }
 
+function getStylesDialogMember() {
+    var annotation_id = $('#n3-ui_stylesDialog input[name=annotation_id]').val();
+
+    var scene = scenes[sceneId];
+    for(var i = 0; i < scene.members.length; i++) {
+        if(scene.members[i].memberId == annotation_id)
+            return scene.members[i];
+    }
+}
+
 function showStyles(shapeId, shapeType) {
     var s = d3.select('#' + shapeId);
+    var dialog = $('#n3-ui_stylesDialog');
+    var shapeLbl = SHAPE_LABELS[shapeType];
     
-    $('#fill_opacity').slider({
-        value: (s.attr('fill-opacity') || 1),
-        min: 0,
-        max: 1,
-        step: 0.1,
-        slide: function(e, ui) {
-            s.attr('fill-opacity', ui.value);
-            s.style('opacity', ui.value);
-        }
-    });
-    
-    // Colorpicker doesn't re-init every time this is called, so get
-    // shapeId via hackier means
-    $('#fill_color').parent().parent().attr('shapeId', shapeId);
-    
-    $('#fill_color').ColorPicker({
-        color: '#000000',
-        onBeforeShow: function () {
-            $('#fill_color').ColorPickerSetColor($('#fill_color').css('backgroundColor'));
-        },
-        // onHide: function (colpkr) {
-        //  $(colpkr).fadeOut(500);
-        //  return false;
-        // },
-        onChange: function (hsb, hex, rgb) {
-            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('fill', '#' + hex);
-            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).style('color', '#' + hex);
-            $('#fill_color').css('backgroundColor', '#' + hex);
-        }
-    });
-    
-    $('#fill_color').css('backgroundColor', (s.attr('fill') || '#000000'));
-    
-    $('#stroke_width').slider({
-        value: (s.attr('stroke-width') || 1),
-        min: 0,
-        max: 10,
-        step: 1,
-        slide: function(e, ui) {
-            s.attr('stroke-width', ui.value);
-        }
-    });
-    
-    $('#stroke_color').css('backgroundColor', (s.attr('stroke') || '#000000'));
-    
-    $('#stroke_color').ColorPicker({
-        color: '#000000',
-        onBeforeShow: function () {
-            $('#stroke_color').ColorPickerSetColor($('#stroke_color').css('backgroundColor'));
-        },
-        // onHide: function (colpkr) {
-        //  $(colpkr).fadeOut(500);
-        //  return false;
-        // },
-        onChange: function (hsb, hex, rgb) {
-            d3.select('#' + $('#fill_color').parent().parent().attr('shapeId')).attr('stroke', '#' + hex);
-            $('#stroke_color').css('backgroundColor', '#' + hex);
-        }
+    dialog.find('input[name=annotation_id]').val(shapeId);
+    dialog.find('.specific').hide();
+    dialog.find('.' + shapeLbl).show();
+
+    var annotation = getStylesDialogMember().annotation;
+
+    toggleBinding(annotation.bound);
+    if(annotation.bound)
+        selectRow(annotation.boundIdx);
+
+    dialog.find('.prop').hide();
+    var props = SHAPE_PROPS[shapeLbl];
+    props.forEach(function(p) {
+        bindProp(p, annotation[p].hasOwnProperty('bound'));
+        dialog.find('#' + shapeLbl + '_' + p).show();
+        dialog.find('#annotation_' + p).show();
     });
     
     $('#n3-ui_stylesDialog').dialog('open')
+}
+
+function toggleBinding(bound) {
+    var dialog   = $('#n3-ui_stylesDialog');
+    var data_tbl = dialog.find('.data_tbl');
+    var member = getStylesDialogMember();
+    var annotation = member.annotation;
+
+    if(bound) {
+        annotation.bound = true;
+        dialog.find('input[name=data_tbl]').attr('checked', true);
+        dialog.dialog({ width: 500 });
+        dialog.dialog({ position: { my: "center", at: "center", of: window }});
+
+        data_tbl.html('<table><thead><tr><th>&nbsp;</th></tr></thead><tbody></tbody></table>');
+        var data = n3.vis(member.visId).data();
+
+        Object.keys(data[0]).forEach(function(k) {
+            data_tbl.find('tr:first')
+                .append('<th>' + k + '</th>');
+        });
+
+        data.forEach(function(d, i) {
+            data_tbl.find('tbody').append('<tr onclick="selectRow('+i+')"><td><input type="radio" name="data" value="' + i + '" onclick="selectRow(this.value)" /></td></tr>');
+            Object.keys(data[0]).forEach(function(k) {
+                data_tbl.find('tr:last')
+                    .append('<td>' + d[k] + '</td>');
+            });        
+        });
+
+        dialog.find('select.bindings').each(function(i, s) {
+            s = $(s).html('');
+            s.append('<option value="">Select...</option>');
+            var consts = n3.vis(member.visId).consts;
+            for(var c in consts)
+                s.append('<option>' + c + '</option>');
+        });
+
+        data_tbl.show();
+        // data_tbl.find('table').chromatable({ width: 'auto', height: '190px', scrolling: true});
+        dialog.find('a.bind').show();
+    } else {
+        // data_src.attr('disabled', true);
+        annotation.bound = false;
+        dialog.find('input[name=data_tbl]').attr('checked', false);
+        dialog.dialog({ width: 400 });
+        dialog.dialog({ position: { my: "center", at: "center", of: window }});
+        data_tbl.hide();
+        dialog.find('a.bind').hide();
+    }
+}
+
+function selectRow(i) {
+    var data_tbl = $('#n3-ui_stylesDialog .data_tbl table');
+    data_tbl.find('tr').removeClass('selected');
+
+    data_tbl.find('tr:eq(' + (i+1) + ')').addClass('selected');
+    data_tbl.find('tr:eq(' + (i+1) + ') input').attr('checked', true);
+
+    var annotation = getStylesDialogMember().annotation;
+    annotation.boundIdx = i;
+
+    var props = SHAPE_PROPS[SHAPE_LABELS[annotation.type]];
+    props.forEach(function(p) {
+        updateProp(p, annotation[p].bound || annotation[p].value, annotation[p].hasOwnProperty('bound'));
+    });
+}
+
+function bindProp(prop, bound) {
+    var dialog = $('#n3-ui_stylesDialog');
+    var annotation = getStylesDialogMember().annotation;
+    var field = dialog.find('#' + SHAPE_LABELS[annotation.type] + '_' + prop);
+    if(field.length == 0)
+        field = dialog.find('#annotation_' + prop);
+
+    // Toggle binding
+    if(bound) {
+        field.find('a.bind').addClass('bound');
+        field.find('.value').hide();
+        field.find('.bindings').val(annotation[prop].bound).show();
+    } else {
+        field.find('a.bind').removeClass('bound');
+        field.find('.value').val(annotation[prop].value).show();
+        field.find('.bindings').hide();
+    }
+}
+
+function updateProp(prop, val, bound) {
+    var member = getStylesDialogMember();
+    var annotation   = member.annotation;
+    var vis = n3.vis(member.visId);
+    annotation[prop] = (bound) ? {bound: val} : {value: val};
+
+    if(bound) {
+        var type = typeof vis.const(val);
+        d3.select('#' + annotation.id)
+            .attr(prop, (type == 'function') ? vis.const(val)(vis.data()[annotation.boundIdx]) : vis.const(val));
+    } else {
+        d3.select('#' + annotation.id)
+            .attr(prop, val);
+    }
+}
+
+function saveAnnotation() {
+    $('#n3-ui_stylesDialog').dialog('close');
 }
 
 function exportStory() {
@@ -577,27 +668,40 @@ function exportStory() {
                 story += ".set(" + JSON.stringify(member.visId) + ", " + JSON.stringify(member.state.id) + ", " + val;
             } else {
                 var elem = d3.select('#' + member.annotation.id);
+
+                var propVal = function(prop) {
+                    var ann = member.annotation;
+                    var vis = n3.vis(member.visId);
+
+                    if(ann[prop].hasOwnProperty('bound')) {
+                        var val = ann[prop].bound;
+                        var type = typeof vis.const(val);
+                        return 'function() { var vis = n3.vis(\'' + vis.visId + '\'); return vis.const(\'' + val + '\')' + ((type == 'function') ? '(vis.data()[' + ann.boundIdx + '])' : '') + '}';
+                    } else {
+                        return ann[prop].value;
+                    }
+                }
                 
                 var annotation = "    n3.annotation(" + JSON.stringify(SHAPE_LABELS[member.annotation.type]) + ")\n";
                 switch(member.annotation.type) {
                     case SHAPES.CIRCLE:
-                        annotation += indent + ".radius(" + elem.attr('r') + ")\n" +
-                                      indent + ".center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
+                        annotation += indent + ".radius(" + propVal('r') + ")\n" +
+                                      indent + ".center([" + propVal('cx') + ", " + propVal('cy') + "])\n";
                     break;
                     
                     case SHAPES.ELLIPSE:
-                        annotation += indent + ".radius([" + elem.attr('rx') + ", " + elem.attr('ry') + "])\n" +
-                                      indent + ".center([" + elem.attr('cx') + ", " + elem.attr('cy') + "])\n";
+                        annotation += indent + ".radius([" + propVal('rx') + ", " + propVal('ry') + "])\n" +
+                                      indent + ".center([" + propVal('cx') + ", " + propVal('cy') + "])\n";
                     break;
                     
                     case SHAPES.LINE:
-                        annotation += indent + ".start([" + elem.attr('x1') + ", " + elem.attr('y1') + "])\n" +
-                                      indent + ".end([" + elem.attr('x2') + ", " + elem.attr('y2') + "])\n";
+                        annotation += indent + ".start([" + propVal('x1') + ", " + propVal('y1') + "])\n" +
+                                      indent + ".end([" + propVal('x2') + ", " + propVal('y2') + "])\n";
                     break;
                     
                     case SHAPES.RECTANGLE:
-                        annotation += indent + ".size([" + elem.attr('width') + ", " + elem.attr('height') + "])\n" +
-                                      indent + ".pos([" + elem.attr('x') + ", " + elem.attr('y') + "])\n";
+                        annotation += indent + ".size([" + propVal('width') + ", " + propVal('height') + "])\n" +
+                                      indent + ".pos([" + propVal('x') + ", " + propVal('y') + "])\n";
                     break;
                     
                     case SHAPES.LABEL:
