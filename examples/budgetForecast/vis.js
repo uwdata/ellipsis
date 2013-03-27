@@ -152,28 +152,37 @@ function drawForecasts(vis) {
     var data = [];    
 
     if(plot == true) {
-        for(var i in fullData) {    // fullData is already sorted by year
-            var d = fullData[i];
-            if(d.budgetYear > year)
+        var years = d3.range(vis.const('minYear'), vis.const('maxYear')+1);
+        for(var i = 0; i < years.length; i++) {
+            if(years[i] > year)
                 break;
-        
-            data[data.length] = d;
-        }        
+
+            var forecastData = [];
+            for(var j = 0; j < fullData.length; j++) {
+                if(fullData[j].budgetYear != years[i])
+                    continue;
+
+                forecastData[forecastData.length] = fullData[j];
+            }
+
+            data[data.length] = forecastData;
+        }
     }
 
-    var forecast = vis.stage().selectAll('path.forecast')
-                            .data(data);
+    var forecast = vis.stage()
+        .selectAll('path.forecast')
+            .data(data);
         
     forecast.enter()
-                .append('svg:path')
-                .attr('d', drawLineGraph)
-                .attr('class', 'forecast');
+        .append('svg:path')
+        .attr('d', drawLineGraph)
+        .attr('class', 'forecast');
             
     forecast.transition()
-                .attr('d', drawLineGraph)
+        .attr('d', drawLineGraph)
             
     forecast.exit()
-                .remove();    
+        .remove();    
 }
 
 function drawActual(vis) {

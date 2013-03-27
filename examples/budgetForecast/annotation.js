@@ -6,34 +6,34 @@ n3.annotation.def('highlightedPoint')
 
         
         var point = vis.stage().selectAll('circle.point')
-                            .data(this.data(), function(d) { return d.year; });
+            .data(this.data(), function(d) { return d.budgetYear; });
 
         point.enter()
                 .append('svg:circle')
                 .attr('class', 'point')
-                .attr('cx', function(d) { return sx(d.year) })
-                .attr('cy', function(d) { return sy(d.val) })
+                .attr('cx', function(d) { return sx(d.forecastYear) })
+                .attr('cy', function(d) { return sy(d.value) })
                 .attr('r', 2.5);
 
         point.transition()
-            .attr('cx', function(d) { return sx(d.year) })
-            .attr('cy', function(d) { return sy(d.val) });
+            .attr('cx', function(d) { return sx(d.forecastYear) })
+            .attr('cy', function(d) { return sy(d.value) });
 
         point.exit().remove();
         
         var annotCircle = vis.stage().selectAll('circle.annotation')
-                            .data(this.data());
+            .data(this.data());
 
         annotCircle.enter()
              .append('svg:circle')
              .attr('class', 'annotation')
-             .attr('cx', function(d) { return sx(d.year) })
-             .attr('cy', function(d) { return sy(d.val) })
+             .attr('cx', function(d) { return sx(d.forecastYear) })
+             .attr('cy', function(d) { return sy(d.value) })
              .attr('r', 7);
 
         annotCircle.transition()
-            .attr('cx', function(d) { return sx(d.year) })
-            .attr('cy', function(d) { return sy(d.val) });    
+            .attr('cx', function(d) { return sx(d.forecastYear) })
+            .attr('cy', function(d) { return sy(d.value) });    
 
         annotCircle.exit().remove();
     })
