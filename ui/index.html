@@ -328,19 +328,11 @@ var vis = n3.vis('budgetForecast')
                         .domain([vis.const('minYear'), vis.const('maxYearForecast')])
                         .range([0, vis.width()]);
     })
-
-    .const('scaleX', function(d) {
-        return vis.const('sx')()(d.forecastYear);
-    })
         
     .const('sy', function() {
       return d3.scale.linear()
                         .domain([vis.const('minValue'), vis.const('maxValue')])
                         .range([vis.height(), 0]);  
-    })
-
-    .const('scaleY', function(d) {
-        return vis.const('sy')()(d.value);
     })
     
     .const('drawLineGraph', function() {
