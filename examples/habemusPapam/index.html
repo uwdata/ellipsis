@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font: 11px Verdana, sans-serif; }
+        /*p { margin: 0; }*/
+
+        .label {
+            background: #fff;
+            border: 1px solid #666;
+            border-radius: 5px;
+            padding: 3px;
+            cursor: pointer;
+        }
+
+        .label:hover { background: navajowhite;}
+
+        .label a {
+            font-weight: bold;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .annotation {
+            background: #fff;
+            border: 1px solid #666;
+            padding: 3px;
+            z-index: 100;
+        }
+
+        .annotation h2 {
+            margin: -3px -3px 10px -3px;
+            padding: 3px;
+            background: #666;
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .annotation table { margin-top: 5px; }
+
+/*        .annotation th {
+            padding: 5px;
+            background: #fff;
+            color: #000;
+        }*/
+
+        .annotation tr { cursor: pointer; }
+        #label_1364620620916 td { text-align: center; }
+        #label_1364620620916 td.country { text-align: right; }
+        #label_1364624771223 td { padding: 3px; }
+        #label_1364624771223 td.country { padding-left: 5px; }
+        #label_1364624771223 .external a {
+            display: block;
+            background: url(external-link.png) no-repeat;
+            width: 15px;
+            height: 7px;
+            text-indent: -999em;
+        }
+
+        .annotation a {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        .annotation .close {
+            background: #666;
+            width: 10px;
+            margin: -3px;
+            color: #FFF;
+            padding: 3px;
+            position: absolute;
+            top: 3px;
+        }
+
+        blockquote {
+            border-left: 3px solid #bbb;
+            padding-left: 10px;
+            margin-left: 20px;
+        }
+
+    </style>
+    <script src="http://public.tableausoftware.com/javascripts/api/tableau_v8.js"></script>
+    <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../node_modules/d3/d3.v2.js"></script>
+    <script type="text/javascript" src="../../n3.js"></script>
+    <script type="text/javascript">
+        var tableauViz, map;
+
+        function initializeViz() {
+          var placeholderDiv = document.getElementById("tableauViz");
+          var url = "http://public.tableausoftware.com/shared/GX4GXZZ72";
+          var options = {
+            width: 1000,
+            height: 475,
+            onFirstInteractive: function () {
+              map = tableauViz.getWorkbook().getActiveSheet().getWorksheets()[0];
+            }
+          };
+          tableauViz = new tableauSoftware.Viz(placeholderDiv, url, options);
+        }  
+
+        $(document).ready(function() {
+            initializeViz();
+            n3.timeline.switchScene('overview');
+        });
+    </script>
+    <script type="text/javascript" src="ellipsis.js"></script>
+    <title>Habemus Papam!</title>
+</head>
+<body>
+    <div id="tableauViz"></div>
+</body>
+</html>
