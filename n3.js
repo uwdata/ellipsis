@@ -86,9 +86,9 @@
       var valid;
       this.prevVal = this.val;
       valid = this.continuous ? val >= this.validValues[0] && val <= this.validValues[1] : this.validValues.indexOf(val) !== -1;
-      if (!valid) {
-        throw "" + val + " not in the list of valid values: " + this.validValues;
-      }
+      // if (!valid) {
+      //   throw "" + val + " not in the list of valid values: " + this.validValues;
+      // }
       this.val = val;
       return this.notify();
     };

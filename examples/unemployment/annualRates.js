@@ -52,7 +52,7 @@
             annualDataHash[d.id].push(d);
         }
         vis.data(annualDataHash);
-        console.log('done ' + i + ' ' + length + ' ' + offset);
+        // console.log('done ' + i + ' ' + length + ' ' + offset);
         if(length != total)
             window.setTimeout(function() {
                 parseData(json, (offset + 100), total)

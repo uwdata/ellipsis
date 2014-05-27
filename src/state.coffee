@@ -13,8 +13,8 @@ class N3State
         valid = if @continuous then (val >= @validValues[0] && val <= @validValues[1]) \
                 else (@validValues.indexOf(val) != -1)
         
-        throw "#{val} not in the list of valid values: #{@validValues}" \
-            unless valid
+        # throw "#{val} not in the list of valid values: #{@validValues}" \
+        #     unless valid
         
         @val = val
         
