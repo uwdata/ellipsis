@@ -78,7 +78,6 @@
             padding-left: 10px;
             margin-left: 20px;
         }
-
     </style>
     <script src="http://public.tableausoftware.com/javascripts/api/tableau_v8.js"></script>
     <script type="text/javascript" src="../lib/jquery/jquery.min.js"></script>
@@ -98,6 +97,8 @@
             }
           };
           tableauViz = new tableauSoftware.Viz(placeholderDiv, url, options);
+
+          $('iframe').attr('scrolling', 'no');
         }  
 
         $(document).ready(function() {
