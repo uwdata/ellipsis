@@ -63,9 +63,9 @@ n3.scene('cardinals').clone('africa')
 
     .add('habemusPapam', 
          n3.annotation('label')
-                .html('<blockquote><p>Catholicism’s growth in Africa has accelerated in recent decades. There was a groundswell after the '+
+                .html('<blockquote><p>Catholicism&rsquo;s growth in Africa has accelerated in recent decades. There was a groundswell after the '+
                     'Second Vatican Council of 1962-65, which authorised the use of vernacular at mass and delegated more power to locals.'+
-                    'The church’s indigenisation proceeded. African song and dance were incorporated into services. Young African priests, '+
+                    'The church&rsquo;s indigenisation proceeded. African song and dance were incorporated into services. Young African priests, '+
                     'not European missionaries, took charge.</p></blockquote>' + 
                      '<p>More information at <a href="http://www.economist.com/news/middle-east-and-africa/21573599-vatican-franchise-going-strong-despite-fierce-competition-boomtown-church">The Economist</a></p>' + 
                      "<div class=\"close\" onclick=\"n3.timeline.switchScene('cardinals')\">x</div>")
@@ -82,9 +82,9 @@ n3.scene('cardinals').clone('latin_america')
 
     .add('habemusPapam', 
          n3.annotation('label')
-                .html('<blockquote><p>Although the Vatican had once seen the area as a “continent of hope,”' + 
-                    " it now thought of it as a “continent of concern.”</p>" + 
-                    "<p>According to Brazil’s 2010 census, 65 percent of the population is Catholic, down from" + 
+                .html('<blockquote><p>Although the Vatican had once seen the area as a &ldquo;continent of hope,&rdquo;' + 
+                    " it now thought of it as a &ldquo;continent of concern.&rdquo;</p>" + 
+                    "<p>According to Brazil&rsquo;s 2010 census, 65 percent of the population is Catholic, down from" + 
                     "over 90 percent in 1970. Similarly, between 2000 and 2010, the percentage of Mexicans that identify" + 
                     "as Catholic dropped from 88 to less than 83 -- the largest fall recorded to date. If these trends persist, " +
                      'by 2025 about 50 percent of all Latin Americans will be Catholic, down from approximately 70 percent today".</p></blockquote>' + 
