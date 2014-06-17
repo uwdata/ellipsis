@@ -140,6 +140,9 @@ function saveVis() {
                         .find('select.value.' + className)
                             .append('<option>' + s.validValues[i] + '</option>');
         }
+
+        // If there are no states, then render the visualization immediately.
+        if(Object.keys(vis.states).length == 0) vis.renderFn();
     }
     // $('#n3-ui_stage').append('<br clear="all" />')
     $('#n3-ui_stage').bind('mousedown', startDrawOrDrag);
